@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MarketAI — Automation Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080b0f;
+      --surface: #0e1318;
+      --panel: #131920;
+      --border: #1e2a35;
+      --accent: #00e5ff;
+      --accent2: #ff6b35;
+      --accent3: #7fff6e;
+      --text: #e8f0f7;
+      --muted: #5a7080;
+      --success: #7fff6e;
+      --glow: 0 0 20px rgba(0,229,255,0.15);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid bg */
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events:none; z-index:0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index:10;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items:center; justify-content:space-between;
+      background: rgba(8,11,15,0.9);
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem; font-weight:800;
+      letter-spacing:-0.02em;
+    }
+    .logo span { color: var(--accent); }
+    .status-badge {
+      display:flex; align-items:center; gap:8px;
+      font-size:0.7rem; color: var(--accent3);
+      background: rgba(127,255,110,0.08);
+      border: 1px solid rgba(127,255,110,0.2);
+      padding: 6px 14px; border-radius: 20px;
+    }
+    .status-dot { width:6px; height:6px; border-radius:50%; background:var(--accent3); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── HERO ── */
+    .hero {
+      position:relative; z-index:5;
+      text-align:center;
+      padding: 60px 40px 40px;
+    }
+    .hero-tag {
+      display:inline-block;
+      font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase;
+      color: var(--accent); border: 1px solid rgba(0,229,255,0.3);
+      padding: 5px 16px; border-radius: 20px; margin-bottom:20px;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800; line-height:1.1;
+      letter-spacing:-0.03em; margin-bottom:16px;
+    }
+    .hero h1 em { font-style:normal; color:var(--accent); }
+    .hero p { color: var(--muted); font-size:0.85rem; max-width:500px; margin:0 auto; }
+
+    /* ── NAV TABS ── */
+    .tabs-container {
+      position: relative; z-index:5;
+      display: flex; gap:8px; flex-wrap:wrap;
+      justify-content:center; padding: 0 40px 30px;
+    }
+    .tab-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem; font-weight:500;
+      padding: 10px 20px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface); color: var(--muted);
+      cursor:pointer; transition: all 0.2s;
+      display:flex; align-items:center; gap:8px;
+      text-transform:uppercase; letter-spacing:0.05em;
+    }
+    .tab-btn:hover { border-color: var(--accent); color:var(--accent); }
+    .tab-btn.active {
+      background: rgba(0,229,255,0.1);
+      border-color: var(--accent); color:var(--accent);
+      box-shadow: var(--glow);
+    }
+    .tab-icon { font-size:1rem; }
+
+    /* ── MAIN PANEL ── */
+    main {
+      position:relative; z-index:5;
+      max-width: 900px; margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+    .panel {
+      display:none;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 36px;
+      animation: fadeIn 0.3s ease;
+    }
+    .panel.active { display:block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    .panel-header { margin-bottom:28px; }
+    .panel-header h2 {
+      font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:700;
+      margin-bottom:6px;
+    }
+    .panel-header p { color:var(--muted); font-size:0.78rem; }
+
+    /* ── FORM ELEMENTS ── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    .form-grid.single { grid-template-columns:1fr; }
+    .form-group { display:flex; flex-direction:column; gap:6px; }
+    label { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); }
+    input, select, textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 16px;
+      color: var(--text); font-family:'DM Mono',monospace; font-size:0.82rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,229,255,0.08);
+    }
+    select option { background: var(--surface); }
+    textarea { resize:vertical; min-height:80px; }
+
+    /* ── BUTTON ── */
+    .run-btn {
+      width:100%; padding:16px;
+      font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700;
+      letter-spacing:0.05em; text-transform:uppercase;
+      background: var(--accent); color: #000;
+      border:none; border-radius:10px; cursor:pointer;
+      transition: all 0.2s; position:relative; overflow:hidden;
+    }
+    .run-btn:hover { background:#33eaff; transform:translateY(-1px); box-shadow:0 8px 25px rgba(0,229,255,0.3); }
+    .run-btn:active { transform:translateY(0); }
+    .run-btn:disabled { background: var(--muted); cursor:not-allowed; transform:none; box-shadow:none; }
+    .run-btn.loading::after {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      animation: shimmer 1.2s infinite;
+    }
+    @keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
+
+    /* ── OUTPUT ── */
+    .output-container { margin-top:28px; display:none; }
+    .output-container.visible { display:block; animation: fadeIn 0.4s ease; }
+    .output-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:12px;
+    }
+    .output-label {
+      font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em;
+      color:var(--accent3);
+    }
+    .copy-btn {
+      font-family:'DM Mono',monospace; font-size:0.65rem;
+      padding:5px 14px; border-radius:6px;
+      border:1px solid var(--border); background:transparent;
+      color:var(--muted); cursor:pointer; transition:all 0.2s;
+    }
+    .copy-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+    .output-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding:24px;
+      font-size:0.8rem; line-height:1.8;
+      white-space:pre-wrap; word-break:break-word;
+      max-height:500px; overflow-y:auto;
+      color: #c8d8e8;
+    }
+    .output-box::-webkit-scrollbar { width:4px; }
+    .output-box::-webkit-scrollbar-track { background: transparent; }
+    .output-box::-webkit-scrollbar-thumb { background: var(--border); border-radius:2px; }
+
+    /* Loading state in output */
+    .loading-output {
+      display:flex; align-items:center; gap:12px;
+      color:var(--muted); font-size:0.8rem;
+    }
+    .spinner {
+      width:18px; height:18px; border:2px solid var(--border);
+      border-top-color:var(--accent); border-radius:50%;
+      animation: spin 0.8s linear infinite; flex-shrink:0;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── INFO CARDS ── */
+    .info-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+    .info-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; padding:16px;
+    }
+    .info-card .num {
+      font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800;
+      color:var(--accent); margin-bottom:4px;
+    }
+    .info-card .label { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); }
+
+    /* ── API CONFIG ── */
+    .api-config {
+      position:relative; z-index:5;
+      max-width:900px; margin:0 auto 20px;
+      padding:0 40px;
+    }
+    .api-bar {
+      background:rgba(255,107,53,0.08);
+      border:1px solid rgba(255,107,53,0.25);
+      border-radius:10px; padding:14px 20px;
+      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    }
+    .api-bar label { font-size:0.68rem; color:var(--accent2); text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap; }
+    .api-bar input { flex:1; min-width:200px; border-color:rgba(255,107,53,0.3); }
+    .api-bar input:focus { border-color:var(--accent2); box-shadow:0 0 0 3px rgba(255,107,53,0.08); }
+    .save-api-btn {
+      padding:8px 18px; font-family:'DM Mono',monospace; font-size:0.72rem;
+      background:var(--accent2); color:#000; border:none; border-radius:6px;
+      cursor:pointer; font-weight:500; white-space:nowrap; transition:all 0.2s;
+    }
+    .save-api-btn:hover { background:#ff8555; }
+
+    /* ── FOOTER ── */
+    footer {
+      position:relative; z-index:5;
+      text-align:center; padding:20px;
+      font-size:0.65rem; color:var(--muted);
+      border-top:1px solid var(--border);
+    }
+
+    @media(max-width:600px) {
+      header { padding:16px 20px; }
+      .hero { padding:40px 20px 30px; }
+      .tabs-container { padding:0 20px 20px; }
+      main { padding:0 20px 60px; }
+      .api-config { padding:0 20px; }
+      .form-grid { grid-template-columns:1fr; }
+      .info-cards { grid-template-columns:1fr 1fr; }
+      .panel { padding:24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Market<span>AI</span></div>
+  <div class="status-badge">
+    <div class="status-dot"></div>
+    Automation Active
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">AI Marketing Command Center</div>
+  <h1>Automate Your Way<br/>to <em>Top 10</em> Rankings</h1>
+  <p>SEO · Backlinks · Paid Ads · Outreach · Reports — all powered by AI</p>
+</div>
+
+<!-- API CONFIG -->
+<div class="api-config">
+  <div class="api-bar">
+    <label>⚙ Backend URL</label>
+    <input type="text" id="backendUrl" placeholder="https://your-backend.railway.app" value="http://localhost:8000"/>
+    <button class="save-api-btn" onclick="saveConfig()">Save</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-container">
+  <button class="tab-btn active" onclick="showTab('seo', this)"><span class="tab-icon">📈</span>SEO</button>
+  <button class="tab-btn" onclick="showTab('organic', this)"><span class="tab-icon">🌱</span>Organic</button>
+  <button class="tab-btn" onclick="showTab('backlinks', this)"><span class="tab-icon">🔗</span>Backlinks</button>
+  <button class="tab-btn" onclick="showTab('ads', this)"><span class="tab-icon">💰</span>Paid Ads</button>
+  <button class="tab-btn" onclick="showTab('report', this)"><span class="tab-icon">📊</span>Reports</button>
+  <button class="tab-btn" onclick="showTab('outreach', this)"><span class="tab-icon">✉️</span>Outreach</button>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- SEO -->
+  <div class="panel active" id="panel-seo">
+    <div class="panel-header">
+      <h2>📈 SEO Automation</h2>
+      <p>Get a full Top-10 ranking strategy for any keyword instantly</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card"><div class="num">10</div><div class="label">Ranking Steps</div></div>
+      <div class="info-card"><div class="num">AI</div><div class="label">Content Brief</div></div>
+      <div class="info-card"><div class="num">90d</div><div class="label">Timeline</div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Target Keyword</label>
+        <input type="text" id="seo-keyword" placeholder="e.g. AI marketing agency India"/>
+      </div>
+      <div class="form-group">
+        <label>Your Website URL</label>
+        <input type="text" id="seo-url" placeholder="https://yoursite.com"/>
+      </div>
+    </div>
+    <button class="run-btn" onclick="runSEO()">⚡ Generate SEO Strategy</button>
+    <div class="output-container" id="out-seo">
+      <div class="output-header">
+        <div class="output-label">✦ SEO Strategy Output</div>
+        <button class="copy-btn" onclick="copyOutput('out-seo')">Copy All</button>
+      </div>
+      <div class="output-box" id="out-seo-text"></div>
+    </div>
+  </div>
+
+  <!-- ORGANIC -->
+  <div class="panel" id="panel-organic">
+    <div class="panel-header">
+      <h2>🌱 Full Organic Strategy</h2>
+      <p>Multi-channel organic growth — blog, YouTube, Reddit, Pinterest & more</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card"><div class="num">10+</div><div class="label">Channels</div></div>
+      <div class="info-card"><div class="num">12wk</div><div class="label">Content Calendar</div></div>
+      <div class="info-card"><div class="num">90d</div><div class="label">Roadmap</div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Primary Keyword / Niche</label>
+        <input type="text" id="org-keyword" placeholder="e.g. digital marketing services"/>
+      </div>
+      <div class="form-group">
+        <label>Website URL</label>
+        <input type="text" id="org-url" placeholder="https://yoursite.com"/>
+      </div>
+    </div>
+    <button class="run-btn" onclick="runOrganic()">⚡ Generate Organic Strategy</button>
+    <div class="output-container" id="out-organic">
+      <div class="output-header">
+        <div class="output-label">✦ Organic Strategy Output</div>
+        <button class="copy-btn" onclick="copyOutput('out-organic')">Copy All</button>
+      </div>
+      <div class="output-box" id="out-organic-text"></div>
+    </div>
+  </div>
+
+  <!-- BACKLINKS -->
+  <div class="panel" id="panel-backlinks">
+    <div class="panel-header">
+      <h2>🔗 Backlink Automation</h2>
+      <p>Ready-to-send outreach emails + full backlink building plan</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card"><div class="num">20+</div><div class="label">Link Sources</div></div>
+      <div class="info-card"><div class="num">3</div><div class="label">Email Templates</div></div>
+      <div class="info-card"><div class="num">7d</div><div class="label">Weekly Plan</div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Your Niche</label>
+        <input type="text" id="bl-niche" placeholder="e.g. AI marketing, SaaS, ecommerce"/>
+      </div>
+      <div class="form-group">
+        <label>Website URL</label>
+        <input type="text" id="bl-url" placeholder="https://yoursite.com"/>
+      </div>
+    </div>
+    <button class="run-btn" onclick="runBacklinks()">⚡ Generate Backlink Plan</button>
+    <div class="output-container" id="out-backlinks">
+      <div class="output-header">
+        <div class="output-label">✦ Backlink Plan Output</div>
+        <button class="copy-btn" onclick="copyOutput('out-backlinks')">Copy All</button>
+      </div>
+      <div class="output-box" id="out-backlinks-text"></div>
+    </div>
+  </div>
+
+  <!-- ADS -->
+  <div class="panel" id="panel-ads">
+    <div class="panel-header">
+      <h2>💰 Paid Ads Automation</h2>
+      <p>Complete Google & Meta campaign strategy with ready-to-use ad copies</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card"><div class="num">5</div><div class="label">Ad Copies</div></div>
+      <div class="info-card"><div class="num">20</div><div class="label">Keywords/Targets</div></div>
+      <div class="info-card"><div class="num">ROI</div><div class="label">KPI Tracking</div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Business Type</label>
+        <input type="text" id="ads-business" placeholder="e.g. AI Marketing Agency"/>
+      </div>
+      <div class="form-group">
+        <label>Target Audience</label>
+        <input type="text" id="ads-audience" placeholder="e.g. SMB owners in India aged 25-45"/>
+      </div>
+      <div class="form-group">
+        <label>Monthly Budget</label>
+        <input type="text" id="ads-budget" placeholder="e.g. $500, ₹20,000"/>
+      </div>
+      <div class="form-group">
+        <label>Platform</label>
+        <select id="ads-platform">
+          <option value="google">Google Ads</option>
+          <option value="meta">Meta (Facebook/Instagram)</option>
+        </select>
+      </div>
+    </div>
+    <button class="run-btn" onclick="runAds()">⚡ Generate Ads Strategy</button>
+    <div class="output-container" id="out-ads">
+      <div class="output-header">
+        <div class="output-label">✦ Ads Strategy Output</div>
+        <button class="copy-btn" onclick="copyOutput('out-ads')">Copy All</button>
+      </div>
+      <div class="output-box" id="out-ads-text"></div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="panel" id="panel-report">
+    <div class="panel-header">
+      <h2>📊 Client Report Generator</h2>
+      <p>Auto-generate professional monthly marketing reports for clients</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card"><div class="num">8</div><div class="label">Sections</div></div>
+      <div class="info-card"><div class="num">PDF</div><div class="label">Ready Format</div></div>
+      <div class="info-card"><div class="num">Pro</div><div class="label">Agency Quality</div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Client Name</label>
+        <input type="text" id="rep-client" placeholder="e.g. TechStart Solutions"/>
+      </div>
+      <div class="form-group">
+        <label>Client Website</label>
+        <input type="text" id="rep-url" placeholder="https://clientsite.com"/>
+      </div>
+      <div class="form-group">
+        <label>Report Period</label>
+        <input type="text" id="rep-period" placeholder="e.g. March 2025"/>
+      </div>
+    </div>
+    <button class="run-btn" onclick="runReport()">⚡ Generate Client Report</button>
+    <div class="output-container" id="out-report">
+      <div class="output-header">
+        <div class="output-label">✦ Client Report Output</div>
+        <button class="copy-btn" onclick="copyOutput('out-report')">Copy All</button>
+      </div>
+      <div class="output-box" id="out-report-text"></div>
+    </div>
+  </div>
+
+  <!-- OUTREACH -->
+  <div class="panel" id="panel-outreach">
+    <div class="panel-header">
+      <h2>✉️ Outreach Automation</h2>
+      <p>Cold emails, LinkedIn messages & call scripts that get replies</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card"><div class="num">3</div><div class="label">Email Variants</div></div>
+      <div class="info-card"><div class="num">LI</div><div class="label">LinkedIn Script</div></div>
+      <div class="info-card"><div class="num">40%</div><div class="label">Reply Rate Target</div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Prospect Name</label>
+        <input type="text" id="out-prospect" placeholder="e.g. Rahul Sharma"/>
+      </div>
+      <div class="form-group">
+        <label>Prospect Business</label>
+        <input type="text" id="out-bizname" placeholder="e.g. Sharma Ecommerce Pvt Ltd"/>
+      </div>
+      <div class="form-group">
+        <label>Your Agency Name</label>
+        <input type="text" id="out-agency" placeholder="e.g. MarketAI Agency"/>
+      </div>
+      <div class="form-group">
+        <label>Service You're Offering</label>
+        <input type="text" id="out-service" placeholder="e.g. SEO & Paid Ads Management"/>
+      </div>
+    </div>
+    <button class="run-btn" onclick="runOutreach()">⚡ Generate Outreach Kit</button>
+    <div class="output-container" id="out-outreach">
+      <div class="output-header">
+        <div class="output-label">✦ Outreach Kit Output</div>
+        <button class="copy-btn" onclick="copyOutput('out-outreach')">Copy All</button>
+      </div>
+      <div class="output-box" id="out-outreach-text"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>Built by Mani · MarketAI Automation · Powered by Claude AI</footer>
+
+<script>
+  let BACKEND = localStorage.getItem('marketai_backend') || 'http://localhost:8000';
+
+  // Init
+  document.getElementById('backendUrl').value = BACKEND;
+
+  function saveConfig() {
+    BACKEND = document.getElementById('backendUrl').value.trim().replace(/\/$/, '');
+    localStorage.setItem('marketai_backend', BACKEND);
+    const btn = document.querySelector('.save-api-btn');
+    btn.textContent = '✓ Saved';
+    setTimeout(() => btn.textContent = 'Save', 1500);
+  }
+
+  function showTab(name, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function setLoading(btnEl, outputId, isLoading) {
+    btnEl.disabled = isLoading;
+    btnEl.classList.toggle('loading', isLoading);
+    if (isLoading) {
+      btnEl.textContent = '⟳ Generating...';
+      const out = document.getElementById(outputId);
+      out.classList.add('visible');
+      document.getElementById(outputId + '-text').innerHTML =
+        '<div class="loading-output"><div class="spinner"></div>AI is crafting your strategy...</div>';
+    }
+  }
+
+  function showOutput(outputId, text) {
+    const out = document.getElementById(outputId);
+    out.classList.add('visible');
+    document.getElementById(outputId + '-text').textContent = text;
+  }
+
+  function copyOutput(outputId) {
+    const text = document.getElementById(outputId + '-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector(`#${outputId} .copy-btn`);
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => btn.textContent = 'Copy All', 2000);
+    });
+  }
+
+  async function callAPI(endpoint, body, btnEl, outputId, btnDefault) {
+    setLoading(btnEl, outputId, true);
+    try {
+      const res = await fetch(`${BACKEND}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const key = Object.keys(data).find(k => typeof data[k] === 'string' && data[k].length > 100);
+      showOutput(outputId, data[key] || JSON.stringify(data, null, 2));
+    } catch (err) {
+      showOutput(outputId, `❌ Error: ${err.message}\n\nMake sure your backend is running and the URL is correct in the config bar above.`);
+    }
+    btnEl.disabled = false;
+    btnEl.classList.remove('loading');
+    btnEl.textContent = btnDefault;
+  }
+
+  function runSEO() {
+    const btn = document.querySelector('#panel-seo .run-btn');
+    callAPI('/api/seo', {
+      keyword: document.getElementById('seo-keyword').value,
+      website_url: document.getElementById('seo-url').value
+    }, btn, 'out-seo', '⚡ Generate SEO Strategy');
+  }
+
+  function runOrganic() {
+    const btn = document.querySelector('#panel-organic .run-btn');
+    callAPI('/api/organic-strategy', {
+      keyword: document.getElementById('org-keyword').value,
+      website_url: document.getElementById('org-url').value
+    }, btn, 'out-organic', '⚡ Generate Organic Strategy');
+  }
+
+  function runBacklinks() {
+    const btn = document.querySelector('#panel-backlinks .run-btn');
+    callAPI('/api/backlinks', {
+      niche: document.getElementById('bl-niche').value,
+      website_url: document.getElementById('bl-url').value
+    }, btn, 'out-backlinks', '⚡ Generate Backlink Plan');
+  }
+
+  function runAds() {
+    const btn = document.querySelector('#panel-ads .run-btn');
+    callAPI('/api/ads', {
+      business_type: document.getElementById('ads-business').value,
+      target_audience: document.getElementById('ads-audience').value,
+      budget: document.getElementById('ads-budget').value,
+      platform: document.getElementById('ads-platform').value
+    }, btn, 'out-ads', '⚡ Generate Ads Strategy');
+  }
+
+  function runReport() {
+    const btn = document.querySelector('#panel-report .run-btn');
+    callAPI('/api/report', {
+      client_name: document.getElementById('rep-client').value,
+      website_url: document.getElementById('rep-url').value,
+      period: document.getElementById('rep-period').value
+    }, btn, 'out-report', '⚡ Generate Client Report');
+  }
+
+  function runOutreach() {
+    const btn = document.querySelector('#panel-outreach .run-btn');
+    callAPI('/api/outreach', {
+      prospect_name: document.getElementById('out-prospect').value,
+      prospect_business: document.getElementById('out-bizname').value,
+      your_agency_name: document.getElementById('out-agency').value,
+      service_offered: document.getElementById('out-service').value
+    }, btn, 'out-outreach', '⚡ Generate Outreach Kit');
+  }
+</script>
+</body>
+</html>
