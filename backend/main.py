@@ -8,6 +8,8 @@ import json
 import re
 from datetime import datetime
 
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
 app = FastAPI(title="AI Marketing Automation API")
 
 app.add_middleware(
@@ -45,26 +47,19 @@ class OutreachRequest(BaseModel):
     your_agency_name: str
     service_offered: str
 
-# ─── Anthropic API Call Helper ────────────────────────────────────────────────
+# ─── Gemini API Call Helper ────────────────────────────────────────────────
 
 async def call_claude(prompt: str, system: str = "") -> str:
-    headers = {
-        "Content-Type": "application/json",
-        "x-api-key": os.environ.get("ANTHROPIC_API_KEY", ""),
-        "anthropic-version": "2023-06-01"
-    }
+    full_prompt = f"{system}\n\n{prompt}" if system else prompt
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     body = {
-        "model": "claude-sonnet-4-20250514",
-        "max_tokens": 1500,
-        "messages": [{"role": "user", "content": prompt}]
+        "contents": [{"parts": [{"text": full_prompt}]}],
+        "generationConfig": {"maxOutputTokens": 1500, "temperature": 0.7}
     }
-    if system:
-        body["system"] = system
-
-    async with httpx.AsyncClient(timeout=30) as client:
-        r = await client.post("https://api.anthropic.com/v1/messages", headers=headers, json=body)
+    async with httpx.AsyncClient(timeout=60) as client:
+        r = await client.post(url, json=body)
         data = r.json()
-        return data["content"][0]["text"]
+        return data["candidates"][0]["content"]["parts"][0]["text"]
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
 
