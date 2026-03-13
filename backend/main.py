@@ -107,3 +107,21 @@ async def api_full_campaign(req: KeywordRequest):
         },
         "generated_at": datetime.now().isoformat()
     }
+
+# ─── LANDING PAGE HTML GENERATOR ───────────────────────────────────────────
+from lp_agent import generate_lp_content, build_minimalist_html, build_tech_html, build_academic_html
+
+class LandingPageHTMLRequest(BaseModel):
+    keyword: str
+    style: str   # minimalist | tech | academic
+    persona: Optional[str] = "student"
+
+@app.post("/api/landing-page-html")
+async def api_landing_page_html(req: LandingPageHTMLRequest):
+    data = await generate_lp_content(req.keyword, req.style, req.persona)
+    if not data:
+        return {"error": "Content generation failed", "html": ""}
+    builders = {"minimalist": build_minimalist_html, "tech": build_tech_html, "academic": build_academic_html}
+    build = builders.get(req.style, build_minimalist_html)
+    html = build(req.keyword, data)
+    return {"keyword": req.keyword, "style": req.style, "html": html, "generated_at": datetime.now().isoformat()}
