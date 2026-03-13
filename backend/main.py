@@ -8,7 +8,7 @@ from datetime import datetime
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
-app = FastAPI(title="AI Marketing Automation API")
+app = FastAPI(title="AI Marketing Execution API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,33 +18,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class SEORequest(BaseModel):
+class KeywordRequest(BaseModel):
+    keyword: str
+    country: Optional[str] = "India"
+
+class BlogRequest(BaseModel):
     keyword: str
     website_url: Optional[str] = ""
+    tone: Optional[str] = "professional"
+
+class GoogleAdsRequest(BaseModel):
+    business: str
+    keyword: str
+    budget: str
+    location: Optional[str] = "India"
+
+class MetaAdsRequest(BaseModel):
+    business: str
+    product: str
+    budget: str
+    target_age: Optional[str] = "25-45"
+    location: Optional[str] = "India"
 
 class BacklinkRequest(BaseModel):
+    keyword: str
+    website_url: str
     niche: str
-    website_url: str
-    contact_email: Optional[str] = ""
 
-class AdsRequest(BaseModel):
-    business_type: str
-    target_audience: str
-    budget: str
-    platform: str
-
-class ReportRequest(BaseModel):
-    client_name: str
-    website_url: str
-    period: str
-
-class OutreachRequest(BaseModel):
-    prospect_name: str
-    prospect_business: str
-    your_agency_name: str
-    service_offered: str
-
-async def call_groq(prompt: str) -> str:
+async def call_groq(prompt: str, max_tokens: int = 2000) -> str:
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -53,7 +54,7 @@ async def call_groq(prompt: str) -> str:
     body = {
         "model": "llama-3.3-70b-versatile",
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 1500,
+        "max_tokens": max_tokens,
         "temperature": 0.7
     }
     try:
@@ -63,84 +64,261 @@ async def call_groq(prompt: str) -> str:
             if "choices" in data:
                 return data["choices"][0]["message"]["content"]
             else:
-                return f"API Error: {data.get('error', {}).get('message', str(data))}"
+                return f"Error: {data.get('error', {}).get('message', str(data))}"
     except Exception as e:
         return f"Error: {str(e)}"
 
 @app.get("/")
 def root():
-    return {"status": "AI Marketing Automation API running", "model": "Groq Llama 3.3 70B"}
+    return {"status": "AI Marketing Execution API running", "version": "2.0"}
 
-@app.post("/api/seo")
-async def seo_automation(req: SEORequest):
-    prompt = f"""You are an expert SEO strategist. For the keyword "{req.keyword}" and website "{req.website_url}", provide:
-1. TOP 10 RANKING STRATEGY - exact steps to rank in top 10
-2. CONTENT BRIEF - title, meta description, H1, H2s, word count, LSI keywords
-3. ON-PAGE SEO CHECKLIST - 10 specific action items
-4. BACKLINK TARGETS - 5 types of sites to get backlinks from
-5. TECHNICAL SEO FIXES - 5 common fixes needed
-6. TIMELINE - realistic weeks to reach top 10
-Format clearly with headers. Be specific and actionable."""
-    result = await call_groq(prompt)
-    return {"keyword": req.keyword, "website": req.website_url, "seo_strategy": result, "generated_at": datetime.now().isoformat()}
+# 1. KEYWORD RESEARCH
+@app.post("/api/keyword-research")
+async def keyword_research(req: KeywordRequest):
+    prompt = f"""You are an expert SEO keyword researcher. Analyze the keyword "{req.keyword}" for {req.country} market.
 
-@app.post("/api/backlinks")
-async def backlink_automation(req: BacklinkRequest):
-    prompt = f"""Create a complete backlink building plan for a "{req.niche}" business at "{req.website_url}".
-1. GUEST POST OUTREACH EMAIL - ready to send template
-2. TOP 20 BACKLINK SOURCES - specific websites in {req.niche} niche
-3. RESOURCE PAGE OUTREACH - email template
-4. BROKEN LINK BUILDING - step by step
-5. HARO/PR STRATEGY
-6. SOCIAL PROFILE LINKS - top 10 platforms
-7. WEEKLY BACKLINK SCHEDULE"""
-    result = await call_groq(prompt)
-    return {"niche": req.niche, "website": req.website_url, "backlink_plan": result, "generated_at": datetime.now().isoformat()}
+Provide EXACTLY this data in a structured format:
 
-@app.post("/api/ads")
-async def ads_automation(req: AdsRequest):
-    prompt = f"""Create a complete {req.platform.upper()} ads campaign for:
-Business: {req.business_type}, Audience: {req.target_audience}, Budget: {req.budget}/month
-1. CAMPAIGN STRUCTURE
-2. 5 AD COPIES ready to use
-3. AUDIENCE TARGETING
-4. BIDDING STRATEGY
-5. 20 KEYWORDS/INTERESTS
-6. BUDGET SPLIT
-7. OPTIMIZATION CHECKLIST
-8. KPIs"""
-    result = await call_groq(prompt)
-    return {"platform": req.platform, "business": req.business_type, "ads_strategy": result, "generated_at": datetime.now().isoformat()}
+KEYWORD OVERVIEW:
+- Main Keyword: {req.keyword}
+- Estimated Monthly Search Volume: [give realistic number]
+- Keyword Difficulty (KD): [0-100 score]
+- Search Intent: [Informational/Navigational/Commercial/Transactional]
+- CPC (Cost Per Click): [realistic USD amount]
+- Competition Level: [Low/Medium/High]
 
-@app.post("/api/report")
-async def report_automation(req: ReportRequest):
-    prompt = f"""Generate a professional monthly marketing report for client: {req.client_name}, website: {req.website_url}, period: {req.period}.
-Include: Executive Summary, SEO Performance, Paid Ads Performance, Backlink Progress, Social Media, Content Published, Next Month Plan, Recommendations."""
-    result = await call_groq(prompt)
-    return {"client": req.client_name, "period": req.period, "report": result, "generated_at": datetime.now().isoformat()}
+TOP 10 RELATED KEYWORDS:
+[List 10 related keywords with their estimated volume, KD, intent and CPC in a table format]
 
-@app.post("/api/outreach")
-async def outreach_automation(req: OutreachRequest):
-    prompt = f"""Write 3 cold outreach email variants for prospect: {req.prospect_name} at {req.prospect_business}.
-Our agency: {req.your_agency_name}, Service: {req.service_offered}.
-For each: 5 subject line options, email body, follow-up email.
-Also include: LinkedIn message, LinkedIn DM, 30-second cold call script."""
-    result = await call_groq(prompt)
-    return {"prospect": req.prospect_name, "service": req.service_offered, "outreach_kit": result, "generated_at": datetime.now().isoformat()}
+LONG TAIL KEYWORDS (15):
+[List 15 long tail variations with volume and KD]
 
-@app.post("/api/organic-strategy")
-async def organic_strategy(req: SEORequest):
-    prompt = f"""Build complete organic growth strategy for "{req.website_url}" for keyword "{req.keyword}".
-1. BLOG CONTENT CALENDAR - 12 weeks
-2. YOUTUBE SEO - 5 video ideas
-3. GOOGLE BUSINESS PROFILE checklist
-4. REDDIT/QUORA STRATEGY
-5. PINTEREST SEO
-6. LINKEDIN ORGANIC posts
-7. GUEST BLOGGING PIPELINE
-8. SCHEMA MARKUP
-9. CORE WEB VITALS improvements
-10. INTERNAL LINKING MAP
-Give 90-day roadmap at end."""
-    result = await call_groq(prompt)
-    return {"keyword": req.keyword, "website": req.website_url, "organic_strategy": result, "generated_at": datetime.now().isoformat()}
+LSI KEYWORDS (10):
+[List 10 LSI keywords]
+
+CONTENT IDEAS (5):
+[List 5 blog/content ideas based on this keyword]
+
+QUICK WIN KEYWORDS (5):
+[List 5 low KD, decent volume keywords to rank quickly]
+
+Be specific with numbers. Format clearly."""
+    result = await call_groq(prompt, 2000)
+    return {"keyword": req.keyword, "country": req.country, "research": result, "generated_at": datetime.now().isoformat()}
+
+# 2. BLOG WRITER
+@app.post("/api/blog-writer")
+async def blog_writer(req: BlogRequest):
+    prompt = f"""You are an expert SEO blog writer. Write a complete, publish-ready SEO blog post for the keyword "{req.keyword}".
+
+Website: {req.website_url}
+Tone: {req.tone}
+
+Write the COMPLETE blog post with:
+
+SEO META DATA:
+- Title Tag (60 chars max): 
+- Meta Description (155 chars max):
+- URL Slug:
+- Focus Keyword:
+- Secondary Keywords (5):
+
+COMPLETE BLOG POST:
+- H1 Title
+- Introduction (150 words, hook + keyword in first 100 words)
+- H2 Section 1 with full content (200 words)
+- H2 Section 2 with full content (200 words)  
+- H2 Section 3 with full content (200 words)
+- H2 Section 4 with full content (200 words)
+- FAQ Section (5 questions with answers)
+- Conclusion with CTA (100 words)
+
+ON-PAGE SEO CHECKLIST:
+[10 specific on-page SEO tasks for this post]
+
+INTERNAL LINKING SUGGESTIONS:
+[5 internal link anchor text ideas]
+
+Write the FULL blog post — do not summarize, write the actual content."""
+    result = await call_groq(prompt, 2000)
+    return {"keyword": req.keyword, "blog_post": result, "generated_at": datetime.now().isoformat()}
+
+# 3. GOOGLE ADS SETUP
+@app.post("/api/google-ads")
+async def google_ads_setup(req: GoogleAdsRequest):
+    prompt = f"""You are a Google Ads expert. Create a COMPLETE, ready-to-launch Google Ads campaign for:
+
+Business: {req.business}
+Main Keyword: {req.keyword}
+Monthly Budget: {req.budget}
+Location: {req.location}
+
+Provide EVERYTHING needed to set up the campaign:
+
+CAMPAIGN SETTINGS:
+- Campaign Name:
+- Campaign Type: Search
+- Goal:
+- Budget per day: [calculate from monthly]
+- Bidding Strategy: [recommend best one]
+- Target CPA or ROAS: [realistic number]
+- Location targeting:
+- Language:
+- Ad Schedule: [best hours/days]
+
+AD GROUPS (3 ad groups):
+For each ad group:
+- Ad Group Name:
+- Match Type Keywords (10 exact, 10 phrase, 5 broad match modifier)
+- Negative Keywords (10)
+
+AD COPIES (3 ads per ad group = 9 total ads):
+For each ad:
+- Headline 1 (30 chars):
+- Headline 2 (30 chars):
+- Headline 3 (30 chars):
+- Description 1 (90 chars):
+- Description 2 (90 chars):
+- Display URL path 1:
+- Display URL path 2:
+
+AD EXTENSIONS:
+- 4 Sitelink extensions (title + description)
+- 4 Callout extensions
+- 2 Call extensions
+- Structured snippets
+
+BIDDING SETUP:
+- Starting bid per keyword: [amount]
+- Budget split across ad groups:
+- When to increase/decrease bids:
+
+CONVERSION TRACKING:
+- What to track
+- How to set up
+
+OPTIMIZATION CHECKLIST (first 30 days):
+[10 weekly tasks]
+
+Make everything specific and ready to copy-paste into Google Ads."""
+    result = await call_groq(prompt, 2000)
+    return {"business": req.business, "keyword": req.keyword, "google_ads_setup": result, "generated_at": datetime.now().isoformat()}
+
+# 4. META ADS SETUP
+@app.post("/api/meta-ads")
+async def meta_ads_setup(req: MetaAdsRequest):
+    prompt = f"""You are a Meta Ads (Facebook/Instagram) expert. Create a COMPLETE ready-to-launch Meta Ads campaign for:
+
+Business: {req.business}
+Product/Service: {req.product}
+Monthly Budget: {req.budget}
+Target Age: {req.target_age}
+Location: {req.location}
+
+Provide EVERYTHING:
+
+CAMPAIGN STRUCTURE:
+- Campaign Name:
+- Campaign Objective: [best objective for this business]
+- Budget type: CBO or ABO [recommend]
+- Daily budget: [calculate]
+
+AD SETS (3 ad sets with different audiences):
+
+AD SET 1 - Cold Audience:
+- Name:
+- Audience size target:
+- Age range:
+- Gender:
+- Detailed targeting interests (20 specific interests):
+- Behaviors:
+- Exclude audiences:
+- Placement: [automatic or manual - which placements]
+- Budget allocation: [% of total]
+- Bidding: 
+
+AD SET 2 - Lookalike Audience:
+- Name:
+- Source audience:
+- Lookalike %:
+- Additional targeting:
+- Budget allocation:
+
+AD SET 3 - Retargeting:
+- Name:
+- Custom audience:
+- Retargeting window:
+- Budget allocation:
+
+AD CREATIVES (3 per ad set = 9 total):
+
+For each ad:
+- Format: [Image/Video/Carousel/Story]
+- Primary Text (125 chars):
+- Headline (40 chars):
+- Description (30 chars):
+- CTA Button:
+- Image description: [describe what image should look like]
+- Hook (first 3 seconds if video):
+
+PIXEL EVENTS TO TRACK:
+[List all events to set up]
+
+A/B TESTING PLAN:
+[What to test in week 1, 2, 3, 4]
+
+BUDGET SCALING STRATEGY:
+[When and how to scale budget]
+
+MONTHLY OPTIMIZATION CHECKLIST:
+[10 tasks]
+
+Make everything specific and ready to set up in Meta Ads Manager."""
+    result = await call_groq(prompt, 2000)
+    return {"business": req.business, "product": req.product, "meta_ads_setup": result, "generated_at": datetime.now().isoformat()}
+
+# 5. BACKLINK FINDER
+@app.post("/api/backlink-finder")
+async def backlink_finder(req: BacklinkRequest):
+    prompt = f"""You are a link building expert. Find REAL backlink opportunities for:
+
+Keyword: {req.keyword}
+Website: {req.website_url}
+Niche: {req.niche}
+
+Provide REAL, SPECIFIC websites and opportunities:
+
+GUEST POST OPPORTUNITIES (20 sites):
+[List 20 real websites in {req.niche} niche that accept guest posts with their DA and contact method]
+
+DIRECTORY SUBMISSIONS (15):
+[List 15 real business/niche directories to submit to]
+
+RESOURCE PAGE OPPORTUNITIES (10):
+[List 10 types of resource pages to target with search operators to find them]
+
+BROKEN LINK BUILDING:
+- Search operators to find broken links in {req.niche}:
+- Tools to use:
+- Outreach template:
+
+COMPETITOR BACKLINK SOURCES:
+[List 10 types of sites that link to {req.niche} competitors]
+
+READY-TO-SEND OUTREACH EMAILS (3 templates):
+1. Guest post pitch
+2. Resource page request  
+3. Broken link replacement
+
+SOCIAL PROFILE LINKS (15 platforms):
+[List 15 platforms to create profiles on for backlinks]
+
+FORUM & COMMUNITY LINKS (10):
+[List 10 real forums/communities in {req.niche}]
+
+30-DAY LINK BUILDING CALENDAR:
+[Day by day action plan]
+
+Be specific with real website names."""
+    result = await call_groq(prompt, 2000)
+    return {"keyword": req.keyword, "website": req.website_url, "backlink_opportunities": result, "generated_at": datetime.now().isoformat()}
