@@ -1,18 +1,17 @@
 from seo_agent import call_groq
 import json, re
 
-# Picsum photos - always reliable, beautiful, free
-def img(w, h, seed):
-    return f"https://picsum.photos/seed/{seed}/{w}/{h}"
+UNSPLASH_KEY = "uzuoQOhJhBAPA3oZLUrM5caab91nTcIwrB92kEbX87k"
 
-# Curated seeds for different contexts
-SEEDS = {
-    "hero": ["student1","library2","study3","campus4","education5"],
-    "pain": ["tired1","stress2","confused3","overwhelmed4"],
-    "feature": ["success1","growth2","learning3"],
-    "avatar": ["face1","face2","face3","face4","face5","face6"],
-    "section": ["classroom1","laptop2","books3"]
-}
+def img(w, h, query, page=1):
+    """Keyword-matched Unsplash image"""
+    q = query.replace(" ", "+")
+    return f"https://api.unsplash.com/photos/random?query={q}&w={w}&h={h}&fit=crop&client_id={UNSPLASH_KEY}&orientation=landscape"
+
+def img_portrait(query):
+    """Portrait/avatar image"""
+    q = query.replace(" ", "+")
+    return f"https://api.unsplash.com/photos/random?query={q}&w=80&h=80&fit=crop&client_id={UNSPLASH_KEY}&orientation=squarish"
 
 async def generate_lp_content(keyword: str, style: str, persona: str = "student") -> dict:
     prompt = f"""You are a world-class conversion copywriter. Generate landing page content for:
@@ -110,7 +109,7 @@ def build_minimalist_html(keyword: str, data: dict) -> str:
     for i, c in enumerate(pp["cards"]):
         pain_cards += f"""
         <div class="pain-card">
-          <div class="pain-img"><img src="{img(480,300,SEEDS['pain'][i%4])}" alt="{c['title']}" loading="lazy"/></div>
+          <div class="pain-img"><img src="{img(480, 300, f"{keyword} student struggle")}" alt="{c['title']}" loading="lazy"/></div>
           <div class="pain-body">
             <div class="pain-icon">{c['icon']}</div>
             <h3>{c['title']}</h3>
@@ -136,7 +135,7 @@ def build_minimalist_html(keyword: str, data: dict) -> str:
           <div class="stars">★★★★★</div>
           <p>"{t['quote']}"</p>
           <div class="testi-who">
-            <img src="{img(56,56,SEEDS['avatar'][i])}" alt="{t['name']}"/>
+            <img src="{img_portrait('student face portrait')}" alt="{t['name']}"/>
             <div><strong>{t['name']}</strong><span>{t['role']}</span></div>
           </div>
         </div>"""
@@ -290,15 +289,15 @@ footer{{background:var(--ink);color:rgba(255,255,255,.4);text-align:center;paddi
     </div>
     <div class="trust">
       <div class="trust-avatars">
-        <img src="{img(28,28,'av1')}" alt="student"/>
-        <img src="{img(28,28,'av2')}" alt="student"/>
-        <img src="{img(28,28,'av3')}" alt="student"/>
+        <img src="{img_portrait('student face')}" alt="student"/>
+        <img src="{img_portrait('young person smiling')}" alt="student"/>
+        <img src="{img_portrait('student portrait')}" alt="student"/>
       </div>
       {h['trust_line']}
     </div>
   </div>
   <div class="hero-img">
-    <img src="{img(600,520,'study-hero')}" alt="Study"/>
+    <img src="{img(600, 520, f'{keyword} student studying')}" alt="Study"/>
     <div class="hero-img-badge">
       <div class="badge-icon">🏆</div>
       <div class="badge-text"><strong>98% Success Rate</strong><span>Verified Results</span></div>
@@ -329,7 +328,7 @@ footer{{background:var(--ink);color:rgba(255,255,255,.4);text-align:center;paddi
     <div class="sec-label">Our Solution</div>
     <div class="sec-title">{ft['headline']}</div>
     <p class="feat-sub">Everything you need to succeed, in one place.</p>
-    <img class="feat-img" src="{img(1200,300,'learning-success')}" alt="Learning"/>
+    <img class="feat-img" src="{img(1200, 300, f'{keyword} learning success')}" alt="Learning"/>
     <div class="feat-grid">{feat_items}</div>
   </div>
 </section>
@@ -497,7 +496,7 @@ footer{{background:var(--s1);border-top:1px solid var(--border);text-align:cente
 <nav><div class="nav-logo">// {keyword[:16]}</div><button class="nav-cta">{h['cta']}</button></nav>
 <section class="hero">
   <div class="hero-grid"></div>
-  <div class="hero-img-wrap"><img src="{img(1400,900,'tech-dark')}" alt=""/></div>
+  <div class="hero-img-wrap"><img src="{img(1400, 900, f'{keyword} technology dark')}" alt=""/></div>
   <div class="hero-content">
     <div class="hero-tag">// {keyword}</div>
     <h1>{h['headline'].replace(keyword.split()[0], f'<em>{keyword.split()[0]}</em>', 1)}</h1>
@@ -510,7 +509,7 @@ footer{{background:var(--s1);border-top:1px solid var(--border);text-align:cente
   </div>
 </section>
 <section class="pain-section"><div class="inner"><div class="tag">// The Problem</div><div class="stitle">{pp['headline']}</div><div class="pain-grid">{pain_cards}</div></div></section>
-<section class="feat-section"><div class="inner"><div class="tag">// Our Solution</div><div class="stitle">{ft['headline']}</div><img class="feat-img" src="{img(1100,260,'technology-learning')}" alt=""/><div class="feat-list">{feat_items}</div></div></section>
+<section class="feat-section"><div class="inner"><div class="tag">// Our Solution</div><div class="stitle">{ft['headline']}</div><img class="feat-img" src="{img(1100, 260, f'{keyword} technology education')}" alt=""/><div class="feat-list">{feat_items}</div></div></section>
 <section class="proof-section"><div class="inner"><div class="tag">// Results</div><div class="stitle">{sp['headline']}</div><div class="metrics-row">{metrics}</div><div class="testi-grid">{testis}</div></div></section>
 <section class="compare-section"><div class="inner"><div class="tag">// Comparison</div><div class="stitle">{cp['headline']}</div><table class="ctable"><thead><tr><th>Feature</th><th>Old Way</th><th>With Us</th></tr></thead><tbody>{rows}</tbody></table></div></section>
 <section class="cta-section"><div class="inner"><h2>{cf['headline']}</h2><p>{cf['subtext']}</p><button class="btn-main" style="font-size:.95rem;padding:14px 36px">{cf['cta']}</button><div class="urgency">⚡ <em>{cf['urgency']}</em></div></div></section>
@@ -660,14 +659,14 @@ footer{{background:var(--navy);color:rgba(255,255,255,.3);text-align:center;padd
     <button class="btn-gold">{h['cta']}</button>
     <div class="trust">
       <div class="trust-imgs">
-        <img src="{img(26,26,'av1')}" alt=""/><img src="{img(26,26,'av2')}" alt=""/><img src="{img(26,26,'av3')}" alt=""/>
+        <img src="{img_portrait('student smiling')}" alt=""/><img src="{img_portrait('young student')}" alt=""/><img src="{img_portrait('student portrait')}" alt=""/>
       </div>
       {h['trust_line']}
     </div>
   </div>
   <div class="hero-right">
     <div class="hero-accent"></div>
-    <img src="{img(560,500,'university-library')}" alt="Education"/>
+    <img src="{img(560, 500, f'{keyword} university library')}" alt="Education"/>
     <div class="hero-stat"><strong>98%</strong><span>Success Rate</span></div>
   </div>
 </section>
@@ -686,7 +685,7 @@ footer{{background:var(--navy);color:rgba(255,255,255,.3);text-align:center;padd
   <div style="max-width:1100px;margin:0 auto">
     <span class="sec-over">Our Approach</span>
     <div class="sec-title">{ft['headline']}</div>
-    <img class="feat-img" src="{img(1100,280,'classroom-students')}" alt="Learning"/>
+    <img class="feat-img" src="{img(1100, 280, f'{keyword} classroom students')}" alt="Learning"/>
     <div class="feat-grid">{feat_items}</div>
   </div>
 </section>
