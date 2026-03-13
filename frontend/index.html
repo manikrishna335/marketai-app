@@ -1,204 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MarketAI — Execution Engine</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root{--bg:#080b0f;--surface:#0e1318;--panel:#111820;--border:#1a2535;--accent:#00e5ff;--accent2:#ff6b35;--accent3:#7fff6e;--accent4:#bf5fff;--accent5:#ffdd57;--text:#e8f0f7;--muted:#4a6070}
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
-    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0}
-    header{position:relative;z-index:10;padding:18px 40px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(8,11,15,.95);backdrop-filter:blur(10px)}
-    .logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}.logo span{color:var(--accent)}
-    .badge{font-size:.65rem;color:var(--accent3);background:rgba(127,255,110,.08);border:1px solid rgba(127,255,110,.2);padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:6px}
-    .dot{width:5px;height:5px;border-radius:50%;background:var(--accent3);animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-    .hero{position:relative;z-index:5;text-align:center;padding:50px 40px 35px}
-    .hero-tag{display:inline-block;font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(0,229,255,.25);padding:5px 16px;border-radius:20px;margin-bottom:18px}
-    .hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;margin-bottom:12px}
-    .hero h1 em{font-style:normal;color:var(--accent)}
-    .hero p{color:var(--muted);font-size:.8rem}
-    .api-bar-wrap{position:relative;z-index:5;max-width:860px;margin:0 auto 24px;padding:0 40px}
-    .api-bar{background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.2);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .api-bar label{font-size:.65rem;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
-    .api-bar input{flex:1;min-width:180px;background:var(--surface);border:1px solid rgba(255,107,53,.25);border-radius:7px;padding:9px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:.78rem;outline:none}
-    .save-btn{padding:8px 16px;font-family:'DM Mono',monospace;font-size:.7rem;background:var(--accent2);color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:500;white-space:nowrap}
-    .tabs{position:relative;z-index:5;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:0 40px 24px}
-    .tab{font-family:'DM Mono',monospace;font-size:.68rem;font-weight:500;padding:10px 18px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.05em}
-    .tab.active{background:rgba(0,229,255,.08);border-color:var(--accent);color:var(--accent)}
-    .tab.t2.active{background:rgba(127,255,110,.08);border-color:var(--accent3);color:var(--accent3)}
-    .tab.t3.active{background:rgba(255,221,87,.08);border-color:var(--accent5);color:var(--accent5)}
-    .tab.t4.active{background:rgba(191,95,255,.08);border-color:var(--accent4);color:var(--accent4)}
-    .tab.t5.active{background:rgba(255,107,53,.08);border-color:var(--accent2);color:var(--accent2)}
-    main{position:relative;z-index:5;max-width:860px;margin:0 auto;padding:0 40px 80px}
-    .panel{display:none;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:32px;animation:fadeIn .3s ease}
-    .panel.active{display:block}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-    .panel-header{margin-bottom:24px}
-    .panel-header h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:5px}
-    .panel-header p{color:var(--muted);font-size:.75rem}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-    .form-grid.single{grid-template-columns:1fr}
-    .form-group{display:flex;flex-direction:column;gap:5px}
-    label{font-size:.63rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-    input,select{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:.8rem;transition:all .2s;outline:none}
-    input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.06)}
-    select option{background:var(--surface)}
-    .run-btn{width:100%;padding:15px;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-    .run-btn.c1{background:var(--accent);color:#000}.run-btn.c2{background:var(--accent3);color:#000}.run-btn.c3{background:var(--accent5);color:#000}.run-btn.c4{background:var(--accent4);color:#fff}.run-btn.c5{background:var(--accent2);color:#000}
-    .run-btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
-    .run-btn:disabled{background:var(--muted)!important;cursor:not-allowed;transform:none!important;filter:none!important;color:#000}
-    .run-btn.loading::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:shimmer 1.2s infinite}
-    @keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
-    .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
-    .stat .n{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:3px}
-    .stat .l{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-    .output-wrap{margin-top:24px;display:none}
-    .output-wrap.show{display:block;animation:fadeIn .3s ease}
-    .output-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .out-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent3)}
-    .copy-btn{font-family:'DM Mono',monospace;font-size:.62rem;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
-    .copy-btn:hover{border-color:var(--accent3);color:var(--accent3)}
-    .output-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;font-size:.78rem;line-height:1.85;white-space:pre-wrap;word-break:break-word;max-height:550px;overflow-y:auto;color:#c0d4e8}
-    .output-box::-webkit-scrollbar{width:4px}
-    .output-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-    .loading-msg{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.78rem}
-    .spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    footer{position:relative;z-index:5;text-align:center;padding:18px;font-size:.62rem;color:var(--muted);border-top:1px solid var(--border)}
-    @media(max-width:600px){header,main,.api-bar-wrap,.tabs{padding-left:16px;padding-right:16px}.form-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}.panel{padding:20px 16px}.hero{padding:36px 16px 24px}}
-  </style>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MarketAI Phase 1 — Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a0c10;--sidebar:#0f1219;--panel:#13181f;--card:#181e27;--border:#1f2937;--accent:#6366f1;--accent2:#10b981;--accent3:#f59e0b;--accent4:#ef4444;--accent5:#8b5cf6;--text:#f1f5f9;--muted:#64748b;--glow:rgba(99,102,241,.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;min-height:100vh}
+.sidebar{width:250px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.sidebar-logo{padding:22px 20px;border-bottom:1px solid var(--border)}
+.logo-text{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}
+.logo-text span{color:var(--accent)}
+.logo-sub{font-size:.6rem;color:var(--muted);margin-top:3px;letter-spacing:.1em;text-transform:uppercase}
+.sb-section{padding:16px 12px 6px;font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:2px 8px;border-radius:8px;cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--muted);font-weight:500;border:1px solid transparent}
+.nav-item:hover{background:rgba(99,102,241,.07);color:var(--text)}
+.nav-item.active{background:rgba(99,102,241,.12);color:var(--accent);border-color:rgba(99,102,241,.2)}
+.nav-icon{font-size:.95rem;width:18px;text-align:center}
+.nav-badge{margin-left:auto;font-size:.55rem;padding:2px 6px;border-radius:8px;background:rgba(99,102,241,.2);color:var(--accent)}
+.sb-bottom{margin-top:auto;padding:14px;border-top:1px solid var(--border)}
+.api-status{display:flex;align-items:center;gap:7px;font-size:.68rem;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.main{margin-left:250px;flex:1;display:flex;flex-direction:column}
+.topbar{padding:14px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(10,12,16,.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.be-input{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:7px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:.7rem;width:260px;outline:none}
+.be-input:focus{border-color:var(--accent)}
+.save-btn{padding:7px 13px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:.7rem;cursor:pointer;font-weight:600;transition:all .2s}
+.content{padding:24px 28px;flex:1}
+.search-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
+.search-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+.search-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kw-input{flex:1;min-width:200px;background:var(--card);border:2px solid var(--border);border-radius:9px;padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:all .2s}
+.kw-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.sel{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:.75rem;outline:none;cursor:pointer}
+.sel option{background:var(--card)}
+.gen-btn{padding:12px 22px;background:linear-gradient(135deg,var(--accent),var(--accent5));color:#fff;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.gen-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(99,102,241,.4)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.page{display:none}.page.active{display:block}
+.sec-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.badge{font-size:.55rem;padding:2px 8px;border-radius:6px;font-family:'Inter',sans-serif;font-weight:600}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:3px}
+.stat-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.lp-tabs{display:flex;gap:7px;margin-bottom:14px}
+.lp-tab{padding:7px 16px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.72rem;font-weight:600;transition:all .2s}
+.lp-tab.active{background:rgba(99,102,241,.12);border-color:var(--accent);color:var(--accent)}
+.lp-pane{display:none}.lp-pane.active{display:block}
+.angles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.angle{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px}
+.angle-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-weight:700}
+.angle-desc{font-size:.7rem;color:var(--muted)}
+.extra-fields{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.extra-fields input{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.75rem;outline:none}
+.extra-fields input:focus{border-color:var(--accent)}
+.out-card{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:16px;display:none}
+.out-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.02)}
+.out-title{font-size:.75rem;font-weight:600}
+.copy-btn{padding:4px 11px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.62rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.copy-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.out-body{padding:18px;font-size:.76rem;line-height:1.85;white-space:pre-wrap;word-break:break-word;max-height:480px;overflow-y:auto;color:#94a3b8}
+.out-body::-webkit-scrollbar{width:3px}
+.out-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.loader{display:none;align-items:center;gap:10px;padding:18px 0;color:var(--muted);font-size:.76rem}
+.loader.show{display:flex}
+.spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stats-row,.angles{grid-template-columns:1fr 1fr}.topbar,.content{padding:12px 14px}}
+</style>
 </head>
 <body>
-<header>
-  <div class="logo">Market<span>AI</span></div>
-  <div class="badge"><div class="dot"></div>Execution Engine v2.0</div>
-</header>
-<div class="hero">
-  <div class="hero-tag">AI Marketing Execution — Not Just Strategy</div>
-  <h1>Type Keyword.<br/><em>Get Everything.</em></h1>
-  <p>Keyword Research · Blog Writer · Google Ads · Meta Ads · Backlinks</p>
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Market<span>AI</span></div>
+    <div class="logo-sub">Phase 1 — Team Demo</div>
+  </div>
+  <div class="sb-section">SEO</div>
+  <div class="nav-item active" onclick="go('kw',this)"><span class="nav-icon">🔍</span>Keyword Cluster<span class="nav-badge">1+4</span></div>
+  <div class="nav-item" onclick="go('lp',this)"><span class="nav-icon">🏠</span>Landing Pages<span class="nav-badge">3 Styles</span></div>
+  <div class="nav-item" onclick="go('blog',this)"><span class="nav-icon">✍️</span>Blog Writer</div>
+  <div class="sb-section">Ads</div>
+  <div class="nav-item" onclick="go('gads',this)"><span class="nav-icon">🎯</span>Google Ads<span class="nav-badge">3 Angles</span></div>
+  <div class="nav-item" onclick="go('mads',this)"><span class="nav-icon">📱</span>Meta Ads</div>
+  <div class="nav-item" onclick="go('img',this)"><span class="nav-icon">🖼️</span>Image Prompts</div>
+  <div class="sb-bottom">
+    <div class="api-status"><div class="dot"></div>Groq Llama 3.3 — Free</div>
+  </div>
+</nav>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pg-title">🔍 Keyword Cluster Intelligence</div>
+    <div class="topbar-right">
+      <input class="be-input" id="backendUrl" placeholder="https://marketai-app-production.up.railway.app"/>
+      <button class="save-btn" onclick="saveUrl()">Save</button>
+    </div>
+  </div>
+  <div class="content">
+    <!-- SEARCH BAR -->
+    <div class="search-card">
+      <div class="search-label">Enter Keyword — AI Executes Everything</div>
+      <div class="search-row">
+        <input class="kw-input" id="kw" placeholder="e.g. online IB tuition, exam prep classes, digital marketing course..."/>
+        <select class="sel" id="persona"><option value="student">👨‍🎓 Student</option><option value="professional">💼 Professional</option><option value="parent">👨‍👩‍👧 Parent</option><option value="business owner">🏢 Business Owner</option></select>
+        <select class="sel" id="country"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Australia</option></select>
+        <button class="gen-btn" id="gen-btn" onclick="generate()">⚡ Generate</button>
+      </div>
+    </div>
+
+    <!-- KEYWORD CLUSTER -->
+    <div class="page active" id="page-kw">
+      <div class="sec-title">🔍 Keyword Cluster <span class="badge" style="background:rgba(99,102,241,.15);color:var(--accent)">1 Primary + 4 LSI</span></div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-val" style="color:var(--accent)" id="s-vol">—</div><div class="stat-lbl">Monthly Volume</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--accent2)" id="s-kd">—</div><div class="stat-lbl">KD Score</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--accent3)" id="s-cpc">—</div><div class="stat-lbl">Avg CPC</div></div>
+        <div class="stat"><div class="stat-val" style="color:var(--accent5)" id="s-intent">—</div><div class="stat-lbl">Intent</div></div>
+      </div>
+      <div class="loader" id="l-kw"><div class="spin"></div>Analyzing keyword + verifying persona intent...</div>
+      <div class="out-card" id="o-kw"><div class="out-head"><div class="out-title">📊 Full Cluster Report</div><div><button class="copy-btn" onclick="cp('b-kw')">Copy</button></div></div><div class="out-body" id="b-kw"></div></div>
+    </div>
+
+    <!-- LANDING PAGES -->
+    <div class="page" id="page-lp">
+      <div class="sec-title">🏠 Landing Pages <span class="badge" style="background:rgba(16,185,129,.15);color:var(--accent2)">6-Section Architecture</span></div>
+      <div class="lp-tabs">
+        <button class="lp-tab active" onclick="lpTab('min',this)">⬜ Minimalist</button>
+        <button class="lp-tab" onclick="lpTab('tech',this)">🌑 Tech / Dark</button>
+        <button class="lp-tab" onclick="lpTab('acad',this)">🎓 Academic</button>
+      </div>
+      <div class="loader" id="l-lp"><div class="spin"></div>Generating all 3 landing page styles (6 sections each)...</div>
+      <div class="lp-pane active" id="lp-min"><div class="out-card" id="o-lp-min"><div class="out-head"><div class="out-title">⬜ Minimalist Style</div><div><button class="copy-btn" onclick="cp('b-lp-min')">Copy</button></div></div><div class="out-body" id="b-lp-min"></div></div></div>
+      <div class="lp-pane" id="lp-tech"><div class="out-card" id="o-lp-tech"><div class="out-head"><div class="out-title">🌑 Tech / Dark Style</div><div><button class="copy-btn" onclick="cp('b-lp-tech')">Copy</button></div></div><div class="out-body" id="b-lp-tech"></div></div></div>
+      <div class="lp-pane" id="lp-acad"><div class="out-card" id="o-lp-acad"><div class="out-head"><div class="out-title">🎓 Academic Style</div><div><button class="copy-btn" onclick="cp('b-lp-acad')">Copy</button></div></div><div class="out-body" id="b-lp-acad"></div></div></div>
+    </div>
+
+    <!-- BLOG -->
+    <div class="page" id="page-blog">
+      <div class="sec-title">✍️ SEO Blog Writer <span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3)">1500+ Words + Human Score</span></div>
+      <div class="loader" id="l-blog"><div class="spin"></div>Writing full blog post with human-score verification...</div>
+      <div class="out-card" id="o-blog"><div class="out-head"><div class="out-title">📝 Full Blog Post</div><div><button class="copy-btn" onclick="cp('b-blog')">Copy</button></div></div><div class="out-body" id="b-blog"></div></div>
+    </div>
+
+    <!-- GOOGLE ADS -->
+    <div class="page" id="page-gads">
+      <div class="sec-title">🎯 Google Ads <span class="badge" style="background:rgba(239,68,68,.15);color:var(--accent4)">3 Angles + Auto Bidding (+10% CPC)</span></div>
+      <div class="angles">
+        <div class="angle"><div class="angle-lbl" style="color:var(--accent4)">Angle A — Emotional</div><div class="angle-desc">Pain-based. Builds empathy and emotional connection</div></div>
+        <div class="angle"><div class="angle-lbl" style="color:var(--accent2)">Angle B — Logical</div><div class="angle-desc">Feature-driven. Data and solution-focused copy</div></div>
+        <div class="angle"><div class="angle-lbl" style="color:var(--accent3)">Angle C — Scarcity</div><div class="angle-desc">Urgency-driven. Limited spots, deadline, FOMO</div></div>
+      </div>
+      <div class="extra-fields">
+        <input id="g-biz" placeholder="Business name (e.g. TutoRoot)"/>
+        <input id="g-budget" placeholder="Monthly budget (e.g. ₹20,000)"/>
+        <input id="g-cpc" placeholder="Avg CPC (e.g. 1.50)"/>
+        <input id="g-loc" placeholder="Location (e.g. India)"/>
+      </div>
+      <div class="loader" id="l-gads"><div class="spin"></div>Building 3-angle campaign with auto-bidding strategy...</div>
+      <div class="out-card" id="o-gads"><div class="out-head"><div class="out-title">🎯 Full Google Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-gads')">Copy</button></div></div><div class="out-body" id="b-gads"></div></div>
+    </div>
+
+    <!-- META ADS -->
+    <div class="page" id="page-mads">
+      <div class="sec-title">📱 Meta Ads <span class="badge" style="background:rgba(139,92,246,.15);color:var(--accent5)">3 Ad Sets + Creative Scripts</span></div>
+      <div class="extra-fields">
+        <input id="m-biz" placeholder="Business name"/>
+        <input id="m-prod" placeholder="Product / service"/>
+        <input id="m-budget" placeholder="Monthly budget"/>
+        <input id="m-age" placeholder="Target age (18-35)"/>
+        <input id="m-loc" placeholder="Location"/>
+      </div>
+      <div class="loader" id="l-mads"><div class="spin"></div>Creating full Meta campaign with audiences and creatives...</div>
+      <div class="out-card" id="o-mads"><div class="out-head"><div class="out-title">📱 Full Meta Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-mads')">Copy</button></div></div><div class="out-body" id="b-mads"></div></div>
+    </div>
+
+    <!-- IMAGE PROMPTS -->
+    <div class="page" id="page-img">
+      <div class="sec-title">🖼️ Image Prompts <span class="badge" style="background:rgba(16,185,129,.15);color:var(--accent2)">Zero Copyright — Environment Based</span></div>
+      <div class="angles" style="cursor:pointer" id="angle-grid">
+        <div class="angle" style="border-color:var(--accent4)" onclick="pickAngle('emotional',this)"><div class="angle-lbl" style="color:var(--accent4)">😢 Emotional (Pain)</div><div class="angle-desc">Real student struggles. Messy desk, 2am, stressed</div></div>
+        <div class="angle" onclick="pickAngle('logical',this)"><div class="angle-lbl" style="color:var(--accent2)">🧠 Logical (Solution)</div><div class="angle-desc">Clean, focused environment. Progress and clarity</div></div>
+        <div class="angle" onclick="pickAngle('scarcity',this)"><div class="angle-lbl" style="color:var(--accent3)">⏰ Scarcity (Deadline)</div><div class="angle-desc">Clock, countdown, urgency and last-chance energy</div></div>
+      </div>
+      <div class="loader" id="l-img"><div class="spin"></div>Generating environment-based image prompts...</div>
+      <div class="out-card" id="o-img"><div class="out-head"><div class="out-title">🖼️ Image Prompts (Feed + Story + Display)</div><div><button class="copy-btn" onclick="cp('b-img')">Copy</button></div></div><div class="out-body" id="b-img"></div></div>
+    </div>
+
+  </div>
 </div>
-<div class="api-bar-wrap">
-  <div class="api-bar">
-    <label>⚙ Backend URL</label>
-    <input type="text" id="backendUrl" placeholder="https://marketai-app-production.up.railway.app"/>
-    <button class="save-btn" onclick="saveConfig()">Save</button>
-  </div>
-</div>
-<div class="tabs">
-  <button class="tab t1 active" onclick="show('kw',this)">🔍 Keyword Research</button>
-  <button class="tab t2" onclick="show('blog',this)">✍️ Blog Writer</button>
-  <button class="tab t3" onclick="show('gads',this)">🎯 Google Ads</button>
-  <button class="tab t4" onclick="show('mads',this)">📱 Meta Ads</button>
-  <button class="tab t5" onclick="show('bl',this)">🔗 Backlinks</button>
-</div>
-<main>
-  <div class="panel active" id="p-kw">
-    <div class="panel-header"><h2>🔍 Keyword Research</h2><p>Get volume, KD, intent, CPC + 40 keyword variations instantly</p></div>
-    <div class="stats-row">
-      <div class="stat"><div class="n" style="color:var(--accent)">VOL</div><div class="l">Search Volume</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent3)">KD</div><div class="l">Difficulty Score</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent5)">CPC</div><div class="l">Cost Per Click</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent4)">40+</div><div class="l">Keywords</div></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Enter Keyword</label><input type="text" id="kw-keyword" placeholder="e.g. online tuition classes"/></div>
-      <div class="form-group"><label>Target Country</label><select id="kw-country"><option>India</option><option>USA</option><option>UK</option><option>Australia</option><option>UAE</option><option>Global</option></select></div>
-    </div>
-    <button class="run-btn c1" onclick="runKW()">🔍 Research This Keyword</button>
-    <div class="output-wrap" id="o-kw"><div class="output-top"><div class="out-label">✦ Keyword Research Results</div><button class="copy-btn" onclick="copyOut('o-kw')">Copy All</button></div><div class="output-box" id="o-kw-t"></div></div>
-  </div>
-
-  <div class="panel" id="p-blog">
-    <div class="panel-header"><h2>✍️ Full SEO Blog Writer</h2><p>Complete publish-ready blog post with meta tags, FAQs and on-page SEO</p></div>
-    <div class="stats-row">
-      <div class="stat"><div class="n" style="color:var(--accent3)">1500+</div><div class="l">Words</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent3)">SEO</div><div class="l">Optimized</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent3)">FAQ</div><div class="l">Section</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent3)">Meta</div><div class="l">Tags</div></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Target Keyword</label><input type="text" id="blog-kw" placeholder="e.g. best online tuition India"/></div>
-      <div class="form-group"><label>Website URL</label><input type="text" id="blog-url" placeholder="https://yoursite.com"/></div>
-      <div class="form-group"><label>Tone</label><select id="blog-tone"><option>Professional</option><option>Friendly</option><option>Authoritative</option><option>Conversational</option></select></div>
-    </div>
-    <button class="run-btn c2" onclick="runBlog()">✍️ Write Full Blog Post</button>
-    <div class="output-wrap" id="o-blog"><div class="output-top"><div class="out-label">✦ Complete Blog Post</div><button class="copy-btn" onclick="copyOut('o-blog')">Copy All</button></div><div class="output-box" id="o-blog-t"></div></div>
-  </div>
-
-  <div class="panel" id="p-gads">
-    <div class="panel-header"><h2>🎯 Google Ads Full Setup</h2><p>Complete campaign ready to copy-paste into Google Ads Manager</p></div>
-    <div class="stats-row">
-      <div class="stat"><div class="n" style="color:var(--accent5)">3</div><div class="l">Ad Groups</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent5)">9</div><div class="l">Ad Copies</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent5)">30+</div><div class="l">Keywords</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent5)">EXT</div><div class="l">Extensions</div></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Business Name</label><input type="text" id="gads-biz" placeholder="e.g. TutoRoot Online Tuition"/></div>
-      <div class="form-group"><label>Main Keyword</label><input type="text" id="gads-kw" placeholder="e.g. online tuition classes"/></div>
-      <div class="form-group"><label>Monthly Budget</label><input type="text" id="gads-budget" placeholder="e.g. ₹20,000 or $500"/></div>
-      <div class="form-group"><label>Target Location</label><input type="text" id="gads-loc" placeholder="e.g. India, Hyderabad"/></div>
-    </div>
-    <button class="run-btn c3" onclick="runGAds()">🎯 Generate Google Ads Setup</button>
-    <div class="output-wrap" id="o-gads"><div class="output-top"><div class="out-label">✦ Google Ads Campaign</div><button class="copy-btn" onclick="copyOut('o-gads')">Copy All</button></div><div class="output-box" id="o-gads-t"></div></div>
-  </div>
-
-  <div class="panel" id="p-mads">
-    <div class="panel-header"><h2>📱 Meta Ads Full Setup</h2><p>Complete Facebook & Instagram campaign with audiences, creatives & bidding</p></div>
-    <div class="stats-row">
-      <div class="stat"><div class="n" style="color:var(--accent4)">3</div><div class="l">Ad Sets</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent4)">9</div><div class="l">Creatives</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent4)">20+</div><div class="l">Interests</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent4)">A/B</div><div class="l">Test Plan</div></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Business Name</label><input type="text" id="mads-biz" placeholder="e.g. TutoRoot"/></div>
-      <div class="form-group"><label>Product / Service</label><input type="text" id="mads-prod" placeholder="e.g. Online IB Tuition"/></div>
-      <div class="form-group"><label>Monthly Budget</label><input type="text" id="mads-budget" placeholder="e.g. ₹15,000 or $300"/></div>
-      <div class="form-group"><label>Target Age Range</label><input type="text" id="mads-age" placeholder="e.g. 25-45"/></div>
-      <div class="form-group"><label>Target Location</label><input type="text" id="mads-loc" placeholder="e.g. India, Mumbai"/></div>
-    </div>
-    <button class="run-btn c4" onclick="runMAds()">📱 Generate Meta Ads Setup</button>
-    <div class="output-wrap" id="o-mads"><div class="output-top"><div class="out-label">✦ Meta Ads Campaign</div><button class="copy-btn" onclick="copyOut('o-mads')">Copy All</button></div><div class="output-box" id="o-mads-t"></div></div>
-  </div>
-
-  <div class="panel" id="p-bl">
-    <div class="panel-header"><h2>🔗 Backlink Finder</h2><p>Real sites, outreach emails and 30-day link building calendar</p></div>
-    <div class="stats-row">
-      <div class="stat"><div class="n" style="color:var(--accent2)">20</div><div class="l">Guest Post Sites</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent2)">15</div><div class="l">Directories</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent2)">3</div><div class="l">Email Templates</div></div>
-      <div class="stat"><div class="n" style="color:var(--accent2)">30d</div><div class="l">Calendar</div></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Target Keyword</label><input type="text" id="bl-kw" placeholder="e.g. online tuition"/></div>
-      <div class="form-group"><label>Your Website</label><input type="text" id="bl-url" placeholder="https://yoursite.com"/></div>
-      <div class="form-group"><label>Your Niche</label><input type="text" id="bl-niche" placeholder="e.g. education, tutoring"/></div>
-    </div>
-    <button class="run-btn c5" onclick="runBL()">🔗 Find Backlink Opportunities</button>
-    <div class="output-wrap" id="o-bl"><div class="output-top"><div class="out-label">✦ Backlink Opportunities</div><button class="copy-btn" onclick="copyOut('o-bl')">Copy All</button></div><div class="output-box" id="o-bl-t"></div></div>
-  </div>
-</main>
-<footer>MarketAI v2.0 · Built for Mani's AI Marketing Agency · Powered by Groq Llama 3.3</footer>
 <script>
-  let BACKEND = localStorage.getItem('marketai_backend') || 'https://marketai-app-production.up.railway.app';
-  document.getElementById('backendUrl').value = BACKEND;
-  function saveConfig(){BACKEND=document.getElementById('backendUrl').value.trim().replace(/\/$/,'');localStorage.setItem('marketai_backend',BACKEND);const b=document.querySelector('.save-btn');b.textContent='✓ Saved';setTimeout(()=>b.textContent='Save',1500)}
-  function show(name,el){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('p-'+name).classList.add('active');el.classList.add('active')}
-  function setLoading(btn,outId,loading,label){btn.disabled=loading;btn.classList.toggle('loading',loading);btn.textContent=loading?'⟳ Generating...':label;if(loading){const o=document.getElementById(outId);o.classList.add('show');document.getElementById(outId+'-t').innerHTML='<div class="loading-msg"><div class="spin"></div>AI is generating your results...</div>'}}
-  function showOut(outId,text){document.getElementById(outId).classList.add('show');document.getElementById(outId+'-t').textContent=text}
-  function copyOut(outId){navigator.clipboard.writeText(document.getElementById(outId+'-t').textContent).then(()=>{const b=document.querySelector('#'+outId+' .copy-btn');b.textContent='✓ Copied!';setTimeout(()=>b.textContent='Copy All',2000)})}
-  async function callAPI(endpoint,body,btn,outId,label){setLoading(btn,outId,true,label);try{const res=await fetch(BACKEND+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await res.json();const key=Object.keys(data).find(k=>typeof data[k]==='string'&&data[k].length>80);showOut(outId,data[key]||JSON.stringify(data,null,2))}catch(e){showOut(outId,'❌ Error: '+e.message+'\n\nMake sure Backend URL is saved correctly above.')}setLoading(btn,outId,false,label)}
-  function runKW(){const btn=document.querySelector('#p-kw .run-btn');callAPI('/api/keyword-research',{keyword:document.getElementById('kw-keyword').value,country:document.getElementById('kw-country').value},btn,'o-kw','🔍 Research This Keyword')}
-  function runBlog(){const btn=document.querySelector('#p-blog .run-btn');callAPI('/api/blog-writer',{keyword:document.getElementById('blog-kw').value,website_url:document.getElementById('blog-url').value,tone:document.getElementById('blog-tone').value},btn,'o-blog','✍️ Write Full Blog Post')}
-  function runGAds(){const btn=document.querySelector('#p-gads .run-btn');callAPI('/api/google-ads',{business:document.getElementById('gads-biz').value,keyword:document.getElementById('gads-kw').value,budget:document.getElementById('gads-budget').value,location:document.getElementById('gads-loc').value},btn,'o-gads','🎯 Generate Google Ads Setup')}
-  function runMAds(){const btn=document.querySelector('#p-mads .run-btn');callAPI('/api/meta-ads',{business:document.getElementById('mads-biz').value,product:document.getElementById('mads-prod').value,budget:document.getElementById('mads-budget').value,target_age:document.getElementById('mads-age').value,location:document.getElementById('mads-loc').value},btn,'o-mads','📱 Generate Meta Ads Setup')}
-  function runBL(){const btn=document.querySelector('#p-bl .run-btn');callAPI('/api/backlink-finder',{keyword:document.getElementById('bl-kw').value,website_url:document.getElementById('bl-url').value,niche:document.getElementById('bl-niche').value},btn,'o-bl','🔗 Find Backlink Opportunities')}
+const TITLES={kw:'🔍 Keyword Cluster Intelligence',lp:'🏠 Landing Page Generator',blog:'✍️ SEO Blog Writer',gads:'🎯 Google Ads — 3 Angles',mads:'📱 Meta Ads Setup',img:'🖼️ Image Prompt Generator'};
+let BACKEND=localStorage.getItem('mkai_be')||'https://marketai-app-production.up.railway.app';
+let angle='emotional';
+document.getElementById('backendUrl').value=BACKEND;
+
+function saveUrl(){BACKEND=document.getElementById('backendUrl').value.trim().replace(/\/$/,'');localStorage.setItem('mkai_be',BACKEND);const b=document.querySelector('.save-btn');b.textContent='✓';setTimeout(()=>b.textContent='Save',1200)}
+function go(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');el.classList.add('active');document.getElementById('pg-title').textContent=TITLES[name]}
+function lpTab(n,el){document.querySelectorAll('.lp-pane').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.lp-tab').forEach(t=>t.classList.remove('active'));document.getElementById('lp-'+n).classList.add('active');el.classList.add('active')}
+function pickAngle(a,el){angle=a;document.querySelectorAll('#angle-grid .angle').forEach(c=>c.style.borderColor='var(--border)');el.style.borderColor='var(--accent)'}
+function load(id,on){document.getElementById('l-'+id).className='loader'+(on?' show':'')}
+function show(cardId,bodyId,text){document.getElementById(cardId).style.display='block';document.getElementById(bodyId).textContent=text}
+function cp(id){navigator.clipboard.writeText(document.getElementById(id).textContent)}
+function kw(){return document.getElementById('kw').value.trim()}
+function persona(){return document.getElementById('persona').value}
+function country(){return document.getElementById('country').value}
+function parseStats(t){
+  const v=t.match(/Search Volume[:\s]+([0-9,K+]+)/i);
+  const k=t.match(/Keyword Difficulty[^:]*:\s*(\d+)/i);
+  const c=t.match(/CPC[^:]*:\s*\$?([\d.]+)/i);
+  const i=t.match(/Search Intent[:\s]+(\w+)/i);
+  if(v)document.getElementById('s-vol').textContent=v[1];
+  if(k)document.getElementById('s-kd').textContent=k[1]+'/100';
+  if(c)document.getElementById('s-cpc').textContent='$'+c[1];
+  if(i)document.getElementById('s-intent').textContent=i[1];
+}
+async function post(ep,body){
+  const r=await fetch(BACKEND+ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return r.json();
+}
+async function generate(){
+  if(!kw()){alert('Enter a keyword first!');return}
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.textContent='⟳ Working...';
+  const page=document.querySelector('.page.active').id.replace('page-','');
+  try{
+    if(page==='kw'){
+      load('kw',true);
+      const d=await post('/api/keyword-cluster',{keyword:kw(),persona:persona(),country:country()});
+      load('kw',false);parseStats(d.cluster||'');
+      show('o-kw','b-kw',d.cluster||JSON.stringify(d,null,2));
+    }
+    else if(page==='lp'){
+      load('lp',true);
+      const[r1,r2,r3]=await Promise.all([
+        post('/api/landing-page',{keyword:kw(),style:'minimalist',persona:persona()}),
+        post('/api/landing-page',{keyword:kw(),style:'tech',persona:persona()}),
+        post('/api/landing-page',{keyword:kw(),style:'academic',persona:persona()})
+      ]);
+      load('lp',false);
+      show('o-lp-min','b-lp-min',r1.landing_page||JSON.stringify(r1));
+      show('o-lp-tech','b-lp-tech',r2.landing_page||JSON.stringify(r2));
+      show('o-lp-acad','b-lp-acad',r3.landing_page||JSON.stringify(r3));
+    }
+    else if(page==='blog'){
+      load('blog',true);
+      const d=await post('/api/blog-post',{keyword:kw(),persona:persona(),secondary_keywords:[]});
+      load('blog',false);show('o-blog','b-blog',d.blog_post||JSON.stringify(d));
+    }
+    else if(page==='gads'){
+      load('gads',true);
+      const d=await post('/api/google-ads',{keyword:kw(),business:document.getElementById('g-biz').value||'My Business',budget:document.getElementById('g-budget').value||'20000',location:document.getElementById('g-loc').value||'India',avg_cpc:document.getElementById('g-cpc').value||'1.00'});
+      load('gads',false);show('o-gads','b-gads',d.google_ads||JSON.stringify(d));
+    }
+    else if(page==='mads'){
+      load('mads',true);
+      const d=await post('/api/meta-ads',{business:document.getElementById('m-biz').value||'My Business',product:document.getElementById('m-prod').value||kw(),budget:document.getElementById('m-budget').value||'15000',target_age:document.getElementById('m-age').value||'18-35',location:document.getElementById('m-loc').value||'India'});
+      load('mads',false);show('o-mads','b-mads',d.meta_ads||JSON.stringify(d));
+    }
+    else if(page==='img'){
+      load('img',true);
+      const d=await post('/api/image-prompts',{keyword:kw(),angle});
+      load('img',false);show('o-img','b-img',d.image_prompts||JSON.stringify(d));
+    }
+  }catch(e){
+    ['kw','lp','blog','gads','mads','img'].forEach(x=>load(x,false));
+    alert('Error: '+e.message+'\n\nCheck your Backend URL at the top!');
+  }
+  btn.disabled=false;btn.textContent='⚡ Generate';
+}
 </script>
 </body>
 </html>
