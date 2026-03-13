@@ -1,13 +1,12 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 import httpx
 import os
 from datetime import datetime
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 
 app = FastAPI(title="AI Marketing Automation API")
 
@@ -45,26 +44,32 @@ class OutreachRequest(BaseModel):
     your_agency_name: str
     service_offered: str
 
-async def call_gemini(prompt: str) -> str:
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+async def call_groq(prompt: str) -> str:
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
     body = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"maxOutputTokens": 1500, "temperature": 0.7}
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 1500,
+        "temperature": 0.7
     }
     try:
         async with httpx.AsyncClient(timeout=60) as client:
-            r = await client.post(url, json=body)
+            r = await client.post(url, headers=headers, json=body)
             data = r.json()
-            if "candidates" in data:
-                return data["candidates"][0]["content"]["parts"][0]["text"]
+            if "choices" in data:
+                return data["choices"][0]["message"]["content"]
             else:
                 return f"API Error: {data.get('error', {}).get('message', str(data))}"
     except Exception as e:
-        return f"Error calling Gemini: {str(e)}"
+        return f"Error: {str(e)}"
 
 @app.get("/")
 def root():
-    return {"status": "AI Marketing Automation API running", "gemini_key_set": bool(GEMINI_API_KEY)}
+    return {"status": "AI Marketing Automation API running", "model": "Groq Llama 3.3 70B"}
 
 @app.post("/api/seo")
 async def seo_automation(req: SEORequest):
@@ -76,7 +81,7 @@ async def seo_automation(req: SEORequest):
 5. TECHNICAL SEO FIXES - 5 common fixes needed
 6. TIMELINE - realistic weeks to reach top 10
 Format clearly with headers. Be specific and actionable."""
-    result = await call_gemini(prompt)
+    result = await call_groq(prompt)
     return {"keyword": req.keyword, "website": req.website_url, "seo_strategy": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/backlinks")
@@ -89,7 +94,7 @@ async def backlink_automation(req: BacklinkRequest):
 5. HARO/PR STRATEGY
 6. SOCIAL PROFILE LINKS - top 10 platforms
 7. WEEKLY BACKLINK SCHEDULE"""
-    result = await call_gemini(prompt)
+    result = await call_groq(prompt)
     return {"niche": req.niche, "website": req.website_url, "backlink_plan": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/ads")
@@ -104,14 +109,14 @@ Business: {req.business_type}, Audience: {req.target_audience}, Budget: {req.bud
 6. BUDGET SPLIT
 7. OPTIMIZATION CHECKLIST
 8. KPIs"""
-    result = await call_gemini(prompt)
+    result = await call_groq(prompt)
     return {"platform": req.platform, "business": req.business_type, "ads_strategy": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/report")
 async def report_automation(req: ReportRequest):
     prompt = f"""Generate a professional monthly marketing report for client: {req.client_name}, website: {req.website_url}, period: {req.period}.
 Include: Executive Summary, SEO Performance, Paid Ads Performance, Backlink Progress, Social Media, Content Published, Next Month Plan, Recommendations."""
-    result = await call_gemini(prompt)
+    result = await call_groq(prompt)
     return {"client": req.client_name, "period": req.period, "report": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/outreach")
@@ -120,7 +125,7 @@ async def outreach_automation(req: OutreachRequest):
 Our agency: {req.your_agency_name}, Service: {req.service_offered}.
 For each: 5 subject line options, email body, follow-up email.
 Also include: LinkedIn message, LinkedIn DM, 30-second cold call script."""
-    result = await call_gemini(prompt)
+    result = await call_groq(prompt)
     return {"prospect": req.prospect_name, "service": req.service_offered, "outreach_kit": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/organic-strategy")
@@ -137,5 +142,5 @@ async def organic_strategy(req: SEORequest):
 9. CORE WEB VITALS improvements
 10. INTERNAL LINKING MAP
 Give 90-day roadmap at end."""
-    result = await call_gemini(prompt)
+    result = await call_groq(prompt)
     return {"keyword": req.keyword, "website": req.website_url, "organic_strategy": result, "generated_at": datetime.now().isoformat()}
