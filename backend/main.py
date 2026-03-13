@@ -45,21 +45,26 @@ class OutreachRequest(BaseModel):
     your_agency_name: str
     service_offered: str
 
-async def call_gemini(prompt: str, system: str = "") -> str:
-    full_prompt = f"{system}\n\n{prompt}" if system else prompt
+async def call_gemini(prompt: str) -> str:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     body = {
-        "contents": [{"parts": [{"text": full_prompt}]}],
+        "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"maxOutputTokens": 1500, "temperature": 0.7}
     }
-    async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.post(url, json=body)
-        data = r.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            r = await client.post(url, json=body)
+            data = r.json()
+            if "candidates" in data:
+                return data["candidates"][0]["content"]["parts"][0]["text"]
+            else:
+                return f"API Error: {data.get('error', {}).get('message', str(data))}"
+    except Exception as e:
+        return f"Error calling Gemini: {str(e)}"
 
 @app.get("/")
 def root():
-    return {"status": "AI Marketing Automation API running"}
+    return {"status": "AI Marketing Automation API running", "gemini_key_set": bool(GEMINI_API_KEY)}
 
 @app.post("/api/seo")
 async def seo_automation(req: SEORequest):
@@ -78,66 +83,59 @@ Format clearly with headers. Be specific and actionable."""
 async def backlink_automation(req: BacklinkRequest):
     prompt = f"""Create a complete backlink building plan for a "{req.niche}" business at "{req.website_url}".
 1. GUEST POST OUTREACH EMAIL - ready to send template
-2. TOP 20 BACKLINK SOURCES - specific websites/directories in {req.niche} niche
+2. TOP 20 BACKLINK SOURCES - specific websites in {req.niche} niche
 3. RESOURCE PAGE OUTREACH - email template
-4. BROKEN LINK BUILDING - step by step process
-5. HARO/PR STRATEGY - how to get high DA backlinks
+4. BROKEN LINK BUILDING - step by step
+5. HARO/PR STRATEGY
 6. SOCIAL PROFILE LINKS - top 10 platforms
-7. WEEKLY BACKLINK SCHEDULE - what to do each day"""
+7. WEEKLY BACKLINK SCHEDULE"""
     result = await call_gemini(prompt)
     return {"niche": req.niche, "website": req.website_url, "backlink_plan": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/ads")
 async def ads_automation(req: AdsRequest):
-    prompt = f"""Create a complete {req.platform.upper()} ads campaign strategy for:
-- Business: {req.business_type}
-- Target Audience: {req.target_audience}
-- Budget: {req.budget}/month
+    prompt = f"""Create a complete {req.platform.upper()} ads campaign for:
+Business: {req.business_type}, Audience: {req.target_audience}, Budget: {req.budget}/month
 1. CAMPAIGN STRUCTURE
-2. 5 AD COPIES - ready to use
-3. AUDIENCE TARGETING - exact demographics
+2. 5 AD COPIES ready to use
+3. AUDIENCE TARGETING
 4. BIDDING STRATEGY
-5. KEYWORDS/INTERESTS - 20 specific ones
-6. AD BUDGET SPLIT
+5. 20 KEYWORDS/INTERESTS
+6. BUDGET SPLIT
 7. OPTIMIZATION CHECKLIST
-8. KPIs TO TRACK"""
+8. KPIs"""
     result = await call_gemini(prompt)
     return {"platform": req.platform, "business": req.business_type, "ads_strategy": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/report")
 async def report_automation(req: ReportRequest):
-    prompt = f"""Generate a professional monthly marketing report for:
-- Client: {req.client_name}
-- Website: {req.website_url}
-- Period: {req.period}
-Include: Executive Summary, SEO Performance, Paid Ads Performance, Backlink Progress, Social Media Metrics, Content Published, Next Month Plan, Recommendations."""
+    prompt = f"""Generate a professional monthly marketing report for client: {req.client_name}, website: {req.website_url}, period: {req.period}.
+Include: Executive Summary, SEO Performance, Paid Ads Performance, Backlink Progress, Social Media, Content Published, Next Month Plan, Recommendations."""
     result = await call_gemini(prompt)
     return {"client": req.client_name, "period": req.period, "report": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/outreach")
 async def outreach_automation(req: OutreachRequest):
-    prompt = f"""Write 3 cold outreach email variants for:
-- Prospect: {req.prospect_name} at {req.prospect_business}
-- Our Agency: {req.your_agency_name}
-- Service: {req.service_offered}
-For each: Subject line (5 options), Email body, Follow-up email.
-Also: LinkedIn message, LinkedIn DM, Cold call script."""
+    prompt = f"""Write 3 cold outreach email variants for prospect: {req.prospect_name} at {req.prospect_business}.
+Our agency: {req.your_agency_name}, Service: {req.service_offered}.
+For each: 5 subject line options, email body, follow-up email.
+Also include: LinkedIn message, LinkedIn DM, 30-second cold call script."""
     result = await call_gemini(prompt)
     return {"prospect": req.prospect_name, "service": req.service_offered, "outreach_kit": result, "generated_at": datetime.now().isoformat()}
 
 @app.post("/api/organic-strategy")
 async def organic_strategy(req: SEORequest):
-    prompt = f"""Build a complete organic growth strategy for "{req.website_url}" ranking for "{req.keyword}".
+    prompt = f"""Build complete organic growth strategy for "{req.website_url}" for keyword "{req.keyword}".
 1. BLOG CONTENT CALENDAR - 12 weeks
 2. YOUTUBE SEO - 5 video ideas
-3. GOOGLE BUSINESS PROFILE - checklist
+3. GOOGLE BUSINESS PROFILE checklist
 4. REDDIT/QUORA STRATEGY
 5. PINTEREST SEO
-6. LINKEDIN ORGANIC
+6. LINKEDIN ORGANIC posts
 7. GUEST BLOGGING PIPELINE
 8. SCHEMA MARKUP
-9. CORE WEB VITALS
+9. CORE WEB VITALS improvements
 10. INTERNAL LINKING MAP
-Give a 90-day roadmap."""
+Give 90-day roadmap at end."""
     result = await call_gemini(prompt)
     return {"keyword": req.keyword, "website": req.website_url, "organic_strategy": result, "generated_at": datetime.now().isoformat()}
