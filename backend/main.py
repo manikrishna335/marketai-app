@@ -108,20 +108,39 @@ async def api_full_campaign(req: KeywordRequest):
         "generated_at": datetime.now().isoformat()
     }
 
-# ─── LANDING PAGE HTML GENERATOR ───────────────────────────────────────────
-from lp_agent import generate_lp_content, build_minimalist_html, build_tech_html, build_academic_html
+# ─── BACKLINK OUTREACH SYSTEM ──────────────────────────────────────────────
+from backlink_agent import find_competitors, find_contacts, generate_outreach_email, full_backlink_research
 
-class LandingPageHTMLRequest(BaseModel):
+class BacklinkRequest(BaseModel):
     keyword: str
-    style: str   # minimalist | tech | academic
-    persona: Optional[str] = "student"
+    niche: str
+    sender_name: Optional[str] = "Our Agency"
+    sender_site: Optional[str] = "https://oursite.com"
 
-@app.post("/api/landing-page-html")
-async def api_landing_page_html(req: LandingPageHTMLRequest):
-    data = await generate_lp_content(req.keyword, req.style, req.persona)
-    if not data:
-        return {"error": "Content generation failed", "html": ""}
-    builders = {"minimalist": build_minimalist_html, "tech": build_tech_html, "academic": build_academic_html}
-    build = builders.get(req.style, build_minimalist_html)
-    html = build(req.keyword, data)
-    return {"keyword": req.keyword, "style": req.style, "html": html, "generated_at": datetime.now().isoformat()}
+class ContactRequest(BaseModel):
+    domain: str
+    niche: str
+
+class OutreachRequest(BaseModel):
+    domain: str
+    domain_type: Optional[str] = "Blog"
+    pitch_angle: Optional[str] = "relevant content"
+    keyword: str
+    sender_name: str
+    sender_site: str
+
+@app.post("/api/backlink-research")
+async def api_backlink_research(req: BacklinkRequest):
+    data = await full_backlink_research(req.keyword, req.niche, req.sender_name, req.sender_site)
+    return {**data, "generated_at": datetime.now().isoformat()}
+
+@app.post("/api/find-contacts")
+async def api_find_contacts(req: ContactRequest):
+    data = await find_contacts(req.domain, req.niche)
+    return {**data, "generated_at": datetime.now().isoformat()}
+
+@app.post("/api/outreach-emails")
+async def api_outreach_emails(req: OutreachRequest):
+    target = {"domain": req.domain, "type": req.domain_type, "pitch_angle": req.pitch_angle}
+    data = await generate_outreach_email(target, req.keyword, req.sender_name, req.sender_site)
+    return {**data, "generated_at": datetime.now().isoformat()}
