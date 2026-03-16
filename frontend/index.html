@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>MarketAI Phase 1 — Demo</title>
+<title>MarketAI — Execution Engine</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-:root{--bg:#0a0c10;--sidebar:#0f1219;--panel:#13181f;--card:#181e27;--border:#1f2937;--accent:#6366f1;--accent2:#10b981;--accent3:#f59e0b;--accent4:#ef4444;--accent5:#8b5cf6;--text:#f1f5f9;--muted:#64748b;--glow:rgba(99,102,241,.15)}
+:root{--bg:#0a0c10;--sidebar:#0f1219;--panel:#13181f;--card:#181e27;--border:#1f2937;--accent:#6366f1;--accent2:#10b981;--accent3:#f59e0b;--accent4:#ef4444;--accent5:#8b5cf6;--accent6:#06b6d4;--text:#f1f5f9;--muted:#64748b;--glow:rgba(99,102,241,.15)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;min-height:100vh}
 .sidebar{width:250px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
 .sidebar-logo{padding:22px 20px;border-bottom:1px solid var(--border)}
-.logo-text{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}
-.logo-text span{color:var(--accent)}
+.logo-text{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}.logo-text span{color:var(--accent)}
 .logo-sub{font-size:.6rem;color:var(--muted);margin-top:3px;letter-spacing:.1em;text-transform:uppercase}
 .sb-section{padding:16px 12px 6px;font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:2px 8px;border-radius:8px;cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--muted);font-weight:500;border:1px solid transparent}
@@ -29,7 +28,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .topbar-right{display:flex;align-items:center;gap:10px}
 .be-input{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:7px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:.7rem;width:260px;outline:none}
 .be-input:focus{border-color:var(--accent)}
-.save-btn{padding:7px 13px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:.7rem;cursor:pointer;font-weight:600;transition:all .2s}
+.save-btn{padding:7px 13px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:.7rem;cursor:pointer;font-weight:600}
 .content{padding:24px 28px;flex:1}
 .search-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
 .search-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
@@ -71,7 +70,61 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .loader.show{display:flex}
 .spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stats-row,.angles{grid-template-columns:1fr 1fr}.topbar,.content{padding:12px 14px}}
+
+/* BACKLINK SPECIFIC */
+.bl-table-wrap{overflow-x:auto;margin-bottom:16px}
+.bl-table{width:100%;border-collapse:collapse;font-size:.73rem;min-width:700px}
+.bl-table thead tr{background:var(--panel);border-bottom:1px solid var(--border)}
+.bl-table th{padding:10px 14px;text-align:left;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;white-space:nowrap}
+.bl-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.bl-table tr:hover td{background:rgba(255,255,255,.02)}
+.da-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700}
+.da-high{background:rgba(16,185,129,.15);color:var(--accent2)}
+.da-mid{background:rgba(245,158,11,.15);color:var(--accent3)}
+.da-low{background:rgba(239,68,68,.15);color:var(--accent4)}
+.type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.62rem;background:rgba(99,102,241,.12);color:var(--accent)}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.62rem;font-weight:600}
+.status-new{background:rgba(6,182,212,.12);color:var(--accent6)}
+.status-contacted{background:rgba(245,158,11,.12);color:var(--accent3)}
+.status-replied{background:rgba(16,185,129,.12);color:var(--accent2)}
+.status-live{background:rgba(99,102,241,.12);color:var(--accent)}
+.action-btn-sm{padding:4px 10px;border-radius:5px;border:none;font-size:.62rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:all .2s}
+.btn-email{background:rgba(99,102,241,.15);color:var(--accent)}
+.btn-email:hover{background:rgba(99,102,241,.25)}
+.btn-contacts{background:rgba(6,182,212,.15);color:var(--accent6)}
+.btn-contacts:hover{background:rgba(6,182,212,.25)}
+
+/* EMAIL MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;width:90%;max-width:680px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
+.modal-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px 8px}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1}
+.email-tabs{display:flex;gap:6px;margin-bottom:16px}
+.email-tab{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
+.email-tab.active{background:rgba(99,102,241,.12);border-color:var(--accent);color:var(--accent)}
+.email-pane{display:none}.email-pane.active{display:block}
+.email-field{margin-bottom:12px}
+.email-field label{display:block;font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.email-field input,.email-field textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.78rem;outline:none}
+.email-field textarea{height:140px;resize:vertical;line-height:1.6}
+.email-field input:focus,.email-field textarea:focus{border-color:var(--accent)}
+.send-btn{width:100%;padding:11px;background:var(--accent2);color:#000;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s}
+.send-btn:hover{background:#0ea571;transform:translateY(-1px)}
+
+/* DASHBOARD STATS */
+.bl-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.bl-stat{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center}
+.bl-stat-val{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:3px}
+.bl-stat-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+
+.sub-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.sub-tab{padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
+.sub-tab.active{background:rgba(6,182,212,.1);border-color:var(--accent6);color:var(--accent6)}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stats-row,.angles,.bl-stats{grid-template-columns:1fr 1fr}.topbar,.content{padding:12px 14px}}
 </style>
 </head>
 <body>
@@ -88,10 +141,13 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
   <div class="nav-item" onclick="go('gads',this)"><span class="nav-icon">🎯</span>Google Ads<span class="nav-badge">3 Angles</span></div>
   <div class="nav-item" onclick="go('mads',this)"><span class="nav-icon">📱</span>Meta Ads</div>
   <div class="nav-item" onclick="go('img',this)"><span class="nav-icon">🖼️</span>Image Prompts</div>
+  <div class="sb-section">Outreach</div>
+  <div class="nav-item" onclick="go('bl',this)"><span class="nav-icon">🔗</span>Backlink CRM<span class="nav-badge">NEW</span></div>
   <div class="sb-bottom">
     <div class="api-status"><div class="dot"></div>Groq Llama 3.3 — Free</div>
   </div>
 </nav>
+
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="pg-title">🔍 Keyword Cluster Intelligence</div>
@@ -100,19 +156,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
       <button class="save-btn" onclick="saveUrl()">Save</button>
     </div>
   </div>
+
   <div class="content">
-    <!-- SEARCH BAR -->
     <div class="search-card">
       <div class="search-label">Enter Keyword — AI Executes Everything</div>
       <div class="search-row">
-        <input class="kw-input" id="kw" placeholder="e.g. online IB tuition, exam prep classes, digital marketing course..."/>
+        <input class="kw-input" id="kw" placeholder="e.g. online IB tuition, exam prep, digital marketing..."/>
         <select class="sel" id="persona"><option value="student">👨‍🎓 Student</option><option value="professional">💼 Professional</option><option value="parent">👨‍👩‍👧 Parent</option><option value="business owner">🏢 Business Owner</option></select>
         <select class="sel" id="country"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Australia</option></select>
         <button class="gen-btn" id="gen-btn" onclick="generate()">⚡ Generate</button>
       </div>
     </div>
 
-    <!-- KEYWORD CLUSTER -->
+    <!-- KEYWORD -->
     <div class="page active" id="page-kw">
       <div class="sec-title">🔍 Keyword Cluster <span class="badge" style="background:rgba(99,102,241,.15);color:var(--accent)">1 Primary + 4 LSI</span></div>
       <div class="stats-row">
@@ -121,7 +177,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
         <div class="stat"><div class="stat-val" style="color:var(--accent3)" id="s-cpc">—</div><div class="stat-lbl">Avg CPC</div></div>
         <div class="stat"><div class="stat-val" style="color:var(--accent5)" id="s-intent">—</div><div class="stat-lbl">Intent</div></div>
       </div>
-      <div class="loader" id="l-kw"><div class="spin"></div>Analyzing keyword + verifying persona intent...</div>
+      <div class="loader" id="l-kw"><div class="spin"></div>Analyzing keyword cluster...</div>
       <div class="out-card" id="o-kw"><div class="out-head"><div class="out-title">📊 Full Cluster Report</div><div><button class="copy-btn" onclick="cp('b-kw')">Copy</button></div></div><div class="out-body" id="b-kw"></div></div>
     </div>
 
@@ -133,40 +189,40 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
         <button class="lp-tab" onclick="lpTab('tech',this)">🌑 Tech / Dark</button>
         <button class="lp-tab" onclick="lpTab('acad',this)">🎓 Academic</button>
       </div>
-      <div class="loader" id="l-lp"><div class="spin"></div>Generating all 3 landing page styles (6 sections each)...</div>
-      <div class="lp-pane active" id="lp-min"><div class="out-card" id="o-lp-min"><div class="out-head"><div class="out-title">⬜ Minimalist Style</div><div><button class="copy-btn" onclick="cp('b-lp-min')">Copy</button></div></div><div class="out-body" id="b-lp-min"></div></div></div>
-      <div class="lp-pane" id="lp-tech"><div class="out-card" id="o-lp-tech"><div class="out-head"><div class="out-title">🌑 Tech / Dark Style</div><div><button class="copy-btn" onclick="cp('b-lp-tech')">Copy</button></div></div><div class="out-body" id="b-lp-tech"></div></div></div>
-      <div class="lp-pane" id="lp-acad"><div class="out-card" id="o-lp-acad"><div class="out-head"><div class="out-title">🎓 Academic Style</div><div><button class="copy-btn" onclick="cp('b-lp-acad')">Copy</button></div></div><div class="out-body" id="b-lp-acad"></div></div></div>
+      <div class="loader" id="l-lp"><div class="spin"></div>Generating all 3 styles...</div>
+      <div class="lp-pane active" id="lp-min"><div class="out-card" id="o-lp-min"><div class="out-head"><div class="out-title">⬜ Minimalist</div><div><button class="copy-btn" onclick="cp('b-lp-min')">Copy</button></div></div><div class="out-body" id="b-lp-min"></div></div></div>
+      <div class="lp-pane" id="lp-tech"><div class="out-card" id="o-lp-tech"><div class="out-head"><div class="out-title">🌑 Tech/Dark</div><div><button class="copy-btn" onclick="cp('b-lp-tech')">Copy</button></div></div><div class="out-body" id="b-lp-tech"></div></div></div>
+      <div class="lp-pane" id="lp-acad"><div class="out-card" id="o-lp-acad"><div class="out-head"><div class="out-title">🎓 Academic</div><div><button class="copy-btn" onclick="cp('b-lp-acad')">Copy</button></div></div><div class="out-body" id="b-lp-acad"></div></div></div>
     </div>
 
     <!-- BLOG -->
     <div class="page" id="page-blog">
-      <div class="sec-title">✍️ SEO Blog Writer <span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3)">1500+ Words + Human Score</span></div>
-      <div class="loader" id="l-blog"><div class="spin"></div>Writing full blog post with human-score verification...</div>
+      <div class="sec-title">✍️ SEO Blog Writer <span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3)">1500+ Words</span></div>
+      <div class="loader" id="l-blog"><div class="spin"></div>Writing full blog post...</div>
       <div class="out-card" id="o-blog"><div class="out-head"><div class="out-title">📝 Full Blog Post</div><div><button class="copy-btn" onclick="cp('b-blog')">Copy</button></div></div><div class="out-body" id="b-blog"></div></div>
     </div>
 
     <!-- GOOGLE ADS -->
     <div class="page" id="page-gads">
-      <div class="sec-title">🎯 Google Ads <span class="badge" style="background:rgba(239,68,68,.15);color:var(--accent4)">3 Angles + Auto Bidding (+10% CPC)</span></div>
+      <div class="sec-title">🎯 Google Ads <span class="badge" style="background:rgba(239,68,68,.15);color:var(--accent4)">3 Angles + Auto Bidding</span></div>
       <div class="angles">
-        <div class="angle"><div class="angle-lbl" style="color:var(--accent4)">Angle A — Emotional</div><div class="angle-desc">Pain-based. Builds empathy and emotional connection</div></div>
-        <div class="angle"><div class="angle-lbl" style="color:var(--accent2)">Angle B — Logical</div><div class="angle-desc">Feature-driven. Data and solution-focused copy</div></div>
-        <div class="angle"><div class="angle-lbl" style="color:var(--accent3)">Angle C — Scarcity</div><div class="angle-desc">Urgency-driven. Limited spots, deadline, FOMO</div></div>
+        <div class="angle"><div class="angle-lbl" style="color:var(--accent4)">Angle A — Emotional</div><div class="angle-desc">Pain-based. Empathy and connection</div></div>
+        <div class="angle"><div class="angle-lbl" style="color:var(--accent2)">Angle B — Logical</div><div class="angle-desc">Feature-driven. Data and solution</div></div>
+        <div class="angle"><div class="angle-lbl" style="color:var(--accent3)">Angle C — Scarcity</div><div class="angle-desc">Urgency. Limited spots. FOMO</div></div>
       </div>
       <div class="extra-fields">
-        <input id="g-biz" placeholder="Business name (e.g. TutoRoot)"/>
-        <input id="g-budget" placeholder="Monthly budget (e.g. ₹20,000)"/>
-        <input id="g-cpc" placeholder="Avg CPC (e.g. 1.50)"/>
-        <input id="g-loc" placeholder="Location (e.g. India)"/>
+        <input id="g-biz" placeholder="Business name"/>
+        <input id="g-budget" placeholder="Monthly budget (₹20,000)"/>
+        <input id="g-cpc" placeholder="Avg CPC (1.50)"/>
+        <input id="g-loc" placeholder="Location (India)"/>
       </div>
-      <div class="loader" id="l-gads"><div class="spin"></div>Building 3-angle campaign with auto-bidding strategy...</div>
-      <div class="out-card" id="o-gads"><div class="out-head"><div class="out-title">🎯 Full Google Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-gads')">Copy</button></div></div><div class="out-body" id="b-gads"></div></div>
+      <div class="loader" id="l-gads"><div class="spin"></div>Building 3-angle campaign...</div>
+      <div class="out-card" id="o-gads"><div class="out-head"><div class="out-title">🎯 Google Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-gads')">Copy</button></div></div><div class="out-body" id="b-gads"></div></div>
     </div>
 
     <!-- META ADS -->
     <div class="page" id="page-mads">
-      <div class="sec-title">📱 Meta Ads <span class="badge" style="background:rgba(139,92,246,.15);color:var(--accent5)">3 Ad Sets + Creative Scripts</span></div>
+      <div class="sec-title">📱 Meta Ads <span class="badge" style="background:rgba(139,92,246,.15);color:var(--accent5)">3 Ad Sets + Creatives</span></div>
       <div class="extra-fields">
         <input id="m-biz" placeholder="Business name"/>
         <input id="m-prod" placeholder="Product / service"/>
@@ -174,36 +230,141 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
         <input id="m-age" placeholder="Target age (18-35)"/>
         <input id="m-loc" placeholder="Location"/>
       </div>
-      <div class="loader" id="l-mads"><div class="spin"></div>Creating full Meta campaign with audiences and creatives...</div>
-      <div class="out-card" id="o-mads"><div class="out-head"><div class="out-title">📱 Full Meta Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-mads')">Copy</button></div></div><div class="out-body" id="b-mads"></div></div>
+      <div class="loader" id="l-mads"><div class="spin"></div>Creating full Meta campaign...</div>
+      <div class="out-card" id="o-mads"><div class="out-head"><div class="out-title">📱 Meta Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-mads')">Copy</button></div></div><div class="out-body" id="b-mads"></div></div>
     </div>
 
     <!-- IMAGE PROMPTS -->
     <div class="page" id="page-img">
-      <div class="sec-title">🖼️ Image Prompts <span class="badge" style="background:rgba(16,185,129,.15);color:var(--accent2)">Zero Copyright — Environment Based</span></div>
-      <div class="angles" style="cursor:pointer" id="angle-grid">
-        <div class="angle" style="border-color:var(--accent4)" onclick="pickAngle('emotional',this)"><div class="angle-lbl" style="color:var(--accent4)">😢 Emotional (Pain)</div><div class="angle-desc">Real student struggles. Messy desk, 2am, stressed</div></div>
-        <div class="angle" onclick="pickAngle('logical',this)"><div class="angle-lbl" style="color:var(--accent2)">🧠 Logical (Solution)</div><div class="angle-desc">Clean, focused environment. Progress and clarity</div></div>
-        <div class="angle" onclick="pickAngle('scarcity',this)"><div class="angle-lbl" style="color:var(--accent3)">⏰ Scarcity (Deadline)</div><div class="angle-desc">Clock, countdown, urgency and last-chance energy</div></div>
+      <div class="sec-title">🖼️ Image Prompts <span class="badge" style="background:rgba(16,185,129,.15);color:var(--accent2)">Zero Copyright</span></div>
+      <div class="angles" id="angle-grid">
+        <div class="angle" style="border-color:var(--accent4);cursor:pointer" onclick="pickAngle('emotional',this)"><div class="angle-lbl" style="color:var(--accent4)">😢 Emotional</div><div class="angle-desc">Pain scenes. Real struggles</div></div>
+        <div class="angle" style="cursor:pointer" onclick="pickAngle('logical',this)"><div class="angle-lbl" style="color:var(--accent2)">🧠 Logical</div><div class="angle-desc">Solution focused. Clean</div></div>
+        <div class="angle" style="cursor:pointer" onclick="pickAngle('scarcity',this)"><div class="angle-lbl" style="color:var(--accent3)">⏰ Scarcity</div><div class="angle-desc">Urgency. Deadline energy</div></div>
       </div>
-      <div class="loader" id="l-img"><div class="spin"></div>Generating environment-based image prompts...</div>
-      <div class="out-card" id="o-img"><div class="out-head"><div class="out-title">🖼️ Image Prompts (Feed + Story + Display)</div><div><button class="copy-btn" onclick="cp('b-img')">Copy</button></div></div><div class="out-body" id="b-img"></div></div>
+      <div class="loader" id="l-img"><div class="spin"></div>Generating image prompts...</div>
+      <div class="out-card" id="o-img"><div class="out-head"><div class="out-title">🖼️ Image Prompts</div><div><button class="copy-btn" onclick="cp('b-img')">Copy</button></div></div><div class="out-body" id="b-img"></div></div>
     </div>
 
+    <!-- BACKLINK CRM -->
+    <div class="page" id="page-bl">
+      <div class="sec-title">🔗 Backlink Outreach CRM <span class="badge" style="background:rgba(6,182,212,.15);color:var(--accent6)">Full Pipeline</span></div>
+
+      <!-- Extra inputs for backlink -->
+      <div class="extra-fields" style="margin-bottom:18px">
+        <input id="bl-niche" placeholder="Your niche (e.g. education, tutoring)"/>
+        <input id="bl-name" placeholder="Your name (for emails)"/>
+        <input id="bl-site" placeholder="Your website URL"/>
+      </div>
+
+      <!-- Dashboard stats -->
+      <div class="bl-stats" id="bl-stats" style="display:none">
+        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent6)" id="bl-total">0</div><div class="bl-stat-lbl">Total Prospects</div></div>
+        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent3)" id="bl-competitors">0</div><div class="bl-stat-lbl">Competitors</div></div>
+        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent2)" id="bl-targets">0</div><div class="bl-stat-lbl">Link Targets</div></div>
+        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent5)" id="bl-quickwins">0</div><div class="bl-stat-lbl">Quick Wins</div></div>
+        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent4)" id="bl-emails-count">0</div><div class="bl-stat-lbl">Emails Ready</div></div>
+      </div>
+
+      <div class="loader" id="l-bl"><div class="spin"></div>Researching competitors, finding link targets and contact info...</div>
+
+      <!-- Sub tabs -->
+      <div class="sub-tabs" id="bl-subtabs" style="display:none">
+        <button class="sub-tab active" onclick="blTab('competitors',this)">🏆 Competitors</button>
+        <button class="sub-tab" onclick="blTab('targets',this)">🎯 Link Targets</button>
+        <button class="sub-tab" onclick="blTab('quickwins',this)">⚡ Quick Wins</button>
+        <button class="sub-tab" onclick="blTab('operators',this)">🔎 Search Operators</button>
+        <button class="sub-tab" onclick="blTab('emails',this)">📧 Outreach Emails</button>
+      </div>
+
+      <!-- Competitors table -->
+      <div id="bl-pane-competitors" class="bl-pane active">
+        <div class="out-card" id="o-bl-comp" style="display:none">
+          <div class="out-head"><div class="out-title">🏆 Competitor Analysis</div></div>
+          <div class="bl-table-wrap">
+            <table class="bl-table">
+              <thead><tr><th>Domain</th><th>DA</th><th>PA</th><th>Spam</th><th>Backlinks</th><th>Traffic</th><th>Type</th><th>Actions</th></tr></thead>
+              <tbody id="bl-comp-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Link targets table -->
+      <div id="bl-pane-targets" class="bl-pane" style="display:none">
+        <div class="out-card" id="o-bl-targets" style="display:none">
+          <div class="out-head"><div class="out-title">🎯 Link Building Targets</div></div>
+          <div class="bl-table-wrap">
+            <table class="bl-table">
+              <thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Author</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="bl-targets-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick wins -->
+      <div id="bl-pane-quickwins" class="bl-pane" style="display:none">
+        <div class="out-card" id="o-bl-qw" style="display:none">
+          <div class="out-head"><div class="out-title">⚡ Quick Win Links</div></div>
+          <div class="bl-table-wrap">
+            <table class="bl-table">
+              <thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Effort</th><th>How To Get Link</th></tr></thead>
+              <tbody id="bl-qw-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search operators -->
+      <div id="bl-pane-operators" class="bl-pane" style="display:none">
+        <div class="out-card" id="o-bl-ops" style="display:none">
+          <div class="out-head"><div class="out-title">🔎 Google Search Operators</div><div><button class="copy-btn" onclick="cp('b-ops')">Copy</button></div></div>
+          <div class="out-body" id="b-ops"></div>
+        </div>
+      </div>
+
+      <!-- Outreach emails -->
+      <div id="bl-pane-emails" class="bl-pane" style="display:none">
+        <div class="out-card" id="o-bl-emails" style="display:none">
+          <div class="out-head"><div class="out-title">📧 Ready-to-Send Outreach Emails</div></div>
+          <div id="bl-emails-body" style="padding:16px"></div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📧 Send Outreach Email</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="email-tabs" id="email-angle-tabs"></div>
+      <div id="email-panes"></div>
+    </div>
+  </div>
+</div>
+
 <script>
-const TITLES={kw:'🔍 Keyword Cluster Intelligence',lp:'🏠 Landing Page Generator',blog:'✍️ SEO Blog Writer',gads:'🎯 Google Ads — 3 Angles',mads:'📱 Meta Ads Setup',img:'🖼️ Image Prompt Generator'};
+const TITLES={kw:'🔍 Keyword Cluster Intelligence',lp:'🏠 Landing Page Generator',blog:'✍️ SEO Blog Writer',gads:'🎯 Google Ads — 3 Angles',mads:'📱 Meta Ads Setup',img:'🖼️ Image Prompt Generator',bl:'🔗 Backlink Outreach CRM'};
 let BACKEND=localStorage.getItem('mkai_be')||'https://marketai-app-production.up.railway.app';
 let angle='emotional';
+let blData=null;
+let statuses={};
 document.getElementById('backendUrl').value=BACKEND;
 
 function saveUrl(){BACKEND=document.getElementById('backendUrl').value.trim().replace(/\/$/,'');localStorage.setItem('mkai_be',BACKEND);const b=document.querySelector('.save-btn');b.textContent='✓';setTimeout(()=>b.textContent='Save',1200)}
 function go(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');el.classList.add('active');document.getElementById('pg-title').textContent=TITLES[name]}
 function lpTab(n,el){document.querySelectorAll('.lp-pane').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.lp-tab').forEach(t=>t.classList.remove('active'));document.getElementById('lp-'+n).classList.add('active');el.classList.add('active')}
+function blTab(n,el){document.querySelectorAll('.bl-pane').forEach(p=>p.style.display='none');document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));document.getElementById('bl-pane-'+n).style.display='block';el.classList.add('active')}
 function pickAngle(a,el){angle=a;document.querySelectorAll('#angle-grid .angle').forEach(c=>c.style.borderColor='var(--border)');el.style.borderColor='var(--accent)'}
 function load(id,on){document.getElementById('l-'+id).className='loader'+(on?' show':'')}
-function show(cardId,bodyId,text){document.getElementById(cardId).style.display='block';document.getElementById(bodyId).textContent=text}
+function show(cardId,bodyId,text){document.getElementById(cardId).style.display='block';if(bodyId)document.getElementById(bodyId).textContent=text}
 function cp(id){navigator.clipboard.writeText(document.getElementById(id).textContent)}
 function kw(){return document.getElementById('kw').value.trim()}
 function persona(){return document.getElementById('persona').value}
@@ -222,6 +383,133 @@ async function post(ep,body){
   const r=await fetch(BACKEND+ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   return r.json();
 }
+
+function daClass(da){return da>=50?'da-high':da>=30?'da-mid':'da-low'}
+function spamClass(s){return s<=2?'da-high':s<=5?'da-mid':'da-low'}
+
+function renderCompetitors(data){
+  const tbody=document.getElementById('bl-comp-body');
+  tbody.innerHTML=data.map(c=>`
+    <tr>
+      <td><a href="${c.url}" target="_blank" style="color:var(--accent6);font-size:.72rem">${c.domain}</a></td>
+      <td><span class="da-badge ${daClass(c.da)}">${c.da}</span></td>
+      <td><span class="da-badge ${daClass(c.pa)}">${c.pa}</span></td>
+      <td><span class="da-badge ${spamClass(c.spam_score)}">${c.spam_score}%</span></td>
+      <td style="color:var(--muted)">${c.backlinks?.toLocaleString()||'—'}</td>
+      <td style="color:var(--muted)">${c.traffic||'—'}</td>
+      <td><span class="type-badge">${c.type||'—'}</span></td>
+      <td><button class="action-btn-sm btn-contacts" onclick="findContacts('${c.domain}')">Find Contacts</button></td>
+    </tr>`).join('');
+  show('o-bl-comp',null,'');
+}
+
+function renderTargets(data){
+  const tbody=document.getElementById('bl-targets-body');
+  tbody.innerHTML=data.map((t,i)=>`
+    <tr>
+      <td><a href="${t.url}" target="_blank" style="color:var(--accent6);font-size:.72rem">${t.domain}</a></td>
+      <td><span class="da-badge ${daClass(t.da)}">${t.da}</span></td>
+      <td><span class="type-badge">${t.type||'—'}</span></td>
+      <td style="color:var(--text);font-size:.72rem">${t.author_name||'—'}</td>
+      <td style="color:var(--accent2);font-size:.72rem">${t.author_email||'—'}</td>
+      <td><span class="status-badge ${statuses[t.domain]||'status-new'}" id="status-${i}">${getStatusLabel(statuses[t.domain]||'status-new')}</span></td>
+      <td style="display:flex;gap:5px">
+        <button class="action-btn-sm btn-email" onclick="openEmailModal(${i})">📧 Email</button>
+        <button class="action-btn-sm btn-contacts" onclick="markStatus('${t.domain}',${i},'status-contacted')">Mark Contacted</button>
+      </td>
+    </tr>`).join('');
+  show('o-bl-targets',null,'');
+}
+
+function renderQuickWins(data){
+  const tbody=document.getElementById('bl-qw-body');
+  tbody.innerHTML=data.map(q=>`
+    <tr>
+      <td><a href="${q.url}" target="_blank" style="color:var(--accent6);font-size:.72rem">${q.domain}</a></td>
+      <td><span class="da-badge ${daClass(q.da)}">${q.da}</span></td>
+      <td><span class="type-badge">${q.type||'—'}</span></td>
+      <td><span class="da-badge da-high">${q.effort||'Low'}</span></td>
+      <td style="color:var(--muted);font-size:.72rem">${q.how_to||'—'}</td>
+    </tr>`).join('');
+  show('o-bl-qw',null,'');
+}
+
+function renderEmails(data){
+  const container=document.getElementById('bl-emails-body');
+  container.innerHTML=data.map((e,i)=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:.78rem;font-weight:600;color:var(--text)">${e.domain}</div>
+          <div style="font-size:.68rem;color:var(--accent2)">${e.author} · ${e.email||'Email not found'}</div>
+        </div>
+        <button class="action-btn-sm btn-email" onclick="openEmailModalFromData(${i})">📧 Compose & Send</button>
+      </div>
+      ${(e.templates||[]).map(t=>`
+        <div style="background:var(--panel);border-radius:7px;padding:12px;margin-bottom:8px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent3);margin-bottom:6px">${t.angle}</div>
+          <div style="font-size:.72rem;color:var(--muted);font-weight:600;margin-bottom:4px">Subject: ${t.subject}</div>
+          <div style="font-size:.72rem;color:var(--muted);line-height:1.6">${(t.body||'').substring(0,200)}...</div>
+        </div>`).join('')}
+    </div>`).join('');
+  show('o-bl-emails',null,'');
+}
+
+function getStatusLabel(cls){
+  const map={'status-new':'New','status-contacted':'Contacted','status-replied':'Replied','status-live':'Link Live'};
+  return map[cls]||'New';
+}
+
+function markStatus(domain,i,newStatus){
+  statuses[domain]=newStatus;
+  const el=document.getElementById('status-'+i);
+  if(el){el.className='status-badge '+newStatus;el.textContent=getStatusLabel(newStatus);}
+}
+
+function openEmailModal(targetIndex){
+  if(!blData||!blData.outreach_emails) return;
+  const emailData=blData.outreach_emails[targetIndex]||blData.outreach_emails[0];
+  if(!emailData) return;
+  showEmailModal(emailData);
+}
+
+function openEmailModalFromData(i){
+  if(!blData||!blData.outreach_emails[i]) return;
+  showEmailModal(blData.outreach_emails[i]);
+}
+
+function showEmailModal(emailData){
+  const tabs=document.getElementById('email-angle-tabs');
+  const panes=document.getElementById('email-panes');
+  const templates=emailData.templates||[];
+  tabs.innerHTML=templates.map((t,i)=>`<button class="email-tab ${i===0?'active':''}" onclick="switchEmailTab(${i},this)">${t.angle}</button>`).join('');
+  panes.innerHTML=templates.map((t,i)=>`
+    <div class="email-pane ${i===0?'active':''}" id="ep-${i}">
+      <div class="email-field"><label>To</label><input value="${emailData.email||''}"/></div>
+      <div class="email-field"><label>Subject</label><input value="${t.subject||''}"/></div>
+      <div class="email-field"><label>Message</label><textarea>${t.body||''}</textarea></div>
+      <button class="send-btn" onclick="alert('Gmail integration coming in Phase 2! Copy this email and send manually.')">📧 Copy & Open Gmail</button>
+    </div>`).join('');
+  document.getElementById('email-modal').classList.add('show');
+}
+
+function switchEmailTab(i,el){
+  document.querySelectorAll('.email-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.email-pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ep-'+i).classList.add('active');
+}
+
+function closeModal(){document.getElementById('email-modal').classList.remove('show')}
+
+async function findContacts(domain){
+  const niche=document.getElementById('bl-niche').value||'education';
+  try{
+    const d=await post('/api/find-contacts',{domain,niche});
+    alert(`📧 Contact Found!\n\nName: ${d.owner_name||'—'}\nEmail: ${d.owner_email||'—'}\nEditor: ${d.editor_email||'—'}\nLinkedIn: ${d.linkedin||'—'}\nConfidence: ${d.confidence||'—'}`);
+  }catch(e){alert('Could not find contacts. Try manually.')}
+}
+
 async function generate(){
   if(!kw()){alert('Enter a keyword first!');return}
   const btn=document.getElementById('gen-btn');
@@ -266,12 +554,40 @@ async function generate(){
       const d=await post('/api/image-prompts',{keyword:kw(),angle});
       load('img',false);show('o-img','b-img',d.image_prompts||JSON.stringify(d));
     }
+    else if(page==='bl'){
+      load('bl',true);
+      const niche=document.getElementById('bl-niche').value||'education';
+      const name=document.getElementById('bl-name').value||'Our Agency';
+      const site=document.getElementById('bl-site').value||'https://oursite.com';
+      const d=await post('/api/backlink-research',{keyword:kw(),niche,sender_name:name,sender_site:site});
+      load('bl',false);
+      blData=d;
+      // Update stats
+      document.getElementById('bl-stats').style.display='grid';
+      document.getElementById('bl-subtabs').style.display='flex';
+      document.getElementById('bl-total').textContent=(d.competitors?.length||0)+(d.link_targets?.length||0)+(d.quick_wins?.length||0);
+      document.getElementById('bl-competitors').textContent=d.competitors?.length||0;
+      document.getElementById('bl-targets').textContent=d.link_targets?.length||0;
+      document.getElementById('bl-quickwins').textContent=d.quick_wins?.length||0;
+      document.getElementById('bl-emails-count').textContent=d.outreach_emails?.length||0;
+      // Render tables
+      if(d.competitors?.length) renderCompetitors(d.competitors);
+      if(d.link_targets?.length) renderTargets(d.link_targets);
+      if(d.quick_wins?.length) renderQuickWins(d.quick_wins);
+      if(d.search_operators?.length){
+        show('o-bl-ops','b-ops',d.search_operators.join('\n'));
+      }
+      if(d.outreach_emails?.length) renderEmails(d.outreach_emails);
+    }
   }catch(e){
-    ['kw','lp','blog','gads','mads','img'].forEach(x=>load(x,false));
-    alert('Error: '+e.message+'\n\nCheck your Backend URL at the top!');
+    ['kw','lp','blog','gads','mads','img','bl'].forEach(x=>load(x,false));
+    alert('Error: '+e.message+'\n\nCheck Backend URL!');
   }
   btn.disabled=false;btn.textContent='⚡ Generate';
 }
+
+// Close modal on overlay click
+document.getElementById('email-modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 </script>
 </body>
 </html>
