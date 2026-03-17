@@ -2,512 +2,471 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>MarketAI — Execution Engine</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<title>MarketMind AI — Marketing Intelligence Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#0a0c10;--sidebar:#0f1219;--panel:#13181f;--card:#181e27;--border:#1f2937;--accent:#6366f1;--accent2:#10b981;--accent3:#f59e0b;--accent4:#ef4444;--accent5:#8b5cf6;--accent6:#06b6d4;--text:#f1f5f9;--muted:#64748b;--glow:rgba(99,102,241,.15)}
+:root{
+  --bg:#0B0F19;--sidebar:#0F1629;--card:#151C32;--card2:#111827;
+  --border:#232A45;--border2:#1E2640;
+  --p1:#6C5CE7;--p2:#8B5CF6;
+  --green:#22C55E;--warn:#F59E0B;--red:#EF4444;--cyan:#06B6D4;
+  --text:#E6EAF2;--text2:#9AA4C7;--muted:#6B7394;
+  --grad:linear-gradient(135deg,#6C5CE7,#8B5CF6);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;min-height:100vh}
-.sidebar{width:250px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
-.sidebar-logo{padding:22px 20px;border-bottom:1px solid var(--border)}
-.logo-text{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}.logo-text span{color:var(--accent)}
-.logo-sub{font-size:.6rem;color:var(--muted);margin-top:3px;letter-spacing:.1em;text-transform:uppercase}
-.sb-section{padding:16px 12px 6px;font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:2px 8px;border-radius:8px;cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--muted);font-weight:500;border:1px solid transparent}
-.nav-item:hover{background:rgba(99,102,241,.07);color:var(--text)}
-.nav-item.active{background:rgba(99,102,241,.12);color:var(--accent);border-color:rgba(99,102,241,.2)}
-.nav-icon{font-size:.95rem;width:18px;text-align:center}
-.nav-badge{margin-left:auto;font-size:.55rem;padding:2px 6px;border-radius:8px;background:rgba(99,102,241,.2);color:var(--accent)}
-.sb-bottom{margin-top:auto;padding:14px;border-top:1px solid var(--border)}
-.api-status{display:flex;align-items:center;gap:7px;font-size:.68rem;color:var(--muted)}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:pulse 2s infinite;flex-shrink:0}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.main{margin-left:250px;flex:1;display:flex;flex-direction:column}
-.topbar{padding:14px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(10,12,16,.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
-.topbar-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
-.topbar-right{display:flex;align-items:center;gap:10px}
-.be-input{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:7px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:.7rem;width:260px;outline:none}
-.be-input:focus{border-color:var(--accent)}
-.save-btn{padding:7px 13px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:.7rem;cursor:pointer;font-weight:600}
-.content{padding:24px 28px;flex:1}
-.search-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
-.search-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
-.search-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.kw-input{flex:1;min-width:200px;background:var(--card);border:2px solid var(--border);border-radius:9px;padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:all .2s}
-.kw-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
-.sel{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:.75rem;outline:none;cursor:pointer}
-.sel option{background:var(--card)}
-.gen-btn{padding:12px 22px;background:linear-gradient(135deg,var(--accent),var(--accent5));color:#fff;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
-.gen-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(99,102,241,.4)}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;display:flex;min-height:100vh;background-image:radial-gradient(circle at 80% 0%,rgba(108,92,231,0.07),transparent 60%)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* SIDEBAR */
+.sidebar{width:256px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.logo-wrap{padding:22px 20px 18px;border-bottom:1px solid var(--border2)}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.logo-icon{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 4px 14px rgba(108,92,231,0.4)}
+.logo-name{font-family:'Outfit',sans-serif;font-size:1.15rem;font-weight:800;letter-spacing:-.02em}
+.logo-name span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:.58rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;padding-left:44px}
+.sb-sec{padding:16px 14px 5px;font-size:.57rem;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;margin:2px 10px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--text2);font-weight:500;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(108,92,231,0.07);color:var(--text);transform:translateX(2px)}
+.nav-item.active{background:rgba(108,92,231,0.15);color:var(--p1);border-left-color:var(--p1)}
+.ni{font-size:.9rem;width:20px;text-align:center}
+.nbadge{margin-left:auto;font-size:.52rem;padding:2px 7px;border-radius:20px;background:rgba(108,92,231,0.2);color:var(--p1);font-weight:700}
+.nbadge.new{background:rgba(34,197,94,0.15);color:var(--green)}
+.sb-foot{margin-top:auto;padding:14px;border-top:1px solid var(--border2)}
+.ai-pill{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:9px;padding:10px 12px;display:flex;align-items:center;gap:8px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pg 2s infinite}
+@keyframes pg{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+
+/* MAIN */
+.main{margin-left:256px;flex:1;display:flex;flex-direction:column}
+.topbar{padding:13px 26px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:rgba(11,15,25,0.92);backdrop-filter:blur(16px);position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700}
+.be-row{display:flex;align-items:center;gap:8px}
+.be-wrap{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 12px}
+.be-lbl{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.be-inp{background:transparent;border:none;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;outline:none;width:210px}
+.save-btn{padding:7px 15px;background:var(--grad);color:#fff;border:none;border-radius:7px;font-size:.7rem;cursor:pointer;font-weight:700;transition:all .2s}
+.save-btn:hover{box-shadow:0 4px 14px rgba(108,92,231,0.4);transform:translateY(-1px)}
+
+/* CONTENT */
+.content{padding:22px 26px;flex:1}
+.search-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:22px;position:relative;overflow:hidden}
+.search-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,0.1),transparent 70%);pointer-events:none}
+.s-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:9px;font-weight:600}
+.s-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kw-inp{flex:1;min-width:200px;background:#0D1422;border:1px solid var(--border);border-radius:11px;padding:13px 16px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;outline:none;transition:all .25s}
+.kw-inp::placeholder{color:var(--muted)}
+.kw-inp:focus{border-color:var(--p1);box-shadow:0 0 0 3px rgba(108,92,231,0.18)}
+.sel{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;outline:none;cursor:pointer}
+.sel option{background:var(--card2)}
+.gen-btn{padding:13px 24px;background:var(--grad);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .25s;white-space:nowrap;box-shadow:0 4px 16px rgba(108,92,231,0.3)}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,0.45)}
 .gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.page{display:none}.page.active{display:block}
-.sec-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.badge{font-size:.55rem;padding:2px 8px;border-radius:6px;font-family:'Inter',sans-serif;font-weight:600}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center}
-.stat-val{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:3px}
-.stat-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-.lp-tabs{display:flex;gap:7px;margin-bottom:14px}
-.lp-tab{padding:7px 16px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.72rem;font-weight:600;transition:all .2s}
-.lp-tab.active{background:rgba(99,102,241,.12);border-color:var(--accent);color:var(--accent)}
-.lp-pane{display:none}.lp-pane.active{display:block}
-.angles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.angle{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px}
-.angle-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-weight:700}
-.angle-desc{font-size:.7rem;color:var(--muted)}
-.extra-fields{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.extra-fields input{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.75rem;outline:none}
-.extra-fields input:focus{border-color:var(--accent)}
-.out-card{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:16px;display:none}
-.out-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.02)}
-.out-title{font-size:.75rem;font-weight:600}
-.copy-btn{padding:4px 11px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.62rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
-.copy-btn:hover{border-color:var(--accent2);color:var(--accent2)}
-.out-body{padding:18px;font-size:.76rem;line-height:1.85;white-space:pre-wrap;word-break:break-word;max-height:480px;overflow-y:auto;color:#94a3b8}
-.out-body::-webkit-scrollbar{width:3px}
-.out-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.loader{display:none;align-items:center;gap:10px;padding:18px 0;color:var(--muted);font-size:.76rem}
+
+/* PAGES */
+.page{display:none;animation:fu .3s ease}.page.active{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION HEADER */
+.sec-hd{display:flex;align-items:center;gap:9px;margin-bottom:18px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700}
+.sec-badge{font-size:.55rem;padding:3px 9px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .25s;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0;transition:opacity .25s}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,.25)}
+.kpi:hover::after{opacity:1}
+.kpi-ico{font-size:1.2rem;margin-bottom:10px;display:block}
+.kpi-v{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:3px;line-height:1}
+.kpi-l{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.kpi-hint{font-size:.63rem;margin-top:6px;color:var(--muted)}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+.chart-title{font-size:.7rem;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em}
+.chart-wrap{height:155px;position:relative}
+
+/* AI SCORE */
+.ai-score{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;display:none}
+.ai-score.show{display:block;animation:fu .3s ease}
+.ai-score-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--p2);margin-bottom:14px}
+.scores-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.score-item{background:var(--card2);border-radius:10px;padding:13px}
+.score-lbl{font-size:.63rem;color:var(--text2);margin-bottom:7px;font-weight:600}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.score-num{font-size:.75rem;font-weight:700;margin-top:5px}
+
+/* LOADER */
+.loader{display:none;align-items:center;gap:11px;padding:18px 0;color:var(--text2);font-size:.77rem}
 .loader.show{display:flex}
-.spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--p1);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
+.ldots span{animation:blink 1.4s infinite;display:inline-block}
+.ldots span:nth-child(2){animation-delay:.2s}.ldots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
 
-/* BACKLINK SPECIFIC */
-.bl-table-wrap{overflow-x:auto;margin-bottom:16px}
-.bl-table{width:100%;border-collapse:collapse;font-size:.73rem;min-width:700px}
-.bl-table thead tr{background:var(--panel);border-bottom:1px solid var(--border)}
-.bl-table th{padding:10px 14px;text-align:left;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;white-space:nowrap}
-.bl-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
-.bl-table tr:hover td{background:rgba(255,255,255,.02)}
-.da-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700}
-.da-high{background:rgba(16,185,129,.15);color:var(--accent2)}
-.da-mid{background:rgba(245,158,11,.15);color:var(--accent3)}
-.da-low{background:rgba(239,68,68,.15);color:var(--accent4)}
-.type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.62rem;background:rgba(99,102,241,.12);color:var(--accent)}
-.status-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.62rem;font-weight:600}
-.status-new{background:rgba(6,182,212,.12);color:var(--accent6)}
-.status-contacted{background:rgba(245,158,11,.12);color:var(--accent3)}
-.status-replied{background:rgba(16,185,129,.12);color:var(--accent2)}
-.status-live{background:rgba(99,102,241,.12);color:var(--accent)}
-.action-btn-sm{padding:4px 10px;border-radius:5px;border:none;font-size:.62rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:all .2s}
-.btn-email{background:rgba(99,102,241,.15);color:var(--accent)}
-.btn-email:hover{background:rgba(99,102,241,.25)}
-.btn-contacts{background:rgba(6,182,212,.15);color:var(--accent6)}
-.btn-contacts:hover{background:rgba(6,182,212,.25)}
+/* OUTPUT */
+.out-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;display:none}
+.out-head{padding:12px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.015)}
+.out-title{font-size:.75rem;font-weight:700}
+.copy-btn{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.62rem;cursor:pointer;font-weight:600;transition:all .2s}
+.copy-btn:hover{border-color:var(--green);color:var(--green)}
+.out-body{padding:18px;font-size:.76rem;line-height:1.9;white-space:pre-wrap;word-break:break-word;max-height:480px;overflow-y:auto;color:var(--text2)}
 
-/* EMAIL MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.modal-overlay.show{display:flex}
-.modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;width:90%;max-width:680px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
-.modal-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700}
-.modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px 8px}
-.modal-body{padding:20px 22px;overflow-y:auto;flex:1}
-.email-tabs{display:flex;gap:6px;margin-bottom:16px}
-.email-tab{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
-.email-tab.active{background:rgba(99,102,241,.12);border-color:var(--accent);color:var(--accent)}
-.email-pane{display:none}.email-pane.active{display:block}
-.email-field{margin-bottom:12px}
-.email-field label{display:block;font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
-.email-field input,.email-field textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.78rem;outline:none}
-.email-field textarea{height:140px;resize:vertical;line-height:1.6}
-.email-field input:focus,.email-field textarea:focus{border-color:var(--accent)}
-.send-btn{width:100%;padding:11px;background:var(--accent2);color:#000;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s}
-.send-btn:hover{background:#0ea571;transform:translateY(-1px)}
+/* LP TABS */
+.lp-tabs{display:flex;gap:7px;margin-bottom:14px}
+.lp-tab{padding:8px 17px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.72rem;font-weight:600;transition:all .2s}
+.lp-tab.active{background:rgba(108,92,231,0.12);border-color:var(--p1);color:var(--p1)}
+.lp-pane{display:none}.lp-pane.active{display:block}
 
-/* DASHBOARD STATS */
-.bl-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
-.bl-stat{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center}
-.bl-stat-val{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:3px}
-.bl-stat-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+/* ANGLES */
+.angles{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:16px}
+.angle{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;transition:all .2s}
+.angle:hover{transform:translateY(-2px)}
+.albl{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700}
+.adesc{font-size:.7rem;color:var(--muted);line-height:1.5}
 
-.sub-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-.sub-tab{padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
-.sub-tab.active{background:rgba(6,182,212,.1);border-color:var(--accent6);color:var(--accent6)}
+/* EXTRA FIELDS */
+.xfields{display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.xfields input{flex:1;min-width:130px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 13px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;outline:none;transition:all .2s}
+.xfields input::placeholder{color:var(--muted)}
+.xfields input:focus{border-color:var(--p1);box-shadow:0 0 0 2px rgba(108,92,231,0.12)}
 
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stats-row,.angles,.bl-stats{grid-template-columns:1fr 1fr}.topbar,.content{padding:12px 14px}}
+/* BACKLINK CRM */
+.bl-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:18px}
+.bl-kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;text-align:center;transition:all .2s}
+.bl-kpi:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.2)}
+.bl-kpi-v{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:3px}
+.bl-kpi-l{font-size:.57rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.sub-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.sub-tab{padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
+.sub-tab.active{background:rgba(6,182,212,0.1);border-color:var(--cyan);color:var(--cyan)}
+.bl-pane{}.tbl-wrap{overflow-x:auto}
+.btbl{width:100%;border-collapse:collapse;font-size:.73rem;min-width:680px}
+.btbl thead tr{background:rgba(255,255,255,.02);border-bottom:1px solid var(--border2)}
+.btbl th{padding:10px 13px;text-align:left;font-size:.59rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;white-space:nowrap}
+.btbl td{padding:10px 13px;border-bottom:1px solid var(--border2)}
+.btbl tr:hover td{background:rgba(255,255,255,.012)}
+.dbadge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.63rem;font-weight:700}
+.dh{background:rgba(34,197,94,.12);color:var(--green)}
+.dm{background:rgba(245,158,11,.12);color:var(--warn)}
+.dl{background:rgba(239,68,68,.12);color:var(--red)}
+.tbadge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.61rem;background:rgba(108,92,231,.12);color:var(--p2);font-weight:600}
+.sbadge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.6rem;font-weight:700}
+.s-new{background:rgba(6,182,212,.1);color:var(--cyan)}
+.s-contacted{background:rgba(245,158,11,.1);color:var(--warn)}
+.s-replied{background:rgba(34,197,94,.1);color:var(--green)}
+.s-live{background:rgba(108,92,231,.1);color:var(--p1)}
+.abtn{padding:5px 11px;border-radius:6px;border:none;font-size:.62rem;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;transition:all .2s}
+.abtn-e{background:rgba(108,92,231,.15);color:var(--p2)}.abtn-e:hover{background:rgba(108,92,231,.25)}
+.abtn-c{background:rgba(6,182,212,.12);color:var(--cyan)}.abtn-c:hover{background:rgba(6,182,212,.22)}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.moverlay.show{display:flex}
+.modal{background:var(--sidebar);border:1px solid var(--border);border-radius:16px;width:90%;max-width:640px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.mhead{padding:15px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.mtitle{font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:700}
+.mclose{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;transition:color .2s}.mclose:hover{color:var(--text)}
+.mbody{padding:18px 20px;overflow-y:auto;flex:1}
+.etabs{display:flex;gap:6px;margin-bottom:14px}
+.etab{padding:6px 13px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
+.etab.active{background:rgba(108,92,231,.12);border-color:var(--p1);color:var(--p1)}
+.epane{display:none}.epane.active{display:block}
+.efl{margin-bottom:11px}
+.efl label{display:block;font-size:.59rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-weight:700}
+.efl input,.efl textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.77rem;outline:none;transition:all .2s}
+.efl textarea{height:130px;resize:vertical;line-height:1.6}
+.efl input:focus,.efl textarea:focus{border-color:var(--p1);box-shadow:0 0 0 2px rgba(108,92,231,.12)}
+.send-btn{width:100%;padding:11px;background:var(--grad);color:#fff;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s;box-shadow:0 4px 14px rgba(108,92,231,.3)}
+.send-btn:hover{transform:translateY(-1px)}
+
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.kpi-grid,.charts-row,.angles,.bl-kpis{grid-template-columns:1fr 1fr}.topbar,.content{padding:12px 14px}}
 </style>
 </head>
 <body>
+
 <nav class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-text">Market<span>AI</span></div>
-    <div class="logo-sub">Phase 1 — Team Demo</div>
+  <div class="logo-wrap">
+    <div class="logo-row">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-name">MarketMind <span>AI</span></div>
+    </div>
+    <div class="logo-sub">Marketing Intelligence Engine</div>
   </div>
-  <div class="sb-section">SEO</div>
-  <div class="nav-item active" onclick="go('kw',this)"><span class="nav-icon">🔍</span>Keyword Cluster<span class="nav-badge">1+4</span></div>
-  <div class="nav-item" onclick="go('lp',this)"><span class="nav-icon">🏠</span>Landing Pages<span class="nav-badge">3 Styles</span></div>
-  <div class="nav-item" onclick="go('blog',this)"><span class="nav-icon">✍️</span>Blog Writer</div>
-  <div class="sb-section">Ads</div>
-  <div class="nav-item" onclick="go('gads',this)"><span class="nav-icon">🎯</span>Google Ads<span class="nav-badge">3 Angles</span></div>
-  <div class="nav-item" onclick="go('mads',this)"><span class="nav-icon">📱</span>Meta Ads</div>
-  <div class="nav-item" onclick="go('img',this)"><span class="nav-icon">🖼️</span>Image Prompts</div>
-  <div class="sb-section">Outreach</div>
-  <div class="nav-item" onclick="go('bl',this)"><span class="nav-icon">🔗</span>Backlink CRM<span class="nav-badge">NEW</span></div>
-  <div class="sb-bottom">
-    <div class="api-status"><div class="dot"></div>Groq Llama 3.3 — Free</div>
+  <div class="sb-sec">Intelligence</div>
+  <div class="nav-item active" onclick="go('kw',this)"><span class="ni">🔍</span>Keyword Cluster<span class="nbadge">1+4</span></div>
+  <div class="nav-item" onclick="go('lp',this)"><span class="ni">🏠</span>Landing Pages<span class="nbadge">3 Styles</span></div>
+  <div class="nav-item" onclick="go('blog',this)"><span class="ni">✍️</span>Blog Writer</div>
+  <div class="sb-sec">Paid Ads</div>
+  <div class="nav-item" onclick="go('gads',this)"><span class="ni">🎯</span>Google Ads<span class="nbadge">3 Angles</span></div>
+  <div class="nav-item" onclick="go('mads',this)"><span class="ni">📱</span>Meta Ads</div>
+  <div class="nav-item" onclick="go('img',this)"><span class="ni">🖼️</span>Image Prompts</div>
+  <div class="sb-sec">Outreach</div>
+  <div class="nav-item" onclick="go('bl',this)"><span class="ni">🔗</span>Backlink CRM<span class="nbadge new">NEW</span></div>
+  <div class="sb-foot">
+    <div class="ai-pill">
+      <div class="pulse"></div>
+      <div><div style="font-weight:700;font-size:.7rem;color:#22C55E">AI Engine Active</div><div style="font-size:.59rem;color:#6B7394;margin-top:1px">Groq Llama 3.3 · Free</div></div>
+    </div>
   </div>
 </nav>
 
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="pg-title">🔍 Keyword Cluster Intelligence</div>
-    <div class="topbar-right">
-      <input class="be-input" id="backendUrl" placeholder="https://marketai-app-production.up.railway.app"/>
+    <div class="be-row">
+      <div class="be-wrap"><span class="be-lbl">API</span><input class="be-inp" id="backendUrl" placeholder="https://marketai-app-production.up.railway.app"/></div>
       <button class="save-btn" onclick="saveUrl()">Save</button>
     </div>
   </div>
 
   <div class="content">
+
     <div class="search-card">
-      <div class="search-label">Enter Keyword — AI Executes Everything</div>
-      <div class="search-row">
-        <input class="kw-input" id="kw" placeholder="e.g. online IB tuition, exam prep, digital marketing..."/>
+      <div class="s-lbl">⚡ Enter Keyword — AI Executes Everything</div>
+      <div class="s-row">
+        <input class="kw-inp" id="kw" placeholder="e.g. online IB tuition, exam prep, digital marketing course..."/>
         <select class="sel" id="persona"><option value="student">👨‍🎓 Student</option><option value="professional">💼 Professional</option><option value="parent">👨‍👩‍👧 Parent</option><option value="business owner">🏢 Business Owner</option></select>
         <select class="sel" id="country"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Australia</option></select>
         <button class="gen-btn" id="gen-btn" onclick="generate()">⚡ Generate</button>
       </div>
     </div>
 
-    <!-- KEYWORD -->
+    <!-- KEYWORD PAGE -->
     <div class="page active" id="page-kw">
-      <div class="sec-title">🔍 Keyword Cluster <span class="badge" style="background:rgba(99,102,241,.15);color:var(--accent)">1 Primary + 4 LSI</span></div>
-      <div class="stats-row">
-        <div class="stat"><div class="stat-val" style="color:var(--accent)" id="s-vol">—</div><div class="stat-lbl">Monthly Volume</div></div>
-        <div class="stat"><div class="stat-val" style="color:var(--accent2)" id="s-kd">—</div><div class="stat-lbl">KD Score</div></div>
-        <div class="stat"><div class="stat-val" style="color:var(--accent3)" id="s-cpc">—</div><div class="stat-lbl">Avg CPC</div></div>
-        <div class="stat"><div class="stat-val" style="color:var(--accent5)" id="s-intent">—</div><div class="stat-lbl">Intent</div></div>
+      <div class="sec-hd">🔍 Keyword Intelligence <span class="sec-badge" style="background:rgba(108,92,231,.15);color:#8B5CF6">1 Primary + 4 LSI</span></div>
+      <div class="kpi-grid">
+        <div class="kpi"><span class="kpi-ico">🔎</span><div class="kpi-v" style="color:#6C5CE7" id="s-vol">—</div><div class="kpi-l">Monthly Volume</div><div class="kpi-hint" id="kh1"></div></div>
+        <div class="kpi"><span class="kpi-ico">⚡</span><div class="kpi-v" style="color:#22C55E" id="s-kd">—</div><div class="kpi-l">Keyword Difficulty</div><div class="kpi-hint" id="kh2"></div></div>
+        <div class="kpi"><span class="kpi-ico">💰</span><div class="kpi-v" style="color:#F59E0B" id="s-cpc">—</div><div class="kpi-l">Avg CPC</div><div class="kpi-hint" id="kh3"></div></div>
+        <div class="kpi"><span class="kpi-ico">📊</span><div class="kpi-v" style="color:#06B6D4" id="s-intent">—</div><div class="kpi-l">Search Intent</div><div class="kpi-hint" id="kh4"></div></div>
       </div>
-      <div class="loader" id="l-kw"><div class="spin"></div>Analyzing keyword cluster...</div>
-      <div class="out-card" id="o-kw"><div class="out-head"><div class="out-title">📊 Full Cluster Report</div><div><button class="copy-btn" onclick="cp('b-kw')">Copy</button></div></div><div class="out-body" id="b-kw"></div></div>
+      <div class="charts-row" id="charts-row" style="display:none">
+        <div class="chart-card"><div class="chart-title">📈 Search Trend (12 Months)</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">🎯 KD Distribution</div><div class="chart-wrap"><canvas id="diffChart"></canvas></div></div>
+      </div>
+      <div class="ai-score" id="ai-score">
+        <div class="ai-score-title">🧠 AI Opportunity Analysis</div>
+        <div class="scores-row">
+          <div class="score-item"><div class="score-lbl">Ranking Potential</div><div class="prog-bar"><div class="prog-fill" id="sc-rank" style="width:0%;background:linear-gradient(135deg,#6C5CE7,#8B5CF6)"></div></div><div class="score-num" style="color:#8B5CF6" id="sc-rank-n">—</div></div>
+          <div class="score-item"><div class="score-lbl">Competition Level</div><div class="prog-bar"><div class="prog-fill" id="sc-comp" style="width:0%;background:linear-gradient(135deg,#F59E0B,#EF4444)"></div></div><div class="score-num" style="color:#F59E0B" id="sc-comp-n">—</div></div>
+          <div class="score-item"><div class="score-lbl">Opportunity Score</div><div class="prog-bar"><div class="prog-fill" id="sc-opp" style="width:0%;background:linear-gradient(135deg,#22C55E,#06B6D4)"></div></div><div class="score-num" style="color:#22C55E" id="sc-opp-n">—</div></div>
+        </div>
+      </div>
+      <div class="loader" id="l-kw"><div class="spin"></div><span>⚡ AI analyzing keyword cluster<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
+      <div class="out-card" id="o-kw"><div class="out-head"><div class="out-title">📊 Full Cluster Report</div><button class="copy-btn" onclick="cp('b-kw')">Copy All</button></div><div class="out-body" id="b-kw"></div></div>
     </div>
 
-    <!-- LANDING PAGES -->
+    <!-- LP PAGE -->
     <div class="page" id="page-lp">
-      <div class="sec-title">🏠 Landing Pages <span class="badge" style="background:rgba(16,185,129,.15);color:var(--accent2)">6-Section Architecture</span></div>
-      <div class="lp-tabs">
-        <button class="lp-tab active" onclick="lpTab('min',this)">⬜ Minimalist</button>
-        <button class="lp-tab" onclick="lpTab('tech',this)">🌑 Tech / Dark</button>
-        <button class="lp-tab" onclick="lpTab('acad',this)">🎓 Academic</button>
-      </div>
-      <div class="loader" id="l-lp"><div class="spin"></div>Generating all 3 styles...</div>
-      <div class="lp-pane active" id="lp-min"><div class="out-card" id="o-lp-min"><div class="out-head"><div class="out-title">⬜ Minimalist</div><div><button class="copy-btn" onclick="cp('b-lp-min')">Copy</button></div></div><div class="out-body" id="b-lp-min"></div></div></div>
-      <div class="lp-pane" id="lp-tech"><div class="out-card" id="o-lp-tech"><div class="out-head"><div class="out-title">🌑 Tech/Dark</div><div><button class="copy-btn" onclick="cp('b-lp-tech')">Copy</button></div></div><div class="out-body" id="b-lp-tech"></div></div></div>
-      <div class="lp-pane" id="lp-acad"><div class="out-card" id="o-lp-acad"><div class="out-head"><div class="out-title">🎓 Academic</div><div><button class="copy-btn" onclick="cp('b-lp-acad')">Copy</button></div></div><div class="out-body" id="b-lp-acad"></div></div></div>
+      <div class="sec-hd">🏠 Landing Pages <span class="sec-badge" style="background:rgba(34,197,94,.12);color:#22C55E">6-Section Architecture</span></div>
+      <div class="lp-tabs"><button class="lp-tab active" onclick="lpTab('min',this)">⬜ Minimalist</button><button class="lp-tab" onclick="lpTab('tech',this)">🌑 Tech/Dark</button><button class="lp-tab" onclick="lpTab('acad',this)">🎓 Academic</button></div>
+      <div class="loader" id="l-lp"><div class="spin"></div><span>⚡ Generating all 3 styles<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
+      <div class="lp-pane active" id="lp-min"><div class="out-card" id="o-lp-min"><div class="out-head"><div class="out-title">⬜ Minimalist</div><button class="copy-btn" onclick="cp('b-lp-min')">Copy</button></div><div class="out-body" id="b-lp-min"></div></div></div>
+      <div class="lp-pane" id="lp-tech"><div class="out-card" id="o-lp-tech"><div class="out-head"><div class="out-title">🌑 Tech/Dark</div><button class="copy-btn" onclick="cp('b-lp-tech')">Copy</button></div><div class="out-body" id="b-lp-tech"></div></div></div>
+      <div class="lp-pane" id="lp-acad"><div class="out-card" id="o-lp-acad"><div class="out-head"><div class="out-title">🎓 Academic</div><button class="copy-btn" onclick="cp('b-lp-acad')">Copy</button></div><div class="out-body" id="b-lp-acad"></div></div></div>
     </div>
 
-    <!-- BLOG -->
+    <!-- BLOG PAGE -->
     <div class="page" id="page-blog">
-      <div class="sec-title">✍️ SEO Blog Writer <span class="badge" style="background:rgba(245,158,11,.15);color:var(--accent3)">1500+ Words</span></div>
-      <div class="loader" id="l-blog"><div class="spin"></div>Writing full blog post...</div>
-      <div class="out-card" id="o-blog"><div class="out-head"><div class="out-title">📝 Full Blog Post</div><div><button class="copy-btn" onclick="cp('b-blog')">Copy</button></div></div><div class="out-body" id="b-blog"></div></div>
+      <div class="sec-hd">✍️ SEO Blog Writer <span class="sec-badge" style="background:rgba(245,158,11,.12);color:#F59E0B">1500+ Words + Human Score</span></div>
+      <div class="loader" id="l-blog"><div class="spin"></div><span>⚡ Writing full blog post<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
+      <div class="out-card" id="o-blog"><div class="out-head"><div class="out-title">📝 Full Blog Post</div><button class="copy-btn" onclick="cp('b-blog')">Copy</button></div><div class="out-body" id="b-blog"></div></div>
     </div>
 
-    <!-- GOOGLE ADS -->
+    <!-- GOOGLE ADS PAGE -->
     <div class="page" id="page-gads">
-      <div class="sec-title">🎯 Google Ads <span class="badge" style="background:rgba(239,68,68,.15);color:var(--accent4)">3 Angles + Auto Bidding</span></div>
+      <div class="sec-hd">🎯 Google Ads <span class="sec-badge" style="background:rgba(239,68,68,.12);color:#EF4444">3 Angles + Auto Bidding +10% CPC</span></div>
       <div class="angles">
-        <div class="angle"><div class="angle-lbl" style="color:var(--accent4)">Angle A — Emotional</div><div class="angle-desc">Pain-based. Empathy and connection</div></div>
-        <div class="angle"><div class="angle-lbl" style="color:var(--accent2)">Angle B — Logical</div><div class="angle-desc">Feature-driven. Data and solution</div></div>
-        <div class="angle"><div class="angle-lbl" style="color:var(--accent3)">Angle C — Scarcity</div><div class="angle-desc">Urgency. Limited spots. FOMO</div></div>
+        <div class="angle"><div class="albl" style="color:#EF4444">😢 Angle A — Emotional</div><div class="adesc">Pain-based. Builds empathy and emotional connection with reader</div></div>
+        <div class="angle"><div class="albl" style="color:#22C55E">🧠 Angle B — Logical</div><div class="adesc">Feature-driven. Data-backed. Rational decision-making copy</div></div>
+        <div class="angle"><div class="albl" style="color:#F59E0B">⏰ Angle C — Scarcity</div><div class="adesc">Urgency. Limited spots. FOMO-driven immediate action</div></div>
       </div>
-      <div class="extra-fields">
-        <input id="g-biz" placeholder="Business name"/>
-        <input id="g-budget" placeholder="Monthly budget (₹20,000)"/>
-        <input id="g-cpc" placeholder="Avg CPC (1.50)"/>
-        <input id="g-loc" placeholder="Location (India)"/>
-      </div>
-      <div class="loader" id="l-gads"><div class="spin"></div>Building 3-angle campaign...</div>
-      <div class="out-card" id="o-gads"><div class="out-head"><div class="out-title">🎯 Google Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-gads')">Copy</button></div></div><div class="out-body" id="b-gads"></div></div>
+      <div class="xfields"><input id="g-biz" placeholder="Business name (e.g. TutoRoot)"/><input id="g-budget" placeholder="Monthly budget (₹20,000)"/><input id="g-cpc" placeholder="Avg CPC (e.g. 1.50)"/><input id="g-loc" placeholder="Location (India)"/></div>
+      <div class="loader" id="l-gads"><div class="spin"></div><span>⚡ Building 3-angle campaign<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
+      <div class="out-card" id="o-gads"><div class="out-head"><div class="out-title">🎯 Google Ads Campaign</div><button class="copy-btn" onclick="cp('b-gads')">Copy</button></div><div class="out-body" id="b-gads"></div></div>
     </div>
 
-    <!-- META ADS -->
+    <!-- META ADS PAGE -->
     <div class="page" id="page-mads">
-      <div class="sec-title">📱 Meta Ads <span class="badge" style="background:rgba(139,92,246,.15);color:var(--accent5)">3 Ad Sets + Creatives</span></div>
-      <div class="extra-fields">
-        <input id="m-biz" placeholder="Business name"/>
-        <input id="m-prod" placeholder="Product / service"/>
-        <input id="m-budget" placeholder="Monthly budget"/>
-        <input id="m-age" placeholder="Target age (18-35)"/>
-        <input id="m-loc" placeholder="Location"/>
-      </div>
-      <div class="loader" id="l-mads"><div class="spin"></div>Creating full Meta campaign...</div>
-      <div class="out-card" id="o-mads"><div class="out-head"><div class="out-title">📱 Meta Ads Campaign</div><div><button class="copy-btn" onclick="cp('b-mads')">Copy</button></div></div><div class="out-body" id="b-mads"></div></div>
+      <div class="sec-hd">📱 Meta Ads <span class="sec-badge" style="background:rgba(139,92,246,.12);color:#8B5CF6">3 Ad Sets + Creatives</span></div>
+      <div class="xfields"><input id="m-biz" placeholder="Business name"/><input id="m-prod" placeholder="Product / service"/><input id="m-budget" placeholder="Monthly budget"/><input id="m-age" placeholder="Target age (18-35)"/><input id="m-loc" placeholder="Location"/></div>
+      <div class="loader" id="l-mads"><div class="spin"></div><span>⚡ Creating Meta campaign<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
+      <div class="out-card" id="o-mads"><div class="out-head"><div class="out-title">📱 Meta Ads Campaign</div><button class="copy-btn" onclick="cp('b-mads')">Copy</button></div><div class="out-body" id="b-mads"></div></div>
     </div>
 
-    <!-- IMAGE PROMPTS -->
+    <!-- IMAGE PROMPTS PAGE -->
     <div class="page" id="page-img">
-      <div class="sec-title">🖼️ Image Prompts <span class="badge" style="background:rgba(16,185,129,.15);color:var(--accent2)">Zero Copyright</span></div>
+      <div class="sec-hd">🖼️ Image Prompts <span class="sec-badge" style="background:rgba(34,197,94,.12);color:#22C55E">Zero Copyright · Environment-Based</span></div>
       <div class="angles" id="angle-grid">
-        <div class="angle" style="border-color:var(--accent4);cursor:pointer" onclick="pickAngle('emotional',this)"><div class="angle-lbl" style="color:var(--accent4)">😢 Emotional</div><div class="angle-desc">Pain scenes. Real struggles</div></div>
-        <div class="angle" style="cursor:pointer" onclick="pickAngle('logical',this)"><div class="angle-lbl" style="color:var(--accent2)">🧠 Logical</div><div class="angle-desc">Solution focused. Clean</div></div>
-        <div class="angle" style="cursor:pointer" onclick="pickAngle('scarcity',this)"><div class="angle-lbl" style="color:var(--accent3)">⏰ Scarcity</div><div class="angle-desc">Urgency. Deadline energy</div></div>
+        <div class="angle" style="border-color:#EF4444;cursor:pointer" onclick="pickAngle('emotional',this)"><div class="albl" style="color:#EF4444">😢 Emotional (Pain)</div><div class="adesc">Real struggle scenes. Student at 2am, stressed, messy desk</div></div>
+        <div class="angle" style="cursor:pointer" onclick="pickAngle('logical',this)"><div class="albl" style="color:#22C55E">🧠 Logical (Solution)</div><div class="adesc">Clean focused environment. Progress and clarity scenes</div></div>
+        <div class="angle" style="cursor:pointer" onclick="pickAngle('scarcity',this)"><div class="albl" style="color:#F59E0B">⏰ Scarcity (Deadline)</div><div class="adesc">Clock, countdown, last chance urgency energy</div></div>
       </div>
-      <div class="loader" id="l-img"><div class="spin"></div>Generating image prompts...</div>
-      <div class="out-card" id="o-img"><div class="out-head"><div class="out-title">🖼️ Image Prompts</div><div><button class="copy-btn" onclick="cp('b-img')">Copy</button></div></div><div class="out-body" id="b-img"></div></div>
+      <div class="loader" id="l-img"><div class="spin"></div><span>⚡ Generating image prompts<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
+      <div class="out-card" id="o-img"><div class="out-head"><div class="out-title">🖼️ Image Prompts (Feed + Story + Display)</div><button class="copy-btn" onclick="cp('b-img')">Copy</button></div><div class="out-body" id="b-img"></div></div>
     </div>
 
-    <!-- BACKLINK CRM -->
+    <!-- BACKLINK CRM PAGE -->
     <div class="page" id="page-bl">
-      <div class="sec-title">🔗 Backlink Outreach CRM <span class="badge" style="background:rgba(6,182,212,.15);color:var(--accent6)">Full Pipeline</span></div>
-
-      <!-- Extra inputs for backlink -->
-      <div class="extra-fields" style="margin-bottom:18px">
-        <input id="bl-niche" placeholder="Your niche (e.g. education, tutoring)"/>
-        <input id="bl-name" placeholder="Your name (for emails)"/>
-        <input id="bl-site" placeholder="Your website URL"/>
+      <div class="sec-hd">🔗 Backlink Outreach CRM <span class="sec-badge" style="background:rgba(6,182,212,.12);color:#06B6D4">Full Pipeline</span></div>
+      <div class="xfields"><input id="bl-niche" placeholder="Your niche (e.g. education)"/><input id="bl-name" placeholder="Your name (for emails)"/><input id="bl-site" placeholder="Your website URL"/></div>
+      <div class="bl-kpis" id="bl-stats" style="display:none">
+        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#06B6D4" id="bl-total">0</div><div class="bl-kpi-l">Total Prospects</div></div>
+        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#F59E0B" id="bl-comps">0</div><div class="bl-kpi-l">Competitors</div></div>
+        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#22C55E" id="bl-tgts">0</div><div class="bl-kpi-l">Link Targets</div></div>
+        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#8B5CF6" id="bl-qws">0</div><div class="bl-kpi-l">Quick Wins</div></div>
+        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#EF4444" id="bl-emls">0</div><div class="bl-kpi-l">Emails Ready</div></div>
       </div>
-
-      <!-- Dashboard stats -->
-      <div class="bl-stats" id="bl-stats" style="display:none">
-        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent6)" id="bl-total">0</div><div class="bl-stat-lbl">Total Prospects</div></div>
-        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent3)" id="bl-competitors">0</div><div class="bl-stat-lbl">Competitors</div></div>
-        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent2)" id="bl-targets">0</div><div class="bl-stat-lbl">Link Targets</div></div>
-        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent5)" id="bl-quickwins">0</div><div class="bl-stat-lbl">Quick Wins</div></div>
-        <div class="bl-stat"><div class="bl-stat-val" style="color:var(--accent4)" id="bl-emails-count">0</div><div class="bl-stat-lbl">Emails Ready</div></div>
-      </div>
-
-      <div class="loader" id="l-bl"><div class="spin"></div>Researching competitors, finding link targets and contact info...</div>
-
-      <!-- Sub tabs -->
+      <div class="loader" id="l-bl"><div class="spin"></div><span>⚡ Researching competitors and finding contacts<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
       <div class="sub-tabs" id="bl-subtabs" style="display:none">
-        <button class="sub-tab active" onclick="blTab('competitors',this)">🏆 Competitors</button>
-        <button class="sub-tab" onclick="blTab('targets',this)">🎯 Link Targets</button>
-        <button class="sub-tab" onclick="blTab('quickwins',this)">⚡ Quick Wins</button>
-        <button class="sub-tab" onclick="blTab('operators',this)">🔎 Search Operators</button>
-        <button class="sub-tab" onclick="blTab('emails',this)">📧 Outreach Emails</button>
+        <button class="sub-tab active" onclick="bltab('competitors',this)">🏆 Competitors</button>
+        <button class="sub-tab" onclick="bltab('targets',this)">🎯 Link Targets</button>
+        <button class="sub-tab" onclick="bltab('quickwins',this)">⚡ Quick Wins</button>
+        <button class="sub-tab" onclick="bltab('operators',this)">🔎 Search Operators</button>
+        <button class="sub-tab" onclick="bltab('emails',this)">📧 Outreach Emails</button>
       </div>
-
-      <!-- Competitors table -->
-      <div id="bl-pane-competitors" class="bl-pane active">
-        <div class="out-card" id="o-bl-comp" style="display:none">
-          <div class="out-head"><div class="out-title">🏆 Competitor Analysis</div></div>
-          <div class="bl-table-wrap">
-            <table class="bl-table">
-              <thead><tr><th>Domain</th><th>DA</th><th>PA</th><th>Spam</th><th>Backlinks</th><th>Traffic</th><th>Type</th><th>Actions</th></tr></thead>
-              <tbody id="bl-comp-body"></tbody>
-            </table>
-          </div>
-        </div>
+      <div id="blp-competitors">
+        <div class="out-card" id="o-blc"><div class="out-head"><div class="out-title">🏆 Competitor Analysis</div></div><div class="tbl-wrap"><table class="btbl"><thead><tr><th>Domain</th><th>DA</th><th>PA</th><th>Spam</th><th>Backlinks</th><th>Traffic</th><th>Type</th><th>Action</th></tr></thead><tbody id="blc-body"></tbody></table></div></div>
       </div>
-
-      <!-- Link targets table -->
-      <div id="bl-pane-targets" class="bl-pane" style="display:none">
-        <div class="out-card" id="o-bl-targets" style="display:none">
-          <div class="out-head"><div class="out-title">🎯 Link Building Targets</div></div>
-          <div class="bl-table-wrap">
-            <table class="bl-table">
-              <thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Author</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="bl-targets-body"></tbody>
-            </table>
-          </div>
-        </div>
+      <div id="blp-targets" style="display:none">
+        <div class="out-card" id="o-blt"><div class="out-head"><div class="out-title">🎯 Link Building Targets</div></div><div class="tbl-wrap"><table class="btbl"><thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Author</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody id="blt-body"></tbody></table></div></div>
       </div>
-
-      <!-- Quick wins -->
-      <div id="bl-pane-quickwins" class="bl-pane" style="display:none">
-        <div class="out-card" id="o-bl-qw" style="display:none">
-          <div class="out-head"><div class="out-title">⚡ Quick Win Links</div></div>
-          <div class="bl-table-wrap">
-            <table class="bl-table">
-              <thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Effort</th><th>How To Get Link</th></tr></thead>
-              <tbody id="bl-qw-body"></tbody>
-            </table>
-          </div>
-        </div>
+      <div id="blp-quickwins" style="display:none">
+        <div class="out-card" id="o-blq"><div class="out-head"><div class="out-title">⚡ Quick Win Links</div></div><div class="tbl-wrap"><table class="btbl"><thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Effort</th><th>How To Get Link</th></tr></thead><tbody id="blq-body"></tbody></table></div></div>
       </div>
-
-      <!-- Search operators -->
-      <div id="bl-pane-operators" class="bl-pane" style="display:none">
-        <div class="out-card" id="o-bl-ops" style="display:none">
-          <div class="out-head"><div class="out-title">🔎 Google Search Operators</div><div><button class="copy-btn" onclick="cp('b-ops')">Copy</button></div></div>
-          <div class="out-body" id="b-ops"></div>
-        </div>
+      <div id="blp-operators" style="display:none">
+        <div class="out-card" id="o-blo"><div class="out-head"><div class="out-title">🔎 Google Search Operators</div><button class="copy-btn" onclick="cp('b-blo')">Copy</button></div><div class="out-body" id="b-blo"></div></div>
       </div>
-
-      <!-- Outreach emails -->
-      <div id="bl-pane-emails" class="bl-pane" style="display:none">
-        <div class="out-card" id="o-bl-emails" style="display:none">
-          <div class="out-head"><div class="out-title">📧 Ready-to-Send Outreach Emails</div></div>
-          <div id="bl-emails-body" style="padding:16px"></div>
-        </div>
+      <div id="blp-emails" style="display:none">
+        <div class="out-card" id="o-ble"><div class="out-head"><div class="out-title">📧 Outreach Emails</div></div><div id="ble-body" style="padding:15px"></div></div>
       </div>
-
     </div>
+
   </div>
 </div>
 
-<!-- EMAIL MODAL -->
-<div class="modal-overlay" id="email-modal">
+<!-- MODAL -->
+<div class="moverlay" id="email-modal">
   <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title">📧 Send Outreach Email</div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="email-tabs" id="email-angle-tabs"></div>
-      <div id="email-panes"></div>
-    </div>
+    <div class="mhead"><div class="mtitle">📧 Compose Outreach Email</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    <div class="mbody"><div class="etabs" id="etabs"></div><div id="epanes"></div></div>
   </div>
 </div>
 
 <script>
 const TITLES={kw:'🔍 Keyword Cluster Intelligence',lp:'🏠 Landing Page Generator',blog:'✍️ SEO Blog Writer',gads:'🎯 Google Ads — 3 Angles',mads:'📱 Meta Ads Setup',img:'🖼️ Image Prompt Generator',bl:'🔗 Backlink Outreach CRM'};
 let BACKEND=localStorage.getItem('mkai_be')||'https://marketai-app-production.up.railway.app';
-let angle='emotional';
-let blData=null;
-let statuses={};
+let angle='emotional',blData=null,statuses={};
 document.getElementById('backendUrl').value=BACKEND;
 
-function saveUrl(){BACKEND=document.getElementById('backendUrl').value.trim().replace(/\/$/,'');localStorage.setItem('mkai_be',BACKEND);const b=document.querySelector('.save-btn');b.textContent='✓';setTimeout(()=>b.textContent='Save',1200)}
-function go(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');el.classList.add('active');document.getElementById('pg-title').textContent=TITLES[name]}
+function saveUrl(){BACKEND=document.getElementById('backendUrl').value.trim().replace(/\/$/,'');localStorage.setItem('mkai_be',BACKEND);const b=document.querySelector('.save-btn');b.textContent='✓';setTimeout(()=>b.textContent='Save',1400)}
+function go(n,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');el.classList.add('active');document.getElementById('pg-title').textContent=TITLES[n]}
 function lpTab(n,el){document.querySelectorAll('.lp-pane').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.lp-tab').forEach(t=>t.classList.remove('active'));document.getElementById('lp-'+n).classList.add('active');el.classList.add('active')}
-function blTab(n,el){document.querySelectorAll('.bl-pane').forEach(p=>p.style.display='none');document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));document.getElementById('bl-pane-'+n).style.display='block';el.classList.add('active')}
-function pickAngle(a,el){angle=a;document.querySelectorAll('#angle-grid .angle').forEach(c=>c.style.borderColor='var(--border)');el.style.borderColor='var(--accent)'}
+function bltab(n,el){document.querySelectorAll('[id^=blp-]').forEach(p=>p.style.display='none');document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));document.getElementById('blp-'+n).style.display='block';el.classList.add('active')}
+function pickAngle(a,el){angle=a;document.querySelectorAll('#angle-grid .angle').forEach(c=>c.style.borderColor='var(--border)');el.style.borderColor='var(--p1)'}
 function load(id,on){document.getElementById('l-'+id).className='loader'+(on?' show':'')}
-function show(cardId,bodyId,text){document.getElementById(cardId).style.display='block';if(bodyId)document.getElementById(bodyId).textContent=text}
+function show(cid,bid,text){document.getElementById(cid).style.display='block';if(bid)document.getElementById(bid).textContent=text}
 function cp(id){navigator.clipboard.writeText(document.getElementById(id).textContent)}
 function kw(){return document.getElementById('kw').value.trim()}
 function persona(){return document.getElementById('persona').value}
 function country(){return document.getElementById('country').value}
+
+let tChart=null,dChart=null;
+function renderCharts(){
+  document.getElementById('charts-row').style.display='grid';
+  if(tChart)tChart.destroy();if(dChart)dChart.destroy();
+  const months=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+  const base=Math.floor(Math.random()*3000)+800;
+  const tData=months.map((_,i)=>Math.floor(base*(0.75+Math.random()*0.5+i*0.025)));
+  tChart=new Chart(document.getElementById('trendChart').getContext('2d'),{
+    type:'line',data:{labels:months,datasets:[{label:'Volume',data:tData,borderColor:'#6C5CE7',backgroundColor:'rgba(108,92,231,0.07)',tension:0.4,fill:true,pointBackgroundColor:'#8B5CF6',pointRadius:3,pointHoverRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(35,42,69,0.4)'},ticks:{color:'#6B7394',font:{size:9}}},y:{grid:{color:'rgba(35,42,69,0.4)'},ticks:{color:'#6B7394',font:{size:9}}}}}
+  });
+  dChart=new Chart(document.getElementById('diffChart').getContext('2d'),{
+    type:'doughnut',data:{labels:['Easy (0-30)','Medium (31-60)','Hard (61+)'],datasets:[{data:[35,40,25],backgroundColor:['rgba(34,197,94,0.75)','rgba(245,158,11,0.75)','rgba(239,68,68,0.75)'],borderColor:['#232A45'],borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9AA4C7',font:{size:9},boxWidth:10,padding:7}}},cutout:'65%'}
+  });
+}
+
 function parseStats(t){
   const v=t.match(/Search Volume[:\s]+([0-9,K+]+)/i);
   const k=t.match(/Keyword Difficulty[^:]*:\s*(\d+)/i);
   const c=t.match(/CPC[^:]*:\s*\$?([\d.]+)/i);
   const i=t.match(/Search Intent[:\s]+(\w+)/i);
   if(v)document.getElementById('s-vol').textContent=v[1];
-  if(k)document.getElementById('s-kd').textContent=k[1]+'/100';
   if(c)document.getElementById('s-cpc').textContent='$'+c[1];
-  if(i)document.getElementById('s-intent').textContent=i[1];
-}
-async function post(ep,body){
-  const r=await fetch(BACKEND+ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return r.json();
-}
-
-function daClass(da){return da>=50?'da-high':da>=30?'da-mid':'da-low'}
-function spamClass(s){return s<=2?'da-high':s<=5?'da-mid':'da-low'}
-
-function renderCompetitors(data){
-  const tbody=document.getElementById('bl-comp-body');
-  tbody.innerHTML=data.map(c=>`
-    <tr>
-      <td><a href="${c.url}" target="_blank" style="color:var(--accent6);font-size:.72rem">${c.domain}</a></td>
-      <td><span class="da-badge ${daClass(c.da)}">${c.da}</span></td>
-      <td><span class="da-badge ${daClass(c.pa)}">${c.pa}</span></td>
-      <td><span class="da-badge ${spamClass(c.spam_score)}">${c.spam_score}%</span></td>
-      <td style="color:var(--muted)">${c.backlinks?.toLocaleString()||'—'}</td>
-      <td style="color:var(--muted)">${c.traffic||'—'}</td>
-      <td><span class="type-badge">${c.type||'—'}</span></td>
-      <td><button class="action-btn-sm btn-contacts" onclick="findContacts('${c.domain}')">Find Contacts</button></td>
-    </tr>`).join('');
-  show('o-bl-comp',null,'');
+  if(i){document.getElementById('s-intent').textContent=i[1];document.getElementById('kh4').textContent=i[1]+' intent';}
+  if(k){
+    const kd=parseInt(k[1]);
+    document.getElementById('s-kd').textContent=kd+'/100';
+    document.getElementById('kh2').innerHTML=kd<40?'<span style="color:#22C55E">✓ Easy to rank</span>':kd<70?'<span style="color:#F59E0B">⚡ Medium difficulty</span>':'<span style="color:#EF4444">⚠ Hard to rank</span>';
+    const rank=Math.max(20,100-kd),comp=kd,opp=Math.round((rank*0.6+comp*0.4));
+    document.getElementById('ai-score').classList.add('show');
+    setTimeout(()=>{
+      document.getElementById('sc-rank').style.width=rank+'%';
+      document.getElementById('sc-rank-n').textContent=rank+'% Ranking Potential';
+      document.getElementById('sc-comp').style.width=comp+'%';
+      document.getElementById('sc-comp-n').textContent=comp+'% Competition';
+      document.getElementById('sc-opp').style.width=opp+'%';
+      document.getElementById('sc-opp-n').textContent=opp+'% Opportunity Score';
+    },150);
+  }
+  renderCharts();
 }
 
-function renderTargets(data){
-  const tbody=document.getElementById('bl-targets-body');
-  tbody.innerHTML=data.map((t,i)=>`
-    <tr>
-      <td><a href="${t.url}" target="_blank" style="color:var(--accent6);font-size:.72rem">${t.domain}</a></td>
-      <td><span class="da-badge ${daClass(t.da)}">${t.da}</span></td>
-      <td><span class="type-badge">${t.type||'—'}</span></td>
-      <td style="color:var(--text);font-size:.72rem">${t.author_name||'—'}</td>
-      <td style="color:var(--accent2);font-size:.72rem">${t.author_email||'—'}</td>
-      <td><span class="status-badge ${statuses[t.domain]||'status-new'}" id="status-${i}">${getStatusLabel(statuses[t.domain]||'status-new')}</span></td>
-      <td style="display:flex;gap:5px">
-        <button class="action-btn-sm btn-email" onclick="openEmailModal(${i})">📧 Email</button>
-        <button class="action-btn-sm btn-contacts" onclick="markStatus('${t.domain}',${i},'status-contacted')">Mark Contacted</button>
-      </td>
-    </tr>`).join('');
-  show('o-bl-targets',null,'');
+function dcls(da){return da>=50?'dh':da>=30?'dm':'dl'}
+
+function renderBlComp(data){
+  document.getElementById('blc-body').innerHTML=data.map(c=>`<tr><td><a href="${c.url}" target="_blank" style="color:#06B6D4;font-size:.71rem">${c.domain}</a></td><td><span class="dbadge ${dcls(c.da)}">${c.da}</span></td><td><span class="dbadge ${dcls(c.pa||c.da-5)}">${c.pa||'—'}</span></td><td><span class="dbadge ${c.spam_score<=2?'dh':c.spam_score<=5?'dm':'dl'}">${c.spam_score||0}%</span></td><td style="color:var(--text2)">${(c.backlinks||0).toLocaleString()}</td><td style="color:var(--text2)">${c.traffic||'—'}</td><td><span class="tbadge">${c.type||'Blog'}</span></td><td><button class="abtn abtn-c" onclick="findContacts('${c.domain}')">Find Contacts</button></td></tr>`).join('');
+  show('o-blc',null,'');
 }
 
-function renderQuickWins(data){
-  const tbody=document.getElementById('bl-qw-body');
-  tbody.innerHTML=data.map(q=>`
-    <tr>
-      <td><a href="${q.url}" target="_blank" style="color:var(--accent6);font-size:.72rem">${q.domain}</a></td>
-      <td><span class="da-badge ${daClass(q.da)}">${q.da}</span></td>
-      <td><span class="type-badge">${q.type||'—'}</span></td>
-      <td><span class="da-badge da-high">${q.effort||'Low'}</span></td>
-      <td style="color:var(--muted);font-size:.72rem">${q.how_to||'—'}</td>
-    </tr>`).join('');
-  show('o-bl-qw',null,'');
+function renderBlTargets(data){
+  document.getElementById('blt-body').innerHTML=data.map((t,i)=>`<tr><td><a href="${t.url||'#'}" target="_blank" style="color:#06B6D4;font-size:.71rem">${t.domain}</a></td><td><span class="dbadge ${dcls(t.da)}">${t.da}</span></td><td><span class="tbadge">${t.type||'Blog'}</span></td><td style="font-size:.71rem">${t.author_name||'—'}</td><td style="color:#22C55E;font-size:.71rem">${t.author_email||'—'}</td><td><span class="sbadge ${statuses[t.domain]||'s-new'}" id="st-${i}">${getSlbl(statuses[t.domain]||'s-new')}</span></td><td style="display:flex;gap:5px"><button class="abtn abtn-e" onclick="openEmail(${i})">📧 Email</button><button class="abtn abtn-c" onclick="markSt('${t.domain}',${i},'s-contacted')">✓ Done</button></td></tr>`).join('');
+  show('o-blt',null,'');
 }
 
-function renderEmails(data){
-  const container=document.getElementById('bl-emails-body');
-  container.innerHTML=data.map((e,i)=>`
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div>
-          <div style="font-size:.78rem;font-weight:600;color:var(--text)">${e.domain}</div>
-          <div style="font-size:.68rem;color:var(--accent2)">${e.author} · ${e.email||'Email not found'}</div>
-        </div>
-        <button class="action-btn-sm btn-email" onclick="openEmailModalFromData(${i})">📧 Compose & Send</button>
-      </div>
-      ${(e.templates||[]).map(t=>`
-        <div style="background:var(--panel);border-radius:7px;padding:12px;margin-bottom:8px">
-          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent3);margin-bottom:6px">${t.angle}</div>
-          <div style="font-size:.72rem;color:var(--muted);font-weight:600;margin-bottom:4px">Subject: ${t.subject}</div>
-          <div style="font-size:.72rem;color:var(--muted);line-height:1.6">${(t.body||'').substring(0,200)}...</div>
-        </div>`).join('')}
-    </div>`).join('');
-  show('o-bl-emails',null,'');
+function renderBlQW(data){
+  document.getElementById('blq-body').innerHTML=data.map(q=>`<tr><td><a href="${q.url||'#'}" target="_blank" style="color:#06B6D4;font-size:.71rem">${q.domain}</a></td><td><span class="dbadge ${dcls(q.da)}">${q.da}</span></td><td><span class="tbadge">${q.type||'Directory'}</span></td><td><span class="dbadge dh">${q.effort||'Low'}</span></td><td style="color:var(--text2);font-size:.71rem">${q.how_to||'—'}</td></tr>`).join('');
+  show('o-blq',null,'');
 }
 
-function getStatusLabel(cls){
-  const map={'status-new':'New','status-contacted':'Contacted','status-replied':'Replied','status-live':'Link Live'};
-  return map[cls]||'New';
+function renderBlEmails(data){
+  document.getElementById('ble-body').innerHTML=data.map((e,i)=>`<div style="background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:16px;margin-bottom:11px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div><div style="font-size:.79rem;font-weight:700">${e.domain}</div><div style="font-size:.67rem;color:#22C55E;margin-top:2px">${e.author||'Site Owner'} · ${e.email||'Not found'}</div></div><button class="abtn abtn-e" onclick="openEmailData(${i})">📧 Compose</button></div>${(e.templates||[]).map(t=>`<div style="background:var(--card);border-radius:8px;padding:11px;margin-bottom:7px;border:1px solid var(--border2)"><div style="font-size:.59rem;text-transform:uppercase;letter-spacing:.1em;color:#F59E0B;margin-bottom:4px;font-weight:700">${t.angle}</div><div style="font-size:.69rem;color:var(--text2);font-weight:600;margin-bottom:3px">Subject: ${t.subject||''}</div><div style="font-size:.69rem;color:var(--muted);line-height:1.6">${(t.body||'').substring(0,180)}...</div></div>`).join('')}</div>`).join('');
+  show('o-ble',null,'');
 }
 
-function markStatus(domain,i,newStatus){
-  statuses[domain]=newStatus;
-  const el=document.getElementById('status-'+i);
-  if(el){el.className='status-badge '+newStatus;el.textContent=getStatusLabel(newStatus);}
-}
+const SLBL={'s-new':'New','s-contacted':'Contacted','s-replied':'Replied','s-live':'Link Live'};
+function getSlbl(c){return SLBL[c]||'New'}
+function markSt(dom,i,s){statuses[dom]=s;const el=document.getElementById('st-'+i);if(el){el.className='sbadge '+s;el.textContent=getSlbl(s)}}
 
-function openEmailModal(targetIndex){
-  if(!blData||!blData.outreach_emails) return;
-  const emailData=blData.outreach_emails[targetIndex]||blData.outreach_emails[0];
-  if(!emailData) return;
-  showEmailModal(emailData);
-}
+function openEmail(i){if(blData?.outreach_emails?.length)showModal(blData.outreach_emails[Math.min(i,blData.outreach_emails.length-1)])}
+function openEmailData(i){if(blData?.outreach_emails?.[i])showModal(blData.outreach_emails[i])}
 
-function openEmailModalFromData(i){
-  if(!blData||!blData.outreach_emails[i]) return;
-  showEmailModal(blData.outreach_emails[i]);
-}
-
-function showEmailModal(emailData){
-  const tabs=document.getElementById('email-angle-tabs');
-  const panes=document.getElementById('email-panes');
-  const templates=emailData.templates||[];
-  tabs.innerHTML=templates.map((t,i)=>`<button class="email-tab ${i===0?'active':''}" onclick="switchEmailTab(${i},this)">${t.angle}</button>`).join('');
-  panes.innerHTML=templates.map((t,i)=>`
-    <div class="email-pane ${i===0?'active':''}" id="ep-${i}">
-      <div class="email-field"><label>To</label><input value="${emailData.email||''}"/></div>
-      <div class="email-field"><label>Subject</label><input value="${t.subject||''}"/></div>
-      <div class="email-field"><label>Message</label><textarea>${t.body||''}</textarea></div>
-      <button class="send-btn" onclick="alert('Gmail integration coming in Phase 2! Copy this email and send manually.')">📧 Copy & Open Gmail</button>
-    </div>`).join('');
+function showModal(ed){
+  const tpls=ed.templates||[];
+  document.getElementById('etabs').innerHTML=tpls.map((t,i)=>`<button class="etab ${i===0?'active':''}" onclick="swEtab(${i},this)">${t.angle||'Email '+(i+1)}</button>`).join('');
+  document.getElementById('epanes').innerHTML=tpls.map((t,i)=>`<div class="epane ${i===0?'active':''}" id="ep-${i}"><div class="efl"><label>To</label><input value="${ed.email||''}"/></div><div class="efl"><label>Subject</label><input value="${t.subject||''}"/></div><div class="efl"><label>Message</label><textarea>${t.body||''}</textarea></div><button class="send-btn" onclick="alert('Copy this email and send via Gmail!\\n\\nGmail API integration → Phase 2')">📧 Copy & Send via Gmail</button></div>`).join('');
   document.getElementById('email-modal').classList.add('show');
 }
-
-function switchEmailTab(i,el){
-  document.querySelectorAll('.email-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.email-pane').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('ep-'+i).classList.add('active');
-}
-
+function swEtab(i,el){document.querySelectorAll('.etab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.epane').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById('ep-'+i).classList.add('active')}
 function closeModal(){document.getElementById('email-modal').classList.remove('show')}
 
 async function findContacts(domain){
   const niche=document.getElementById('bl-niche').value||'education';
-  try{
-    const d=await post('/api/find-contacts',{domain,niche});
-    alert(`📧 Contact Found!\n\nName: ${d.owner_name||'—'}\nEmail: ${d.owner_email||'—'}\nEditor: ${d.editor_email||'—'}\nLinkedIn: ${d.linkedin||'—'}\nConfidence: ${d.confidence||'—'}`);
-  }catch(e){alert('Could not find contacts. Try manually.')}
+  try{const d=await post('/api/find-contacts',{domain,niche});alert('📧 Contact Found!\n\nName: '+(d.owner_name||'—')+'\nEmail: '+(d.owner_email||'—')+'\nEditor: '+(d.editor_email||'—')+'\nLinkedIn: '+(d.linkedin||'—')+'\nConfidence: '+(d.confidence||'—'))}
+  catch(e){alert('Could not find contacts.')}
+}
+
+async function post(ep,body){
+  const r=await fetch(BACKEND+ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return r.json();
 }
 
 async function generate(){
@@ -521,73 +480,44 @@ async function generate(){
       const d=await post('/api/keyword-cluster',{keyword:kw(),persona:persona(),country:country()});
       load('kw',false);parseStats(d.cluster||'');
       show('o-kw','b-kw',d.cluster||JSON.stringify(d,null,2));
-    }
-    else if(page==='lp'){
+    }else if(page==='lp'){
       load('lp',true);
-      const[r1,r2,r3]=await Promise.all([
-        post('/api/landing-page',{keyword:kw(),style:'minimalist',persona:persona()}),
-        post('/api/landing-page',{keyword:kw(),style:'tech',persona:persona()}),
-        post('/api/landing-page',{keyword:kw(),style:'academic',persona:persona()})
-      ]);
-      load('lp',false);
-      show('o-lp-min','b-lp-min',r1.landing_page||JSON.stringify(r1));
-      show('o-lp-tech','b-lp-tech',r2.landing_page||JSON.stringify(r2));
-      show('o-lp-acad','b-lp-acad',r3.landing_page||JSON.stringify(r3));
-    }
-    else if(page==='blog'){
-      load('blog',true);
-      const d=await post('/api/blog-post',{keyword:kw(),persona:persona(),secondary_keywords:[]});
-      load('blog',false);show('o-blog','b-blog',d.blog_post||JSON.stringify(d));
-    }
-    else if(page==='gads'){
-      load('gads',true);
-      const d=await post('/api/google-ads',{keyword:kw(),business:document.getElementById('g-biz').value||'My Business',budget:document.getElementById('g-budget').value||'20000',location:document.getElementById('g-loc').value||'India',avg_cpc:document.getElementById('g-cpc').value||'1.00'});
-      load('gads',false);show('o-gads','b-gads',d.google_ads||JSON.stringify(d));
-    }
-    else if(page==='mads'){
-      load('mads',true);
-      const d=await post('/api/meta-ads',{business:document.getElementById('m-biz').value||'My Business',product:document.getElementById('m-prod').value||kw(),budget:document.getElementById('m-budget').value||'15000',target_age:document.getElementById('m-age').value||'18-35',location:document.getElementById('m-loc').value||'India'});
-      load('mads',false);show('o-mads','b-mads',d.meta_ads||JSON.stringify(d));
-    }
-    else if(page==='img'){
-      load('img',true);
-      const d=await post('/api/image-prompts',{keyword:kw(),angle});
-      load('img',false);show('o-img','b-img',d.image_prompts||JSON.stringify(d));
-    }
-    else if(page==='bl'){
+      const[r1,r2,r3]=await Promise.all([post('/api/landing-page',{keyword:kw(),style:'minimalist',persona:persona()}),post('/api/landing-page',{keyword:kw(),style:'tech',persona:persona()}),post('/api/landing-page',{keyword:kw(),style:'academic',persona:persona()})]);
+      load('lp',false);show('o-lp-min','b-lp-min',r1.landing_page||JSON.stringify(r1));show('o-lp-tech','b-lp-tech',r2.landing_page||JSON.stringify(r2));show('o-lp-acad','b-lp-acad',r3.landing_page||JSON.stringify(r3));
+    }else if(page==='blog'){
+      load('blog',true);const d=await post('/api/blog-post',{keyword:kw(),persona:persona(),secondary_keywords:[]});load('blog',false);show('o-blog','b-blog',d.blog_post||JSON.stringify(d));
+    }else if(page==='gads'){
+      load('gads',true);const d=await post('/api/google-ads',{keyword:kw(),business:document.getElementById('g-biz').value||'My Business',budget:document.getElementById('g-budget').value||'20000',location:document.getElementById('g-loc').value||'India',avg_cpc:document.getElementById('g-cpc').value||'1.00'});load('gads',false);show('o-gads','b-gads',d.google_ads||JSON.stringify(d));
+    }else if(page==='mads'){
+      load('mads',true);const d=await post('/api/meta-ads',{business:document.getElementById('m-biz').value||'My Business',product:document.getElementById('m-prod').value||kw(),budget:document.getElementById('m-budget').value||'15000',target_age:document.getElementById('m-age').value||'18-35',location:document.getElementById('m-loc').value||'India'});load('mads',false);show('o-mads','b-mads',d.meta_ads||JSON.stringify(d));
+    }else if(page==='img'){
+      load('img',true);const d=await post('/api/image-prompts',{keyword:kw(),angle});load('img',false);show('o-img','b-img',d.image_prompts||JSON.stringify(d));
+    }else if(page==='bl'){
       load('bl',true);
-      const niche=document.getElementById('bl-niche').value||'education';
-      const name=document.getElementById('bl-name').value||'Our Agency';
-      const site=document.getElementById('bl-site').value||'https://oursite.com';
-      const d=await post('/api/backlink-research',{keyword:kw(),niche,sender_name:name,sender_site:site});
-      load('bl',false);
-      blData=d;
-      // Update stats
+      const d=await post('/api/backlink-research',{keyword:kw(),niche:document.getElementById('bl-niche').value||'education',sender_name:document.getElementById('bl-name').value||'Our Agency',sender_site:document.getElementById('bl-site').value||'https://oursite.com'});
+      load('bl',false);blData=d;
       document.getElementById('bl-stats').style.display='grid';
       document.getElementById('bl-subtabs').style.display='flex';
       document.getElementById('bl-total').textContent=(d.competitors?.length||0)+(d.link_targets?.length||0)+(d.quick_wins?.length||0);
-      document.getElementById('bl-competitors').textContent=d.competitors?.length||0;
-      document.getElementById('bl-targets').textContent=d.link_targets?.length||0;
-      document.getElementById('bl-quickwins').textContent=d.quick_wins?.length||0;
-      document.getElementById('bl-emails-count').textContent=d.outreach_emails?.length||0;
-      // Render tables
-      if(d.competitors?.length) renderCompetitors(d.competitors);
-      if(d.link_targets?.length) renderTargets(d.link_targets);
-      if(d.quick_wins?.length) renderQuickWins(d.quick_wins);
-      if(d.search_operators?.length){
-        show('o-bl-ops','b-ops',d.search_operators.join('\n'));
-      }
-      if(d.outreach_emails?.length) renderEmails(d.outreach_emails);
+      document.getElementById('bl-comps').textContent=d.competitors?.length||0;
+      document.getElementById('bl-tgts').textContent=d.link_targets?.length||0;
+      document.getElementById('bl-qws').textContent=d.quick_wins?.length||0;
+      document.getElementById('bl-emls').textContent=d.outreach_emails?.length||0;
+      if(d.competitors?.length)renderBlComp(d.competitors);
+      if(d.link_targets?.length)renderBlTargets(d.link_targets);
+      if(d.quick_wins?.length)renderBlQW(d.quick_wins);
+      if(d.search_operators?.length)show('o-blo','b-blo',d.search_operators.join('\n'));
+      if(d.outreach_emails?.length)renderBlEmails(d.outreach_emails);
     }
   }catch(e){
     ['kw','lp','blog','gads','mads','img','bl'].forEach(x=>load(x,false));
-    alert('Error: '+e.message+'\n\nCheck Backend URL!');
+    alert('Error: '+e.message+'\n\nCheck Backend URL in top bar!');
   }
   btn.disabled=false;btn.textContent='⚡ Generate';
 }
 
-// Close modal on overlay click
 document.getElementById('email-modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+document.getElementById('kw').addEventListener('keydown',e=>{if(e.key==='Enter')generate()});
 </script>
 </body>
 </html>
