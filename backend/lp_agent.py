@@ -1,89 +1,82 @@
 from seo_agent import call_groq
-import json, re
-
-def img(query, w=1200, h=600):
-    q = query.replace(" ", ",").replace("/",",")
-    return f"https://source.unsplash.com/{w}x{h}/?{q}"
-
-def img_sq(query, size=400):
-    q = query.replace(" ", ",")
-    return f"https://source.unsplash.com/{size}x{size}/?{q}"
+from image_service import get_unsplash_image, get_multiple_images
+import json, re, asyncio
 
 async def generate_lp_content(keyword: str, style: str, persona: str = "student") -> dict:
     prompt = f"""Generate landing page content for keyword "{keyword}", persona "{persona}".
-Return ONLY valid JSON:
+Return ONLY valid JSON no markdown:
 {{
-  "style_recommendation": "minimalist OR tech OR academic — pick best for this keyword",
-  "primary_color": "#hex color that fits this industry",
-  "accent_color": "#hex accent color",
+  "style_recommendation": "minimalist",
+  "primary_color": "#6C5CE7",
+  "accent_color": "#22C55E",
   "hero": {{
-    "headline": "Powerful 7-word headline",
-    "subheadline": "Solution subheadline under 20 words",
-    "cta": "CTA button text",
-    "trust_line": "Join 10000+ students",
-    "image_query": "3 word image query e.g. student studying laptop"
+    "headline": "Powerful 7-word headline addressing pain",
+    "subheadline": "Clear solution subheadline under 20 words",
+    "cta": "Get Started Free",
+    "trust_line": "Join 10,000+ students who transformed their grades",
+    "image_query": "student studying focused laptop books"
   }},
   "pain_points": {{
-    "headline": "Pain section headline",
+    "headline": "Are these struggles holding you back?",
     "cards": [
-      {{"icon":"😓","title":"3 word pain","desc":"12 word relatable description","image_query":"pain image"}},
-      {{"icon":"😰","title":"3 word pain","desc":"12 word description","image_query":"stress image"}},
-      {{"icon":"😤","title":"3 word pain","desc":"12 word description","image_query":"frustrated image"}},
-      {{"icon":"😩","title":"3 word pain","desc":"12 word description","image_query":"overwhelmed image"}}
+      {{"icon":"😓","title":"Falling Behind","desc":"Struggling to keep up with syllabus and deadlines","image_query":"stressed student desk books night"}},
+      {{"icon":"😰","title":"No Expert Help","desc":"No quality guidance when you need it most","image_query":"confused student asking question teacher"}},
+      {{"icon":"😤","title":"Wasting Money","desc":"Expensive coaching with no guaranteed results","image_query":"frustrated person money wasted"}},
+      {{"icon":"😩","title":"Exam Anxiety","desc":"Fear and stress before every important exam","image_query":"anxious nervous student exam hall"}}
     ]
   }},
   "features": {{
-    "headline": "Features headline",
-    "image_query": "solution success image",
+    "headline": "Everything you need to succeed in one place",
+    "image_query": "students learning online technology classroom",
     "items": [
-      {{"icon":"✅","title":"Feature","desc":"15 word benefit"}},
-      {{"icon":"🚀","title":"Feature","desc":"15 word benefit"}},
-      {{"icon":"💡","title":"Feature","desc":"15 word benefit"}},
-      {{"icon":"🎯","title":"Feature","desc":"15 word benefit"}},
-      {{"icon":"📊","title":"Feature","desc":"15 word benefit"}},
-      {{"icon":"🏆","title":"Feature","desc":"15 word benefit"}}
+      {{"icon":"✅","title":"Expert Tutors","desc":"Learn from India top educators with proven results"}},
+      {{"icon":"🚀","title":"Learn Anytime","desc":"24/7 access to all recorded sessions and materials"}},
+      {{"icon":"💡","title":"Live Doubt Clearing","desc":"Get instant answers during live interactive sessions"}},
+      {{"icon":"🎯","title":"Personalized Plan","desc":"Custom study schedule built around your weak areas"}},
+      {{"icon":"📊","title":"Progress Dashboard","desc":"Track improvements with real-time performance analytics"}},
+      {{"icon":"🏆","title":"Grade Guarantee","desc":"Guaranteed improvement or complete money back"}}
     ]
   }},
   "social_proof": {{
-    "headline": "Results headline",
-    "image_query": "happy students success",
+    "headline": "Thousands of students achieving real results",
+    "image_query": "happy students celebrating success graduation",
     "metrics": [
-      {{"number":"10,000+","label":"Students Helped"}},
+      {{"number":"15,000+","label":"Students Helped"}},
       {{"number":"98%","label":"Success Rate"}},
-      {{"number":"4.9★","label":"Average Rating"}},
+      {{"number":"4.9★","label":"Student Rating"}},
       {{"number":"50+","label":"Expert Tutors"}}
     ],
     "testimonials": [
-      {{"name":"Priya S.","role":"IB Student Mumbai","quote":"25 word genuine quote","avatar_query":"indian student girl"}},
-      {{"name":"Arjun K.","role":"Grade 12 Delhi","quote":"25 word genuine quote","avatar_query":"indian student boy"}},
-      {{"name":"Meera R.","role":"Parent Bangalore","quote":"25 word parent quote","avatar_query":"indian parent"}}
+      {{"name":"Priya Sharma","role":"IB Student, Mumbai","quote":"My grades went from C to A in just 6 weeks. The personalized attention made all the difference.","avatar_query":"indian girl student smiling happy"}},
+      {{"name":"Arjun Kumar","role":"JEE Aspirant, Delhi","quote":"Finally cleared my doubts instantly. Cracked JEE Advanced with their guidance and support.","avatar_query":"indian boy student confident smiling"}},
+      {{"name":"Meera Reddy","role":"Parent, Bangalore","quote":"Saw dramatic improvement in my child within the first month. Best investment we ever made.","avatar_query":"happy indian mother parent"}}
     ]
   }},
   "comparison": {{
-    "headline": "Why choose us headline",
+    "headline": "Why smart students choose us over others",
     "rows": [
-      {{"feature":"Learning Pace","old":"Fixed rigid schedule","new":"Learn anytime your pace"}},
-      {{"feature":"Expert Access","old":"40 students per teacher","new":"1-on-1 personal sessions"}},
-      {{"feature":"Cost","old":"₹5000/month coaching","new":"Plans from ₹999/month"}},
-      {{"feature":"Progress","old":"Wait for exam results","new":"Real-time dashboard"}},
-      {{"feature":"Support","old":"Office hours only","new":"24/7 doubt resolution"}},
-      {{"feature":"Material","old":"Outdated printed notes","new":"Updated digital resources"}},
-      {{"feature":"Results","old":"No improvement guarantee","new":"Grade improvement assured"}},
-      {{"feature":"Flexibility","old":"Fixed batch timings","new":"Choose your schedule"}}
+      {{"feature":"Learning Pace","old":"Fixed rigid batch schedule","new":"Learn at your own pace 24/7"}},
+      {{"feature":"Expert Access","old":"1 teacher for 60+ students","new":"Dedicated 1-on-1 mentoring"}},
+      {{"feature":"Monthly Cost","old":"₹8000-15000 coaching fee","new":"Affordable from ₹999/month"}},
+      {{"feature":"Progress Tracking","old":"Wait months for exam results","new":"Real-time daily progress dashboard"}},
+      {{"feature":"Doubt Support","old":"Wait till next week class","new":"Instant 24/7 doubt resolution"}},
+      {{"feature":"Study Material","old":"Outdated photocopied notes","new":"Updated digital resources always"}},
+      {{"feature":"Result Guarantee","old":"No promise of improvement","new":"Grade improvement guaranteed"}},
+      {{"feature":"Schedule","old":"Miss class if busy","new":"Watch recordings anytime"}}
     ]
   }},
   "cta_faq": {{
-    "headline": "Start today headline",
-    "subtext": "15 word compelling close",
-    "cta": "Final CTA",
-    "urgency": "Only 8 spots left this month",
-    "bg_image_query": "success celebration graduation",
+    "headline": "Your success story starts today",
+    "subtext": "Join thousands of students already achieving their dreams with expert guidance",
+    "cta": "Book Your Free Demo Class",
+    "urgency": "Only 8 spots remaining this month",
+    "bg_image_query": "students graduation celebration success achievement",
     "faqs": [
-      {{"q":"Real objection?","a":"Reassuring 20 word answer"}},
-      {{"q":"Real objection?","a":"Reassuring 20 word answer"}},
-      {{"q":"Real objection?","a":"Reassuring 20 word answer"}},
-      {{"q":"Real objection?","a":"Reassuring 20 word answer"}},
-      {{"q":"Real objection?","a":"Reassuring 20 word answer"}}
+      {{"q":"How quickly will I see improvement in my grades?","a":"Most students see noticeable improvement within 2-3 weeks of consistent sessions with our expert tutors."}},
+      {{"q":"What if I am not satisfied with the results?","a":"We offer a complete 7-day money-back guarantee. No questions asked if you are not 100% satisfied."}},
+      {{"q":"Can I access classes at my own time?","a":"Yes, all live sessions are recorded and available 24/7. Study whenever it suits your schedule best."}},
+      {{"q":"How are your tutors selected and verified?","a":"Every tutor undergoes a 3-stage selection process and must have minimum 5 years of proven teaching experience."}},
+      {{"q":"Is there a free trial available?","a":"Absolutely! We offer a completely free demo class with zero commitment and no credit card required."}}
     ]
   }}
 }}"""
@@ -94,29 +87,57 @@ Return ONLY valid JSON:
     except:
         return None
 
-def build_html(keyword: str, data: dict) -> str:
-    """Auto-pick best style based on AI recommendation and build full HTML"""
-    style = data.get('style_recommendation', 'minimalist').lower()
+
+async def build_html_with_images(keyword: str, data: dict) -> str:
+    """Build full HTML — fetch all images from Unsplash via backend"""
+    if not data:
+        return "<h1>Error generating content</h1>"
+
+    h = data.get('hero', {})
+    pp = data.get('pain_points', {})
+    ft = data.get('features', {})
+    sp = data.get('social_proof', {})
+    cp = data.get('comparison', {})
+    cf = data.get('cta_faq', {})
     primary = data.get('primary_color', '#6C5CE7')
     accent = data.get('accent_color', '#22C55E')
 
-    h = data['hero']
-    pp = data['pain_points']
-    ft = data['features']
-    sp = data['social_proof']
-    cp = data['comparison']
-    cf = data['cta_faq']
+    # ── Fetch ALL images concurrently from Unsplash ──
+    pain_cards = pp.get('cards', [])
+    testi_list = sp.get('testimonials', [])
 
-    hero_img = img(h.get('image_query', keyword + ' student'), 1400, 700)
-    feat_img = img(ft.get('image_query', keyword + ' success'), 1200, 400)
-    proof_img = img(sp.get('image_query', 'students success'), 1200, 300)
-    cta_bg = img(cf.get('bg_image_query', 'success graduation'), 1400, 500)
+    image_queries = [
+        (h.get('image_query', f'{keyword} student'), 1400, 800, 'landscape'),
+        (ft.get('image_query', f'{keyword} success'), 1200, 400, 'landscape'),
+        (sp.get('image_query', 'students success celebration'), 1200, 300, 'landscape'),
+        (cf.get('bg_image_query', 'graduation success achievement'), 1400, 500, 'landscape'),
+    ] + [
+        (c.get('image_query', 'student studying'), 480, 260, 'landscape') for c in pain_cards
+    ] + [
+        (t.get('avatar_query', 'person portrait'), 80, 80, 'squarish') for t in testi_list
+    ]
 
-    pain_cards_html = ""
-    for c in pp['cards']:
-        pain_cards_html += f"""
+    # Fetch all concurrently
+    async def fetch_img(q, w, h_size, ori):
+        return await get_unsplash_image(q, w, h_size, ori)
+
+    tasks = [fetch_img(q, w, h_size, ori) for q, w, h_size, ori in image_queries]
+    all_imgs = await asyncio.gather(*tasks)
+
+    hero_img = all_imgs[0]
+    feat_img = all_imgs[1]
+    proof_img = all_imgs[2]
+    cta_img = all_imgs[3]
+    pain_imgs = all_imgs[4:4+len(pain_cards)]
+    avatar_imgs = all_imgs[4+len(pain_cards):]
+
+    # ── Build HTML sections ──
+    pain_html = ""
+    for i, c in enumerate(pain_cards):
+        img_src = pain_imgs[i] if i < len(pain_imgs) else f"https://picsum.photos/seed/{i+10}/480/260"
+        pain_html += f"""
         <div class="pain-card">
-          <img src="{img(c.get('image_query','student'), 480, 260)}" alt="{c['title']}" loading="lazy"/>
+          <div class="pain-img-wrap"><img src="{img_src}" alt="{c['title']}" loading="lazy"/></div>
           <div class="pc-body">
             <span class="pc-icon">{c['icon']}</span>
             <h3>{c['title']}</h3>
@@ -124,246 +145,227 @@ def build_html(keyword: str, data: dict) -> str:
           </div>
         </div>"""
 
-    feat_items_html = ""
-    for f in ft['items']:
-        feat_items_html += f"""
-        <div class="feat-item">
-          <div class="fi-icon">{f['icon']}</div>
-          <div><h3>{f['title']}</h3><p>{f['desc']}</p></div>
-        </div>"""
+    feat_html = "".join([f'<div class="feat-item"><div class="fi-icon">{f["icon"]}</div><div><h3>{f["title"]}</h3><p>{f["desc"]}</p></div></div>' for f in ft.get('items',[])])
 
-    metrics_html = "".join([f'<div class="metric"><div class="m-n">{m["number"]}</div><div class="m-l">{m["label"]}</div></div>' for m in sp['metrics']])
+    metrics_html = "".join([f'<div class="metric"><div class="m-n">{m["number"]}</div><div class="m-l">{m["label"]}</div></div>' for m in sp.get('metrics',[])])
 
     testis_html = ""
-    for t in sp['testimonials']:
+    for i, t in enumerate(testi_list):
+        av = avatar_imgs[i] if i < len(avatar_imgs) else f"https://picsum.photos/seed/{i+50}/80/80"
         testis_html += f"""
         <div class="testi">
           <div class="stars">★★★★★</div>
           <p>"{t['quote']}"</p>
           <div class="testi-who">
-            <img src="{img_sq(t.get('avatar_query','person portrait'), 44)}" alt="{t['name']}"/>
+            <img src="{av}" alt="{t['name']}" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>
             <div><strong>{t['name']}</strong><span>{t['role']}</span></div>
           </div>
         </div>"""
 
-    rows_html = "".join([f"<tr><td class='f'>{r['feature']}</td><td class='o'>✗ {r['old']}</td><td class='n'>✓ {r['new']}</td></tr>" for r in cp['rows']])
+    rows_html = "".join([f"<tr><td class='f'>{r['feature']}</td><td class='o'>✗ {r['old']}</td><td class='n'>✓ {r['new']}</td></tr>" for r in cp.get('rows',[])])
 
-    faqs_html = "".join([f'<div class="faq"><button onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'show\')">{f["q"]}<span>+</span></button><div class="faq-a"><p>{f["a"]}</p></div></div>' for f in cf['faqs']])
-
-    # Pick font and style based on recommendation
-    if style == 'academic':
-        font_url = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600&display=swap"
-        heading_font = "'Cormorant Garamond', serif"
-        body_font = "'Outfit', sans-serif"
-    elif style == 'tech':
-        font_url = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"
-        heading_font = "'Space Grotesk', sans-serif"
-        body_font = "'Space Grotesk', sans-serif"
-    else:
-        font_url = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
-        heading_font = "'Playfair Display', serif"
-        body_font = "'DM Sans', sans-serif"
-
-    dark_bg = style == 'tech'
-    bg_color = '#050810' if dark_bg else '#ffffff'
-    text_color = '#e8f0f7' if dark_bg else '#1a1a1a'
-    card_bg = '#0c1220' if dark_bg else '#ffffff'
-    section_bg = '#080d1a' if dark_bg else '#f8f9fa'
-    muted = 'rgba(255,255,255,0.5)' if dark_bg else '#666666'
-    border_color = '#1a2540' if dark_bg else '#e5e7eb'
-    nav_bg = 'rgba(5,8,16,0.92)' if dark_bg else 'rgba(255,255,255,0.95)'
+    faqs_html = "".join([f'<div class="faq"><button onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'show\')">{f["q"]}<span>+</span></button><div class="faq-a"><p>{f["a"]}</p></div></div>' for f in cf.get('faqs',[])])
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>{h['headline']} | {keyword}</title>
-<link href="{font_url}" rel="stylesheet"/>
+<title>{h.get('headline','Welcome')} | {keyword}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
-:root{{--primary:{primary};--accent:{accent};--bg:{bg_color};--text:{text_color};--card:{card_bg};--section:{section_bg};--muted:{muted};--border:{border_color}}}
-body{{font-family:{body_font};background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}}
-img{{max-width:100%;height:auto}}
+:root{{--p:{primary};--a:{accent}}}
+body{{font-family:'DM Sans',sans-serif;background:#fafaf8;color:#1a1a1a;line-height:1.7;overflow-x:hidden}}
+img{{max-width:100%;display:block}}
+nav{{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(250,250,248,.95);backdrop-filter:blur(12px);border-bottom:1px solid #e5e7eb}}
+.nav-logo{{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#1a1a1a}}
+.nav-cta{{background:var(--p);color:#fff;padding:10px 24px;border:none;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}}
+.nav-cta:hover{{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 14px rgba(108,92,231,.4)}}
 
-nav{{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 48px;display:flex;align-items:center;justify-content:space-between;background:{nav_bg};backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}}
-.nav-logo{{font-family:{heading_font};font-size:1.2rem;font-weight:700;color:var(--text)}}
-.nav-cta{{background:var(--primary);color:#fff;padding:9px 22px;border:none;border-radius:6px;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;font-family:{body_font}}}
-.nav-cta:hover{{opacity:.9;transform:translateY(-1px)}}
+/* HERO */
+.hero{{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}}
+.hero-bg{{position:absolute;inset:0}}
+.hero-bg img{{width:100%;height:100%;object-fit:cover;object-position:center}}
+.hero-overlay{{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.45) 100%)}}
+.hero-content{{position:relative;z-index:2;max-width:780px;padding:120px 32px 80px;color:#fff}}
+.hero-tag{{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:7px 20px;border-radius:20px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px;backdrop-filter:blur(8px)}}
+.hero h1{{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5.5vw,4rem);font-weight:800;line-height:1.08;margin-bottom:20px;letter-spacing:-.02em}}
+.hero p{{font-size:1.08rem;opacity:.9;margin-bottom:36px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.65}}
+.btn-main{{background:var(--p);color:#fff;padding:17px 40px;border:none;border-radius:10px;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .25s;letter-spacing:.01em}}
+.btn-main:hover{{opacity:.92;transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.35)}}
+.trust{{margin-top:20px;font-size:.8rem;opacity:.8;display:flex;align-items:center;justify-content:center;gap:8px}}
+.trust-ava{{display:flex}}.trust-ava img{{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.4);margin-right:-8px;object-fit:cover}}
 
-.hero{{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;padding:100px 24px 60px}}
-.hero-bg{{position:absolute;inset:0;background:url('{hero_img}') center/cover;{'filter:brightness(.2)' if dark_bg else 'filter:brightness(.35)'}}}
-.hero-overlay{{position:absolute;inset:0;background:{'linear-gradient(135deg,rgba(5,8,16,0.95),rgba(12,18,32,0.8))' if dark_bg else f'linear-gradient(135deg,rgba(0,0,0,0.75),rgba(0,0,0,0.5))'}}}
-.hero-content{{position:relative;z-index:2;max-width:760px;color:#fff}}
-.hero-tag{{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);padding:6px 18px;border-radius:20px;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px;backdrop-filter:blur(8px)}}
-.hero h1{{font-family:{heading_font};font-size:clamp(2rem,5vw,3.8rem);font-weight:700;line-height:1.1;margin-bottom:18px;letter-spacing:-.02em}}
-.hero h1 em{{font-style:normal;color:var(--primary)}}
-.hero p{{font-size:1.05rem;opacity:.88;margin-bottom:32px;max-width:560px;margin-left:auto;margin-right:auto}}
-.btn-main{{background:var(--primary);color:#fff;padding:16px 36px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s;font-family:{body_font}}}
-.btn-main:hover{{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}}
-.trust{{margin-top:18px;font-size:.78rem;opacity:.7;display:flex;align-items:center;justify-content:center;gap:8px}}
-.trust-avs{{display:flex}}.trust-avs img{{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.3);margin-right:-7px;object-fit:cover}}
+/* LOGOS */
+.logos-bar{{padding:22px 48px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;gap:44px;flex-wrap:wrap}}
+.logo-txt{{font-size:.75rem;font-weight:700;color:#c8c8c8;letter-spacing:.06em;text-transform:uppercase}}
 
-section{{padding:88px 48px}}
-.inner{{max-width:1100px;margin:0 auto}}
-.sec-over{{font-size:.62rem;text-transform:uppercase;letter-spacing:.16em;color:var(--primary);font-weight:700;margin-bottom:10px;display:block}}
-.sec-title{{font-family:{heading_font};font-size:clamp(1.6rem,3vw,2.6rem);font-weight:700;margin-bottom:36px;line-height:1.15}}
+/* SECTIONS */
+section{{padding:92px 48px}}
+.inner{{max-width:1120px;margin:0 auto}}
+.sec-over{{font-size:.63rem;text-transform:uppercase;letter-spacing:.18em;color:var(--p);font-weight:700;margin-bottom:10px;display:block}}
+.sec-title{{font-family:'Playfair Display',serif;font-size:clamp(1.7rem,3.2vw,2.7rem);font-weight:700;margin-bottom:38px;line-height:1.15;color:#1a1a1a}}
 
-.pain-section{{background:var(--section)}}
+/* PAIN CARDS */
+.pain-section{{background:#f3f4f6}}
 .pain-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}}
-.pain-card{{background:var(--card);border-radius:14px;overflow:hidden;{'border:1px solid #1a2540' if dark_bg else 'box-shadow:0 4px 20px rgba(0,0,0,.06)'};transition:all .25s}}
-.pain-card:hover{{transform:translateY(-4px);{'box-shadow:0 0 20px rgba(108,92,231,.15)' if dark_bg else 'box-shadow:0 12px 30px rgba(0,0,0,.1)'}}}
-.pain-card img{{width:100%;height:170px;object-fit:cover;display:block}}
-.pc-body{{padding:18px}}
-.pc-icon{{font-size:1.6rem;display:block;margin-bottom:8px}}
-.pc-body h3{{font-size:.95rem;font-weight:700;margin-bottom:6px}}
-.pc-body p{{font-size:.82rem;color:var(--muted)}}
+.pain-card{{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06);transition:all .28s}}
+.pain-card:hover{{transform:translateY(-5px);box-shadow:0 14px 32px rgba(0,0,0,.1)}}
+.pain-img-wrap{{height:190px;overflow:hidden}}
+.pain-img-wrap img{{width:100%;height:190px;object-fit:cover;transition:transform .4s}}
+.pain-card:hover .pain-img-wrap img{{transform:scale(1.06)}}
+.pc-body{{padding:20px}}
+.pc-icon{{font-size:1.7rem;display:block;margin-bottom:9px}}
+.pc-body h3{{font-size:.98rem;font-weight:700;margin-bottom:6px;color:#1a1a1a}}
+.pc-body p{{font-size:.83rem;color:#6b7280;line-height:1.6}}
 
-.feat-section{{background:var(--bg)}}
-.feat-img{{width:100%;height:300px;object-fit:cover;border-radius:16px;margin-bottom:44px;display:block;{'filter:brightness(.7) saturate(.8)' if dark_bg else ''}}}
-.feat-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}}
-.feat-item{{background:var(--card);{'border:1px solid #1a2540' if dark_bg else 'border:1px solid #eee'};border-radius:12px;padding:22px;display:flex;gap:14px;align-items:flex-start;transition:all .2s}}
-.feat-item:hover{{border-color:var(--primary)}}
-.fi-icon{{font-size:1.6rem;flex-shrink:0;margin-top:2px}}
-.feat-item h3{{font-size:.9rem;font-weight:700;margin-bottom:5px}}
-.feat-item p{{font-size:.8rem;color:var(--muted)}}
+/* FEATURES */
+.feat-section{{background:#fff}}
+.feat-top-img{{width:100%;height:320px;object-fit:cover;border-radius:18px;margin-bottom:48px;box-shadow:0 16px 48px rgba(0,0,0,.1)}}
+.feat-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px}}
+.feat-item{{background:#f8f9fa;border:1px solid #e5e7eb;border-radius:14px;padding:24px;display:flex;gap:16px;align-items:flex-start;transition:all .22s}}
+.feat-item:hover{{border-color:var(--p);background:#fff;box-shadow:0 6px 20px rgba(108,92,231,.08)}}
+.fi-icon{{font-size:1.7rem;flex-shrink:0;margin-top:1px}}
+.feat-item h3{{font-size:.93rem;font-weight:700;margin-bottom:5px;color:#1a1a1a}}
+.feat-item p{{font-size:.81rem;color:#6b7280;line-height:1.6}}
 
-.proof-section{{background:var(--section)}}
-.proof-img{{width:100%;height:200px;object-fit:cover;border-radius:14px;margin-bottom:44px;display:block;opacity:.9}}
-.metrics-row{{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-bottom:48px;padding:28px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}}
+/* PROOF */
+.proof-section{{background:#f3f4f6}}
+.proof-top-img{{width:100%;height:240px;object-fit:cover;border-radius:16px;margin-bottom:48px;box-shadow:0 12px 36px rgba(0,0,0,.08)}}
+.metrics-row{{display:flex;justify-content:center;gap:52px;flex-wrap:wrap;margin-bottom:52px;padding:30px 0;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb}}
 .metric{{text-align:center}}
-.m-n{{font-family:{heading_font};font-size:2.2rem;font-weight:700;color:var(--primary)}}
-.m-l{{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}}
-.testi-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}}
-.testi{{background:var(--card);{'border:1px solid #1a2540' if dark_bg else 'box-shadow:0 4px 16px rgba(0,0,0,.05)'};border-radius:14px;padding:24px}}
-.stars{{color:#f59e0b;font-size:.85rem;margin-bottom:10px}}
-.testi p{{font-size:.86rem;color:var(--muted);font-style:italic;margin-bottom:16px;line-height:1.7}}
-.testi-who{{display:flex;align-items:center;gap:10px}}
-.testi-who img{{width:40px;height:40px;border-radius:50%;object-fit:cover}}
-.testi-who strong{{display:block;font-size:.82rem;font-weight:700}}
-.testi-who span{{font-size:.72rem;color:var(--muted)}}
+.m-n{{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:var(--p);line-height:1}}
+.m-l{{font-size:.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;margin-top:6px}}
+.testi-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px}}
+.testi{{background:#fff;box-shadow:0 4px 18px rgba(0,0,0,.06);border-radius:16px;padding:26px}}
+.stars{{color:#f59e0b;font-size:.9rem;margin-bottom:12px;letter-spacing:2px}}
+.testi p{{font-size:.87rem;color:#374151;font-style:italic;margin-bottom:18px;line-height:1.75}}
+.testi-who{{display:flex;align-items:center;gap:12px}}
+.testi-who strong{{display:block;font-size:.84rem;font-weight:700;color:#1a1a1a}}
+.testi-who span{{font-size:.73rem;color:#9ca3af}}
 
-.compare-section{{background:var(--bg)}}
-.ctable{{width:100%;max-width:820px;margin:0 auto;border-collapse:collapse;border-radius:14px;overflow:hidden;{'box-shadow:none' if dark_bg else 'box-shadow:0 4px 24px rgba(0,0,0,.07)'}}}
-.ctable thead{{background:{'#0c1220' if dark_bg else '#1a1a1a'}}}
-.ctable th{{padding:14px 20px;text-align:left;font-size:.72rem;color:{'#9AA4C7' if dark_bg else '#fff'};text-transform:uppercase;letter-spacing:.07em}}
-.ctable td{{padding:13px 20px;font-size:.84rem;border-bottom:1px solid var(--border);background:var(--card)}}
-td.f{{font-weight:700}}
+/* COMPARE */
+.compare-section{{background:#fff}}
+.ctable{{width:100%;max-width:840px;margin:0 auto;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.08)}}
+.ctable thead{{background:#1a1a1a}}
+.ctable th{{padding:16px 22px;text-align:left;font-size:.74rem;color:#fff;text-transform:uppercase;letter-spacing:.08em;font-weight:600}}
+.ctable td{{padding:14px 22px;font-size:.86rem;border-bottom:1px solid #f0f0f0;background:#fff}}
+.ctable tr:last-child td{{border-bottom:none}}
+.ctable tr:hover td{{background:#fafafa}}
+td.f{{font-weight:700;color:#1a1a1a}}
 td.o{{color:#dc2626}}
 td.n{{color:#16a34a;font-weight:600}}
 
-.cta-section{{position:relative;text-align:center;color:#fff;overflow:hidden}}
-.cta-bg{{position:absolute;inset:0;background:url('{cta_bg}') center/cover;filter:brightness(.25)}}
-.cta-overlay{{position:absolute;inset:0;background:linear-gradient(135deg,rgba({','.join(str(int(primary.lstrip('#')[i:i+2],16)) for i in (0,2,4))},0.9),rgba(0,0,0,.7))}}
-.cta-inner{{position:relative;z-index:2;padding:88px 48px}}
-.cta-section h2{{font-family:{heading_font};font-size:clamp(1.8rem,4vw,3rem);font-weight:700;margin-bottom:12px}}
-.cta-section p{{opacity:.88;margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;font-size:.95rem}}
-.urgency{{margin-top:14px;font-size:.76rem;opacity:.7}}
-.urgency em{{color:{'#22C55E' if dark_bg else '#ffdd57'};font-style:normal;font-weight:700}}
+/* CTA */
+.cta-section{{position:relative;text-align:center;color:#fff;overflow:hidden;min-height:420px;display:flex;align-items:center;justify-content:center}}
+.cta-bg{{position:absolute;inset:0}}
+.cta-bg img{{width:100%;height:100%;object-fit:cover;object-position:center}}
+.cta-overlay{{position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.92),rgba(0,0,0,.75))}}
+.cta-inner{{position:relative;z-index:2;padding:88px 48px;max-width:680px}}
+.cta-inner h2{{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,4.5vw,3.2rem);font-weight:700;margin-bottom:14px;line-height:1.15}}
+.cta-inner p{{opacity:.9;margin-bottom:32px;font-size:.98rem;line-height:1.65}}
+.urgency{{margin-top:16px;font-size:.78rem;opacity:.8}}
+.urgency em{{color:#ffdd57;font-style:normal;font-weight:700}}
 
-.faq-section{{background:var(--section)}}
-.faq-inner{{max-width:720px;margin:0 auto}}
-.faq-title{{font-family:{heading_font};font-size:1.8rem;font-weight:700;text-align:center;margin-bottom:28px}}
-.faq{{border-bottom:1px solid var(--border)}}
-.faq button{{width:100%;padding:16px 0;background:none;border:none;color:var(--text);text-align:left;font-size:.9rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;font-family:{body_font};gap:10px}}
-.faq button span{{color:var(--primary);font-size:1.1rem;transition:transform .2s;flex-shrink:0}}
+/* FAQ */
+.faq-section{{background:#f3f4f6}}
+.faq-inner{{max-width:740px;margin:0 auto}}
+.faq-title{{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;text-align:center;margin-bottom:32px;color:#1a1a1a}}
+.faq{{border-bottom:1px solid #e5e7eb}}
+.faq button{{width:100%;padding:18px 0;background:none;border:none;color:#1a1a1a;text-align:left;font-size:.92rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;font-family:'DM Sans',sans-serif;gap:12px;transition:color .2s}}
+.faq button:hover{{color:var(--p)}}
+.faq button span{{color:var(--p);font-size:1.2rem;transition:transform .2s;flex-shrink:0;font-weight:400}}
 .faq button.open span{{transform:rotate(45deg)}}
-.faq-a{{display:none;padding:0 0 14px;font-size:.85rem;color:var(--muted);line-height:1.7}}
+.faq-a{{display:none;padding:0 0 16px;font-size:.87rem;color:#6b7280;line-height:1.75}}
 .faq-a.show{{display:block}}
-.logos-bar{{padding:24px 48px;{'background:#080d1a' if dark_bg else 'background:#fff'};border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap}}
-.logo-text{{font-size:.75rem;font-weight:700;color:{'rgba(255,255,255,.2)' if dark_bg else '#d0d0d0'};letter-spacing:.06em;text-transform:uppercase}}
-footer{{background:{'#030508' if dark_bg else '#1a1a1a'};color:rgba(255,255,255,.4);text-align:center;padding:22px;font-size:.72rem}}
 
-@media(max-width:768px){{
-  nav,section{{padding-left:20px;padding-right:20px}}
-  .logos-bar{{padding:16px 20px;gap:20px}}
-  .metrics-row{{gap:24px}}
-  .cta-inner{{padding:60px 20px}}
-}}
+footer{{background:#111827;color:rgba(255,255,255,.38);text-align:center;padding:24px;font-size:.74rem}}
+@media(max-width:768px){{nav{{padding:12px 20px}}section{{padding:68px 20px}}.logos-bar{{padding:16px 20px;gap:20px}}.metrics-row{{gap:28px}}.cta-inner{{padding:60px 20px}}}}
 </style>
 </head>
 <body>
-
 <nav>
-  <div class="nav-logo">{keyword[:22]}</div>
-  <button class="nav-cta" onclick="document.querySelector('.cta-section').scrollIntoView({{behavior:'smooth'}})">{h['cta']}</button>
+  <div class="nav-logo">{keyword[:26]}</div>
+  <button class="nav-cta" onclick="document.querySelector('.cta-section').scrollIntoView({{behavior:'smooth'}})">{h.get('cta','Get Started')}</button>
 </nav>
 
-<section class="hero" style="padding:0">
-  <div class="hero-bg"></div>
+<!-- HERO -->
+<section class="hero" style="padding:0;min-height:100vh">
+  <div class="hero-bg"><img src="{hero_img}" alt="{keyword}" loading="eager"/></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-tag">{keyword}</div>
-    <h1>{h['headline']}</h1>
-    <p>{h['subheadline']}</p>
-    <button class="btn-main">{h['cta']}</button>
-    <div class="trust">
-      <div class="trust-avs">
-        <img src="{img_sq('student portrait', 26)}" alt=""/>
-        <img src="{img_sq('person smiling', 26)}" alt=""/>
-        <img src="{img_sq('young student', 26)}" alt=""/>
-      </div>
-      {h['trust_line']}
-    </div>
+    <h1>{h.get('headline','Unlock Your Full Potential')}</h1>
+    <p>{h.get('subheadline','Expert guidance that delivers real, measurable results for serious students.')}</p>
+    <button class="btn-main">{h.get('cta','Get Started Free')}</button>
+    <div class="trust">⭐⭐⭐⭐⭐ {h.get('trust_line','Join 10,000+ successful students')}</div>
   </div>
 </section>
 
+<!-- LOGOS -->
 <div class="logos-bar">
-  <div class="logo-text">Times of India</div>
-  <div class="logo-text">Education World</div>
-  <div class="logo-text">India Today</div>
-  <div class="logo-text">NDTV Education</div>
-  <div class="logo-text">The Hindu</div>
+  <div class="logo-txt">Times of India</div>
+  <div class="logo-txt">Education World</div>
+  <div class="logo-txt">India Today</div>
+  <div class="logo-txt">NDTV Education</div>
+  <div class="logo-txt">The Hindu</div>
 </div>
 
+<!-- PAIN POINTS -->
 <section class="pain-section">
   <div class="inner">
     <span class="sec-over">The Problem</span>
-    <div class="sec-title">{pp['headline']}</div>
-    <div class="pain-grid">{pain_cards_html}</div>
+    <div class="sec-title">{pp.get('headline','Are these struggles holding you back?')}</div>
+    <div class="pain-grid">{pain_html}</div>
   </div>
 </section>
 
+<!-- FEATURES -->
 <section class="feat-section">
   <div class="inner">
     <span class="sec-over">Our Solution</span>
-    <div class="sec-title">{ft['headline']}</div>
-    <img class="feat-img" src="{feat_img}" alt="features"/>
-    <div class="feat-grid">{feat_items_html}</div>
+    <div class="sec-title">{ft.get('headline','Everything you need to succeed')}</div>
+    <img class="feat-top-img" src="{feat_img}" alt="features"/>
+    <div class="feat-grid">{feat_html}</div>
   </div>
 </section>
 
+<!-- SOCIAL PROOF -->
 <section class="proof-section">
   <div class="inner">
     <span class="sec-over">Proven Results</span>
-    <div class="sec-title">{sp['headline']}</div>
-    <img class="proof-img" src="{proof_img}" alt="results"/>
+    <div class="sec-title">{sp.get('headline','Students achieving real results every day')}</div>
+    <img class="proof-top-img" src="{proof_img}" alt="results"/>
     <div class="metrics-row">{metrics_html}</div>
     <div class="testi-grid">{testis_html}</div>
   </div>
 </section>
 
+<!-- COMPARISON -->
 <section class="compare-section">
   <div class="inner" style="text-align:center">
     <span class="sec-over">Why Choose Us</span>
-    <div class="sec-title" style="margin-bottom:32px">{cp['headline']}</div>
+    <div class="sec-title" style="margin-bottom:36px">{cp.get('headline','Why students choose us over others')}</div>
     <table class="ctable">
-      <thead><tr><th>Feature</th><th>Traditional Way</th><th>With Us</th></tr></thead>
+      <thead><tr><th>Feature</th><th>Traditional Coaching</th><th>With Us ✅</th></tr></thead>
       <tbody>{rows_html}</tbody>
     </table>
   </div>
 </section>
 
+<!-- CTA -->
 <div class="cta-section">
-  <div class="cta-bg"></div>
+  <div class="cta-bg"><img src="{cta_img}" alt="success"/></div>
   <div class="cta-overlay"></div>
   <div class="cta-inner">
-    <h2>{cf['headline']}</h2>
-    <p>{cf['subtext']}</p>
-    <button class="btn-main">{cf['cta']}</button>
-    <div class="urgency">⚡ <em>{cf['urgency']}</em></div>
+    <h2>{cf.get('headline','Your success story starts today')}</h2>
+    <p>{cf.get('subtext','Join thousands of students already achieving their dreams')}</p>
+    <button class="btn-main" style="font-size:1.02rem;padding:18px 48px">{cf.get('cta','Book Free Demo Class')}</button>
+    <div class="urgency">⚡ <em>{cf.get('urgency','Only 8 spots left this month — Act now!')}</em></div>
   </div>
 </div>
 
+<!-- FAQ -->
 <section class="faq-section">
   <div class="faq-inner">
     <div class="faq-title">Frequently Asked Questions</div>
@@ -372,10 +374,40 @@ footer{{background:{'#030508' if dark_bg else '#1a1a1a'};color:rgba(255,255,255,
 </section>
 
 <footer>© 2025 · {keyword} · All rights reserved · Built with MarketMind AI</footer>
+
 <script>
-document.querySelectorAll('.btn-main,.nav-cta').forEach(b=>b.addEventListener('click',()=>{{
-  document.querySelector('.cta-section').scrollIntoView({{behavior:'smooth'}});
-}}));
+document.querySelectorAll('.faq button').forEach(b=>{{
+  b.addEventListener('click',function(){{
+    this.classList.toggle('open');
+    this.nextElementSibling.classList.toggle('show');
+  }});
+}});
+document.querySelectorAll('.btn-main,.nav-cta').forEach(b=>{{
+  b.addEventListener('click',()=>document.querySelector('.cta-section').scrollIntoView({{behavior:'smooth'}}));
+}});
 </script>
 </body>
 </html>"""
+
+
+# Keep backward compatibility
+async def generate_lp_content_and_build(keyword: str, style: str, persona: str = "student") -> tuple:
+    data = await generate_lp_content(keyword, style, persona)
+    html = await build_html_with_images(keyword, data) if data else "<h1>Error</h1>"
+    return data, html
+
+# Sync wrapper for main.py
+def build_html(keyword: str, data: dict) -> str:
+    """Sync wrapper — runs async build"""
+    import asyncio
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                future = pool.submit(asyncio.run, build_html_with_images(keyword, data))
+                return future.result(timeout=30)
+        else:
+            return loop.run_until_complete(build_html_with_images(keyword, data))
+    except Exception as e:
+        return f"<h1>Error building page: {e}</h1>"
