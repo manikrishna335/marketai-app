@@ -238,7 +238,7 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
   <div class="topbar">
     <div class="topbar-title" id="pg-title">🔍 Keyword Cluster Intelligence</div>
     <div class="be-row">
-      <div class="be-wrap"><span class="be-lbl">API</span><input class="be-inp" id="backendUrl" placeholder="https://marketai-app-production.up.railway.app"/></div>
+      <div class="be-wrap"><span class="be-lbl">API</span><input class="be-inp" id="backendUrl" placeholder="https://marketai-app-production.up.railway.app" value="https://marketai-app-production.up.railway.app"/></div>
       <button class="save-btn" onclick="saveUrl()">Save</button>
     </div>
   </div>
@@ -393,6 +393,8 @@ let BACKEND=localStorage.getItem('mkai_be')||'https://marketai-app-production.up
 let angle='emotional',blData=null,statuses={},lpHTML='',lpKeyword='';
 let tChart=null,dChart=null;
 document.getElementById('backendUrl').value=BACKEND;
+// Auto-save Railway URL so it works for everyone
+if(!localStorage.getItem('mkai_be')){localStorage.setItem('mkai_be','https://marketai-app-production.up.railway.app');}
 
 function saveUrl(){BACKEND=document.getElementById('backendUrl').value.trim().replace(/\/$/,'');localStorage.setItem('mkai_be',BACKEND);const b=document.querySelector('.save-btn');b.textContent='✓';setTimeout(()=>b.textContent='Save',1400)}
 function go(n,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');el.classList.add('active');document.getElementById('pg-title').textContent=TITLES[n]}
@@ -467,7 +469,7 @@ function renderGAds(data){
         <span class="ad-obj-badge" style="background:rgba(${hexToRgb(objColors[f.objective]||'#8B5CF6')},.12);color:${objColors[f.objective]||'#8B5CF6'}">${f.objective}</span>
       </div>
       <div class="ad-img-wrap">
-        <img src="${f.image_url}" alt="${f.format}" style="height:${f.format==='Search Ad'?'80px':'180px'}"/>
+        <img data-uquery="${f._img_query||f.image_query||kw()}" data-uori="landscape" src="https://placehold.co/1200x180/151C32/6C5CE7?text=Loading..." alt="${f.format}" style="height:${f.format==='Search Ad'?'80px':'180px'};background:linear-gradient(90deg,#1a2035,#232a45);"/>
         <div class="ad-img-overlay"></div>
         <div class="ad-img-cta">${f.cta}</div>
       </div>
@@ -512,11 +514,11 @@ function renderMAds(data){
         <span class="ad-obj-badge" style="background:rgba(${hexToRgb(objColors[f.objective]||'#8B5CF6')},.12);color:${objColors[f.objective]||'#8B5CF6'}">${f.objective}</span>
       </div>
       <div class="ad-img-wrap">
-        <img src="${f.image_url}" alt="${f.format}" style="height:${f.ratio==='9:16'?'220px':'180px'}"/>
+        <img data-uquery="${f._img_query||f.image_query||''}" data-uori="${f.ratio==='9:16'?'portrait':'landscape'}" src="https://placehold.co/1200x220/151C32/6C5CE7?text=Loading..." alt="${f.format}" style="height:${f.ratio==='9:16'?'220px':'180px'};background:linear-gradient(90deg,#1a2035,#232a45);"/>
         <div class="ad-img-overlay"></div>
         <div class="ad-img-cta">${f.cta}</div>
       </div>
-      ${f.cards?`<div class="carousel-cards">${f.cards.map(c=>`<div class="c-card"><img src="${c.image_url}" alt="${c.title}"/><div class="c-card-body"><div class="c-card-title">${c.title}</div><div class="c-card-desc">${c.desc}</div></div></div>`).join('')}</div>`:''}
+      ${f.cards?`<div class="carousel-cards">${f.cards.map(c=>`<div class="c-card"><img data-uquery="${c._img_query||c.image_query||''}" src="https://placehold.co/160x110/151C32/6C5CE7?text=..." alt="${c.title}" style="background:#1a2035;"/><div class="c-card-body"><div class="c-card-title">${c.title}</div><div class="c-card-desc">${c.desc}</div></div></div>`).join('')}</div>`:''}
       ${f.video_script?`<div class="video-script"><div class="vs-title">📹 Video Script (30 sec)</div>${Object.entries(f.video_script).map(([k,v])=>`<div class="vs-row"><span class="vs-label">${k.charAt(0).toUpperCase()+k.slice(1)}:</span><span class="vs-text">${v}</span></div>`).join('')}</div>`:''}
       <div class="ad-body">
         <div class="ad-headline">${f.headline}</div>
@@ -534,7 +536,7 @@ function renderMAds(data){
     <div class="adset-card">
       <div class="adset-name">${s.name}</div>
       <span class="adset-obj">${s.objective}</span>
-      <img class="adset-img" src="${s.image_url}" alt="${s.name}"/>
+      <img class="adset-img" data-uquery="${s._img_query||s.image_query||''}" src="https://placehold.co/280x120/151C32/6C5CE7?text=Loading..." alt="${s.name}" style="background:#1a2035;"/>
       <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;font-weight:600">INTERESTS (${(s.interests||[]).length})</div>
       <div>${(s.interests||[]).map(i=>`<span style="display:inline-block;padding:2px 7px;border-radius:4px;background:rgba(108,92,231,.1);color:#8B5CF6;font-size:.6rem;margin:2px">${i}</span>`).join('')}</div>
       <div class="adset-text" style="margin-top:10px">${s.primary_text}</div>
@@ -616,6 +618,44 @@ async function generate(){
 
 document.getElementById('email-modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 document.getElementById('kw').addEventListener('keydown',e=>{if(e.key==='Enter')generate()});
+
+// Universal Unsplash image loader
+const UKEY='uzuoQOhJhBAPA3oZLUrM5caab91nTcIwrB92kEbX87k';
+async function loadUImg(imgEl, query, orientation='landscape'){
+  if(!query)return;
+  const q=query.replace(/&w=\d+|&h=\d+|&orientation=\w+/g,'').trim();
+  try{
+    const r=await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(q)}&orientation=${orientation}&client_id=${UKEY}`);
+    if(r.ok){const d=await r.json();const url=d.urls?.regular||d.urls?.full;if(url){imgEl.src=url;imgEl.style.background='none';}}
+  }catch(e){}
+}
+function loadAllUnsplash(){
+  document.querySelectorAll('[data-uquery]').forEach(img=>{
+    const q=img.dataset.uquery;
+    const ori=img.dataset.uori||'landscape';
+    loadUImg(img,q,ori);
+  });
+}
+
+// Override renderGAds to use Unsplash
+const _origRenderGAds=renderGAds;
+window.renderGAds=function(data){
+  _origRenderGAds(data);
+  setTimeout(()=>{
+    document.querySelectorAll('[data-uquery]').forEach(img=>{
+      loadUImg(img,img.dataset.uquery,img.dataset.uori||'landscape');
+    });
+  },100);
+};
+const _origRenderMAds=renderMAds;
+window.renderMAds=function(data){
+  _origRenderMAds(data);
+  setTimeout(()=>{
+    document.querySelectorAll('[data-uquery]').forEach(img=>{
+      loadUImg(img,img.dataset.uquery,img.dataset.uori||'landscape');
+    });
+  },100);
+};
 </script>
 </body>
 </html>
