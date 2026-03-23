@@ -3,9 +3,10 @@ import json, re
 
 UNSPLASH_KEY = "uzuoQOhJhBAPA3oZLUrM5caab91nTcIwrB92kEbX87k"
 
-def img_url(query, w=1200, h=628):
-    q = query.replace(" ", ",").replace("/", ",")
-    return f"https://source.unsplash.com/{w}x{h}/?{q}"
+def img_api_url(query):
+    """Returns Unsplash API URL — frontend JS fetches actual photo from this"""
+    q = re.sub(r'[^\w\s]', '', query).strip().replace(' ', '+')
+    return f"__UNSPLASH__{q}"  # Frontend will replace this
 
 async def generate_google_ads(keyword: str, business: str, budget: str, location: str, cpc: str = "1.00") -> dict:
     try:
@@ -14,143 +15,131 @@ async def generate_google_ads(keyword: str, business: str, budget: str, location
     except:
         starting_bid = 1.10
 
-    prompt = f"""You are a Google Ads expert. Create a COMPLETE campaign for:
-Business: {business}
-Keyword: "{keyword}"
-Budget: {budget}
-Location: {location}
-Starting Bid: ${starting_bid} (10% above avg CPC)
+    prompt = f"""Google Ads expert. Create complete campaign for:
+Business: {business}, Keyword: "{keyword}", Budget: {budget}, Location: {location}
 
-Return ONLY valid JSON, no markdown:
+Return ONLY valid JSON:
 {{
-  "campaign_name": "Campaign name",
+  "campaign_name": "{business} - {keyword} Campaign",
   "objective": "Lead Generation",
+  "daily_budget": "₹{int(budget.replace('₹','').replace(',','').replace(' ','').replace('/month','').strip() or 20000) // 30 if budget else 667}",
+  "starting_bid": {starting_bid},
+  "bidding_strategy": "Target CPA",
   "ad_formats": [
     {{
       "format": "Search Ad",
       "objective": "Lead Generation",
-      "headline1": "30 char headline",
-      "headline2": "30 char headline",
-      "headline3": "30 char headline",
-      "description1": "90 char description",
-      "description2": "90 char description",
+      "headline1": "Max 30 chars here",
+      "headline2": "Max 30 chars here",
+      "headline3": "Max 30 chars here",
+      "description1": "Max 90 chars compelling description for this ad",
+      "description2": "Max 90 chars second description with CTA",
       "cta": "Get Free Quote",
-      "image_query": "2-3 word image query for this ad",
-      "display_url": "yoursite.com/keyword"
+      "image_query": "{keyword} education student",
+      "display_url": "yoursite.com/{keyword.replace(' ', '-').lower()}"
     }},
     {{
       "format": "Display Ad",
       "objective": "Awareness",
-      "headline1": "Display headline",
-      "headline2": "Supporting text",
+      "headline1": "Display headline here",
+      "headline2": "Supporting text here",
       "headline3": "",
-      "description1": "Display ad description under 90 chars",
+      "description1": "Display ad description max 90 chars with benefit",
       "description2": "",
       "cta": "Learn More",
-      "image_query": "relevant image query",
+      "image_query": "{keyword} professional success",
       "display_url": "yoursite.com"
     }},
     {{
-      "format": "Responsive Display Ad",
+      "format": "Responsive Display",
       "objective": "Retargeting",
-      "headline1": "Retargeting headline",
-      "headline2": "Come back offer",
+      "headline1": "Come back headline",
+      "headline2": "Special offer text",
       "headline3": "",
-      "description1": "Retargeting description",
+      "description1": "Retargeting description reminding them of benefit",
       "description2": "",
       "cta": "Book Now",
-      "image_query": "relevant image query",
-      "display_url": "yoursite.com"
+      "image_query": "{keyword} results achievement",
+      "display_url": "yoursite.com/offer"
     }}
   ],
   "ad_groups": [
     {{
-      "name": "Ad Group 1 - Emotional",
+      "name": "Emotional - Pain Points",
       "angle": "Emotional Pain",
-      "keywords_exact": ["keyword1","keyword2","keyword3","keyword4","keyword5"],
-      "keywords_phrase": ["phrase keyword 1","phrase keyword 2","phrase keyword 3"],
-      "negative_keywords": ["free","jobs","salary","course pdf"],
+      "keywords_exact": ["{keyword}", "best {keyword}", "top {keyword}", "{keyword} online", "affordable {keyword}"],
+      "keywords_phrase": ["best {keyword} near me", "{keyword} for students", "learn {keyword} fast"],
+      "negative_keywords": ["free", "jobs", "salary", "download", "pdf", "how to"],
       "ads": [
-        {{"headline1":"30 char","headline2":"30 char","headline3":"30 char","desc1":"90 char description","desc2":"90 char description","cta":"Get Started"}}
+        {{"headline1":"Struggling With {keyword[:20]}?","headline2":"Expert Help Available Now","headline3":"Start Free Today","desc1":"Tired of falling behind? Our experts help you succeed faster. Join 10000+ students.","desc2":"98% success rate. Money back guarantee. Book your free demo class now.","cta":"Book Free Demo"}}
       ]
     }},
     {{
-      "name": "Ad Group 2 - Logical",
+      "name": "Logical - Features",
       "angle": "Feature Driven",
-      "keywords_exact": ["keyword1","keyword2","keyword3"],
-      "keywords_phrase": ["phrase keyword 1","phrase keyword 2"],
-      "negative_keywords": ["free","cheap","diy"],
+      "keywords_exact": ["{keyword} classes", "{keyword} course", "{keyword} coaching", "online {keyword}", "{keyword} tutor"],
+      "keywords_phrase": ["{keyword} classes online", "best {keyword} course", "{keyword} coaching center"],
+      "negative_keywords": ["free", "cheap", "diy", "yourself"],
       "ads": [
-        {{"headline1":"30 char","headline2":"30 char","headline3":"30 char","desc1":"90 char description","desc2":"90 char description","cta":"Learn More"}}
+        {{"headline1":"#1 Rated {keyword[:18]} Course","headline2":"Live Sessions + Recordings","headline3":"Try 7 Days Free","desc1":"Expert tutors, personalized plans, real-time progress tracking. Proven results.","desc2":"From ₹999/month. 50+ expert tutors. 24/7 doubt support. Start today.","cta":"Start Free Trial"}}
       ]
     }},
     {{
-      "name": "Ad Group 3 - Urgency",
+      "name": "Urgency - Scarcity",
       "angle": "Scarcity FOMO",
-      "keywords_exact": ["keyword1","keyword2","keyword3"],
-      "keywords_phrase": ["phrase keyword 1","phrase keyword 2"],
-      "negative_keywords": ["free","cheap"],
+      "keywords_exact": ["{keyword} near me", "{keyword} admission", "join {keyword}", "{keyword} enrollment", "enroll {keyword}"],
+      "keywords_phrase": ["enroll in {keyword}", "{keyword} open admission", "limited seats {keyword}"],
+      "negative_keywords": ["free", "cheap"],
       "ads": [
-        {{"headline1":"30 char","headline2":"30 char","headline3":"30 char","desc1":"90 char description","desc2":"90 char description","cta":"Claim Offer"}}
+        {{"headline1":"Only 8 Seats Left!","headline2":"{keyword[:22]} Batch Closing","headline3":"Enroll Before It Fills","desc1":"Last few spots available for this month batch. 47 students enrolled this week.","desc2":"Don't miss out. Secure your spot now before batch is full. No regrets.","cta":"Claim Your Seat"}}
       ]
     }}
   ],
   "extensions": {{
     "sitelinks": [
-      {{"title":"Sitelink 1","desc1":"Description","desc2":"Description"}},
-      {{"title":"Sitelink 2","desc1":"Description","desc2":"Description"}},
-      {{"title":"Sitelink 3","desc1":"Description","desc2":"Description"}},
-      {{"title":"Sitelink 4","desc1":"Description","desc2":"Description"}}
+      {{"title":"Free Demo Class","desc1":"Try before you buy","desc2":"No credit card needed"}},
+      {{"title":"View Success Stories","desc1":"See real student results","desc2":"98 percent success rate"}},
+      {{"title":"Pricing Plans","desc1":"Plans from 999 per month","desc2":"No hidden charges"}},
+      {{"title":"About Our Tutors","desc1":"50+ verified experts","desc2":"5+ years experience"}}
     ],
-    "callouts": ["callout1","callout2","callout3","callout4"],
-    "structured_snippets": {{"type":"Services","values":["Service 1","Service 2","Service 3"]}}
+    "callouts": ["No Registration Fee", "Free Demo Available", "Money Back Guarantee", "24/7 Support"],
+    "structured_snippets": {{"type":"Courses","values":["{keyword}", "Exam Prep", "Doubt Clearing", "Mock Tests"]}}
   }},
-  "bidding": {{
-    "strategy": "Target CPA",
-    "starting_bid": {starting_bid},
-    "daily_budget": "calculate from {budget}",
-    "target_cpa": "realistic number",
-    "scale_trigger": "When ROAS exceeds 3x"
-  }},
-  "image_query": "best image query for {keyword} ads"
+  "bidding_guide": "Start at ${starting_bid} (10% above avg CPC to win auction). Week 1-2: Manual CPC. Week 3+: Switch to Target CPA once 20+ conversions collected.",
+  "image_query": "{keyword} student education success"
 }}"""
 
     raw = await call_groq(prompt, 2000)
     try:
         clean = re.sub(r'```json|```','',raw).strip()
         data = json.loads(clean)
-        data['image_url'] = img_url(data.get('image_query', keyword + ' advertising'), 1200, 628)
-        data['square_url'] = img_url(data.get('image_query', keyword), 400, 400)
+        # Add image queries for frontend to load
+        data['_unsplash_key'] = UNSPLASH_KEY
         for fmt in data.get('ad_formats', []):
-            fmt['image_url'] = img_url(fmt.get('image_query', keyword), 1200, 628)
-            fmt['square_url'] = img_url(fmt.get('image_query', keyword), 400, 400)
+            fmt['_img_query'] = fmt.get('image_query', keyword + ' education')
         return data
-    except:
-        return {"raw": raw, "image_url": img_url(keyword, 1200, 628)}
+    except Exception as e:
+        return {"error": str(e), "raw": raw[:500], "_unsplash_key": UNSPLASH_KEY}
 
 
 async def generate_meta_ads(business: str, product: str, budget: str, age: str, location: str) -> dict:
-    prompt = f"""You are a Meta Ads expert. Create complete Facebook/Instagram campaign for:
-Business: {business}
-Product: {product}
-Budget: {budget}
-Age: {age}
-Location: {location}
+    prompt = f"""Meta Ads expert. Complete Facebook/Instagram campaign:
+Business: {business}, Product: {product}, Budget: {budget}, Age: {age}, Location: {location}
 
-Return ONLY valid JSON, no markdown:
+Return ONLY valid JSON:
 {{
-  "campaign_name": "Campaign name",
+  "campaign_name": "{business} - Meta Campaign",
   "objective": "Lead Generation",
   "ad_formats": [
     {{
       "format": "Single Image Ad",
-      "platform": "Facebook Feed",
+      "platform": "Facebook + Instagram Feed",
       "objective": "Awareness",
-      "primary_text": "125 char emotional hook text",
-      "headline": "40 char headline",
-      "description": "30 char description",
+      "primary_text": "Are you struggling with {product}? Thousands of students just like you found the solution. Don't let another month go by without making progress.",
+      "headline": "Transform Your {product[:30]} Results",
+      "description": "Expert guidance. Real results.",
       "cta": "Learn More",
-      "image_query": "relevant 3 word image query",
+      "image_query": "{product} student success happy",
       "ratio": "1.91:1",
       "dimensions": "1200x628px"
     }},
@@ -158,49 +147,49 @@ Return ONLY valid JSON, no markdown:
       "format": "Carousel Ad",
       "platform": "Facebook + Instagram",
       "objective": "Consideration",
-      "primary_text": "Carousel primary text",
-      "headline": "Carousel headline",
-      "description": "Carousel description",
-      "cta": "Shop Now",
-      "image_query": "relevant image query",
+      "primary_text": "Here is what our students achieve with us. Swipe to see their journey.",
+      "headline": "Real Students, Real Results",
+      "description": "Join 10000+ success stories",
+      "cta": "Sign Up",
+      "image_query": "{product} education achievement",
       "ratio": "1:1",
       "dimensions": "1080x1080px",
       "cards": [
-        {{"title":"Card 1","desc":"Card 1 description","image_query":"card 1 image"}},
-        {{"title":"Card 2","desc":"Card 2 description","image_query":"card 2 image"}},
-        {{"title":"Card 3","desc":"Card 3 description","image_query":"card 3 image"}},
-        {{"title":"Card 4","desc":"Card 4 description","image_query":"card 4 image"}}
+        {{"title":"Week 1: Foundation","desc":"Build strong fundamentals fast","image_query":"{product} beginner learning"}},
+        {{"title":"Week 2: Practice","desc":"Hands-on exercises daily","image_query":"{product} student practice"}},
+        {{"title":"Week 3: Progress","desc":"Measurable grade improvement","image_query":"{product} progress chart"}},
+        {{"title":"Week 4: Results","desc":"Achieve your target score","image_query":"{product} success achievement"}}
       ]
     }},
     {{
       "format": "Story Ad",
-      "platform": "Instagram Stories",
+      "platform": "Instagram + Facebook Stories",
       "objective": "Lead Generation",
-      "primary_text": "Story hook text",
-      "headline": "Story headline",
-      "description": "",
+      "primary_text": "Swipe up for free demo",
+      "headline": "Get Free Demo Today",
+      "description": "Limited spots left",
       "cta": "Swipe Up",
-      "image_query": "vertical story image query",
+      "image_query": "{product} mobile student vertical",
       "ratio": "9:16",
       "dimensions": "1080x1920px"
     }},
     {{
       "format": "Video Ad",
-      "platform": "Facebook + Instagram Reels",
+      "platform": "Instagram Reels + Facebook",
       "objective": "Awareness",
-      "primary_text": "Video primary text",
-      "headline": "Video headline",
-      "description": "Video description",
+      "primary_text": "This student went from failing to top of class in 60 days. Here is how.",
+      "headline": "From Failing to Top Class",
+      "description": "Watch the transformation",
       "cta": "Watch More",
-      "image_query": "video thumbnail image query",
+      "image_query": "{product} transformation before after",
       "ratio": "9:16",
       "dimensions": "1080x1920px",
       "video_script": {{
-        "hook": "First 3 seconds hook text",
-        "problem": "Pain point (5 sec)",
-        "solution": "Solution reveal (10 sec)",
-        "proof": "Social proof (5 sec)",
-        "cta": "Call to action (5 sec)"
+        "hook": "Show student looking stressed at desk with failing grade",
+        "problem": "Voiceover: Most students waste months with wrong approach",
+        "solution": "Cut to: Same student with tutor, understanding content clearly",
+        "proof": "Show: Grade card improvement, happy parent reaction",
+        "cta": "Text overlay: Book your free demo now. Link in bio."
       }}
     }}
   ],
@@ -209,99 +198,98 @@ Return ONLY valid JSON, no markdown:
       "name": "Cold Audience - Emotional",
       "objective": "Awareness",
       "age": "{age}",
-      "interests": ["interest1","interest2","interest3","interest4","interest5","interest6","interest7","interest8","interest9","interest10"],
-      "behaviors": ["behavior1","behavior2"],
-      "exclude": ["existing customers","competitors audience"],
+      "location": "{location}",
+      "interests": ["Education","Online Learning","IB Curriculum","CBSE","Academic tutoring","Khan Academy","Byju's","Unacademy","Study skills","Academic performance"],
+      "behaviors": ["Parents of school-age children","Recently enrolled in education"],
+      "exclude": ["Competitors customers"],
       "budget_split": "40%",
       "placement": ["Facebook Feed","Instagram Feed","Stories"],
-      "primary_text": "Emotional hook ad copy 125 chars",
-      "headline": "40 char headline",
-      "cta": "Learn More",
-      "image_query": "emotional relatable image"
+      "primary_text": "Is your child struggling with {product}? 10,000+ students found success with our expert tutors. Book a free demo today.",
+      "headline": "Expert {product[:25]} Help",
+      "cta": "Book Free Demo",
+      "image_query": "{product} student struggling then succeeding"
     }},
     {{
       "name": "Lookalike 1-3% - Logical",
       "objective": "Consideration",
-      "lookalike_source": "Website visitors",
+      "lookalike_source": "Past customers",
       "lookalike_percent": "1-3%",
       "budget_split": "35%",
       "placement": ["Facebook Feed","Instagram Feed"],
-      "primary_text": "Feature benefit ad copy",
-      "headline": "Feature headline",
-      "cta": "Learn More",
-      "image_query": "solution professional image"
+      "primary_text": "Join 10,000+ students who improved grades with our AI-powered personalized learning. Expert tutors, live sessions, guaranteed results.",
+      "headline": "Personalized {product[:25]} Plan",
+      "cta": "Get Started",
+      "image_query": "{product} personalized learning technology"
     }},
     {{
-      "name": "Retargeting - Scarcity",
+      "name": "Retargeting - Urgency",
       "objective": "Conversion",
-      "custom_audience": "Website visitors 30 days",
+      "custom_audience": "Website visitors last 30 days",
       "retargeting_window": "30 days",
       "budget_split": "25%",
-      "placement": ["Facebook Feed","Instagram Stories"],
-      "primary_text": "Urgency retargeting copy",
-      "headline": "Scarcity headline",
-      "cta": "Book Now",
-      "image_query": "urgency deadline image"
+      "placement": ["Facebook Feed","Instagram Stories","Messenger"],
+      "primary_text": "You visited us but haven't started yet. Only 8 spots remaining this month. Don't miss out on the batch that starts Monday.",
+      "headline": "Only 8 Spots Left!",
+      "cta": "Claim Your Spot",
+      "image_query": "{product} urgency deadline last chance"
     }}
   ],
-  "pixel_events": ["PageView","Lead","CompleteRegistration","Purchase","InitiateCheckout"],
+  "pixel_events": ["PageView","ViewContent","Lead","InitiateCheckout","Purchase","CompleteRegistration"],
   "ab_test": {{
-    "week1": "Test creative format: image vs carousel",
-    "week2": "Test audience: interest vs lookalike",
-    "week3": "Test CTA: Learn More vs Book Now",
-    "week4": "Scale winner, kill loser"
+    "week1": "Creative format: Single image vs Carousel — Test which drives more link clicks",
+    "week2": "Audience: Interest targeting vs Lookalike — Compare cost per lead",
+    "week3": "Copy angle: Emotional pain vs Logical features — Test which gets more conversions",
+    "week4": "Scale winner by 20% budget, pause loser"
   }},
-  "image_query": "best image for {product} facebook ad"
+  "scaling_strategy": "When ROAS exceeds 3x or CPL drops 30% below target, increase budget by 20% every 3-5 days",
+  "image_query": "{product} facebook instagram ad education"
 }}"""
 
     raw = await call_groq(prompt, 2000)
     try:
         clean = re.sub(r'```json|```','',raw).strip()
         data = json.loads(clean)
-        data['image_url'] = img_url(data.get('image_query', product + ' facebook ad'), 1200, 628)
+        data['_unsplash_key'] = UNSPLASH_KEY
         for fmt in data.get('ad_formats', []):
-            fmt['image_url'] = img_url(fmt.get('image_query', product), 1200, 628 if fmt.get('ratio','') != '9:16' else 1080)
-            fmt['square_url'] = img_url(fmt.get('image_query', product), 400, 400)
+            fmt['_img_query'] = fmt.get('image_query', product + ' education')
             if 'cards' in fmt:
                 for card in fmt['cards']:
-                    card['image_url'] = img_url(card.get('image_query', product), 400, 400)
+                    card['_img_query'] = card.get('image_query', product)
         for ads in data.get('ad_sets', []):
-            ads['image_url'] = img_url(ads.get('image_query', product), 1200, 628)
+            ads['_img_query'] = ads.get('image_query', product)
         return data
-    except:
-        return {"raw": raw, "image_url": img_url(product, 1200, 628)}
+    except Exception as e:
+        return {"error": str(e), "raw": raw[:500], "_unsplash_key": UNSPLASH_KEY}
 
 
 async def generate_image_prompts(keyword: str, angle: str) -> str:
     prompt = f"""Generate 3 realistic environment-based image prompts for ads about "{keyword}". Angle: {angle}.
 
-IMAGE PROMPT 1 (Facebook/Instagram Feed 1:1):
-Scene: [detailed real scene, not stock photo]
-Subject: [who/what]
-Mood: [emotion]
-Lighting: [type of lighting]
-Colors: [color palette]
-Canva tip: [how to overlay text]
+IMAGE PROMPT 1 (Facebook/Instagram Feed 1:1 square):
+Scene: [detailed real candid scene description]
+Subject: [who is in the image]
+Mood: [emotional tone]
+Lighting: [natural/warm/dramatic]
+Canva tip: [how to add text overlay]
 
-IMAGE PROMPT 2 (Instagram Story 9:16):
+IMAGE PROMPT 2 (Instagram Story 9:16 vertical):
 Scene:
 Subject:
 Mood:
 Lighting:
-Colors:
 Canva tip:
 
-IMAGE PROMPT 3 (Google Display 16:9):
+IMAGE PROMPT 3 (Google Display 16:9 landscape):
 Scene:
 Subject:
 Mood:
 Lighting:
-Colors:
 Canva tip:
 
 CANVA DESIGN GUIDE:
-Font: [recommended font]
-CTA button color: [hex]
-Text overlay position:
-Background overlay: [opacity]"""
+Recommended font: [specific font name]
+CTA button color: [hex code]
+Text position: [where to place text]
+Overlay opacity: [percentage]
+Color palette: [3 hex codes]"""
     return await call_groq(prompt, 800)
