@@ -226,8 +226,6 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
   <div class="nav-item" onclick="go('img',this)"><span class="ni">🖼️</span>Image Prompts</div>
   <div class="sb-sec">Outreach</div>
   <div class="nav-item" onclick="go('bl',this)"><span class="ni">🔗</span>Backlink CRM<span class="nbadge new">NEW</span></div>
-  <div class="sb-sec">B2B Growth</div>
-  <div class="nav-item" onclick="go('leads',this)"><span class="ni">🎯</span>Lead Generation<span class="nbadge new">NEW</span></div>
   <div class="sb-foot">
     <div class="ai-pill">
       <div class="pulse"></div>
@@ -383,79 +381,6 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
       <div id="blp-emails" style="display:none"><div class="out-card" id="o-ble"><div class="out-head"><div class="out-title">📧 Outreach Emails</div></div><div id="ble-body" style="padding:15px"></div></div></div>
     </div>
   </div>
-
-    <!-- LEAD GENERATION PAGE -->
-    <div class="page" id="page-leads">
-      <div class="sec-hd">🎯 Lead Generation <span class="sec-badge" style="background:rgba(34,197,94,.12);color:#22C55E">Competitors + Clients + Partners</span></div>
-      <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div style="font-size:.75rem;color:#22C55E">🎯 Full Lead Generation tool with competitor research, client leads, partner finding and outreach</div>
-        <a href="leads.html" target="_blank" style="padding:8px 18px;background:linear-gradient(135deg,#6C5CE7,#8B5CF6);color:#fff;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none">Open Full Tool →</a>
-      </div>
-      <div class="xfields">
-        <input id="lg-service" placeholder="Your service (e.g. Software Testing, Web Dev, AI)"/>
-        <select class="sel" id="lg-location"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Australia</option><option>Global</option></select>
-        <input id="lg-company" placeholder="Your company name"/>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-        <div class="svc-pill active" onclick="setLgSvc('Software Testing / QA',this)" style="padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(108,92,231,.15);color:var(--p1);cursor:pointer;font-size:.7rem;font-weight:700">🧪 QA Testing</div>
-        <div class="svc-pill" onclick="setLgSvc('Web Development',this)" style="padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:700">💻 Web Dev</div>
-        <div class="svc-pill" onclick="setLgSvc('Mobile App Development',this)" style="padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:700">📱 Mobile App</div>
-        <div class="svc-pill" onclick="setLgSvc('Digital Marketing',this)" style="padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:700">📢 Digital Marketing</div>
-        <div class="svc-pill" onclick="setLgSvc('AI / Automation',this)" style="padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:700">🤖 AI / Automation</div>
-      </div>
-      <div class="loader" id="l-leads"><div class="spin"></div><span>⚡ Researching competitors and finding leads<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-
-      <!-- Quick Stats -->
-      <div id="lg-stats" style="display:none;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px">
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center"><div style="font-family:Outfit,sans-serif;font-size:1.4rem;font-weight:800;color:var(--warn)" id="lg-st-comp">0</div><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Competitors</div></div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center"><div style="font-family:Outfit,sans-serif;font-size:1.4rem;font-weight:800;color:var(--green)" id="lg-st-leads">0</div><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Client Leads</div></div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center"><div style="font-family:Outfit,sans-serif;font-size:1.4rem;font-weight:800;color:var(--p1)" id="lg-st-partners">0</div><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Partners</div></div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center"><div style="font-family:Outfit,sans-serif;font-size:1.4rem;font-weight:800;color:var(--cyan)" id="lg-st-emails">0</div><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Emails Found</div></div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center"><div style="font-family:Outfit,sans-serif;font-size:1.4rem;font-weight:800;color:var(--red)" id="lg-st-high">0</div><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">High Priority</div></div>
-      </div>
-
-      <!-- Sub tabs -->
-      <div id="lg-subtabs" style="display:none;flex-wrap:wrap" class="sub-tabs">
-        <button class="sub-tab active" onclick="lgTab('comp',this)">🏆 Competitors</button>
-        <button class="sub-tab" onclick="lgTab('leads',this)">🎯 Client Leads</button>
-        <button class="sub-tab" onclick="lgTab('partners',this)">🤝 Partners</button>
-        <button class="sub-tab" onclick="lgTab('insights',this)">📊 Market Insights</button>
-      </div>
-
-      <!-- Competitors -->
-      <div id="lgp-comp">
-        <div class="out-card" id="o-lg-comp" style="display:block">
-          <div class="out-head"><div class="out-title">🏆 Competitor Companies</div><button class="copy-btn" onclick="lgExportCSV('competitors')">⬇ CSV</button></div>
-          <div style="overflow-x:auto"><table class="btbl"><thead><tr><th>Company</th><th>Website</th><th>DA</th><th>Employees</th><th>Services</th><th>Pricing</th><th>Contact</th><th>Email</th><th>Opportunity</th><th>Action</th></tr></thead><tbody id="lg-comp-body"><tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">Run research to see competitors</td></tr></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- Client Leads -->
-      <div id="lgp-leads" style="display:none">
-        <div class="out-card" id="o-lg-leads" style="display:block">
-          <div class="out-head"><div class="out-title">🎯 Potential Client Leads</div><button class="copy-btn" onclick="lgExportCSV('leads')">⬇ CSV</button></div>
-          <div style="overflow-x:auto"><table class="btbl"><thead><tr><th>Company</th><th>Industry</th><th>Decision Maker</th><th>Email</th><th>Budget</th><th>Stage</th><th>Urgency</th><th>Best Channel</th><th>Action</th></tr></thead><tbody id="lg-leads-body"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Run research to see leads</td></tr></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- Partners -->
-      <div id="lgp-partners" style="display:none">
-        <div class="out-card" id="o-lg-partners" style="display:block">
-          <div class="out-head"><div class="out-title">🤝 Potential Partners</div><button class="copy-btn" onclick="lgExportCSV('partners')">⬇ CSV</button></div>
-          <div style="overflow-x:auto"><table class="btbl"><thead><tr><th>Company</th><th>Industry</th><th>Why Partner</th><th>Contact</th><th>Email</th><th>Channel</th><th>Action</th></tr></thead><tbody id="lg-partners-body"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Run research to see partners</td></tr></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- Market Insights -->
-      <div id="lgp-insights" style="display:none">
-        <div class="out-card" id="o-lg-insights" style="display:block">
-          <div class="out-head"><div class="out-title">📊 Market Intelligence</div></div>
-          <div style="padding:18px" id="lg-insights-body"><p style="color:var(--muted);font-size:.8rem">Run research to see market insights</p></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
 
 <div class="moverlay" id="email-modal">
@@ -463,7 +388,7 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
 </div>
 
 <script>
-const TITLES={kw:'🔍 Keyword Cluster Intelligence',lp:'🏠 Landing Page Generator',blog:'✍️ SEO Blog Writer',gads:'🎯 Google Ads — Visual',mads:'📱 Meta Ads — Visual',img:'🖼️ Image Prompts',bl:'🔗 Backlink CRM',leads:'🎯 Lead Generation & Competitor Intel'};
+const TITLES={kw:'🔍 Keyword Cluster Intelligence',lp:'🏠 Landing Page Generator',blog:'✍️ SEO Blog Writer',gads:'🎯 Google Ads — Visual',mads:'📱 Meta Ads — Visual',img:'🖼️ Image Prompts',bl:'🔗 Backlink CRM'};
 let BACKEND=localStorage.getItem('mkai_be')||'https://marketai-app-production.up.railway.app';
 let angle='emotional',blData=null,statuses={},lpHTML='',lpKeyword='';
 let tChart=null,dChart=null;
@@ -731,135 +656,6 @@ window.renderMAds=function(data){
     });
   },100);
 };
-
-// ── LEAD GENERATION ─────────────────────────────────────────────────────
-let lgData={};
-
-function setLgSvc(svc,el){
-  document.querySelectorAll('.svc-pill').forEach(p=>{p.style.background='var(--card2)';p.style.color='var(--muted)';p.style.borderColor='var(--border)'});
-  el.style.background='rgba(108,92,231,.15)';el.style.color='var(--p1)';el.style.borderColor='var(--p1)';
-  document.getElementById('lg-service').value=svc;
-}
-
-function lgTab(n,el){
-  document.querySelectorAll('[id^=lgp-]').forEach(p=>p.style.display='none');
-  document.querySelectorAll('#lg-subtabs .sub-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('lgp-'+n).style.display='block';
-  el.classList.add('active');
-}
-
-function renderLgCompetitors(comps){
-  const b=document.getElementById('lg-comp-body');
-  if(!comps.length){b.innerHTML='<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">No data</td></tr>';return;}
-  b.innerHTML=comps.map(c=>`
-    <tr>
-      <td><div style="font-weight:700;font-size:.78rem">${c.company||'—'}</div></td>
-      <td><a href="${c.website||'#'}" target="_blank" style="color:var(--cyan);font-size:.72rem">${c.website||'—'}</a></td>
-      <td><span class="dbadge ${c.da>=50?'dh':c.da>=30?'dm':'dl'}">${c.da||'—'}</span></td>
-      <td style="font-size:.72rem;color:var(--text2)">${c.employees||'—'}</td>
-      <td>${(c.services||[]).slice(0,2).map(s=>'<span class="tbadge" style="margin:1px;display:inline-block">'+s+'</span>').join('')}</td>
-      <td style="font-size:.72rem;color:var(--warn)">${c.pricing_range||'—'}</td>
-      <td style="font-size:.72rem">${c.contact_person||'—'}</td>
-      <td><a href="mailto:${c.guessed_email||''}" style="color:var(--green);font-size:.7rem">${c.guessed_email||'—'}</a></td>
-      <td style="font-size:.7rem;color:var(--green);max-width:160px">${c.opportunity||'—'}</td>
-      <td><button class="abtn abtn-p" onclick="lgOutreach('${(c.company||'').replace(/'/g,\"\'\")}','${c.guessed_email||''}','${(c.contact_person||'').replace(/'/g,\"\'\")}',' CEO')">📧</button></td>
-    </tr>`).join('');
-}
-
-function renderLgLeads(leads,bodyId){
-  const b=document.getElementById(bodyId);
-  if(!b)return;
-  if(!leads.length){b.innerHTML='<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">No data</td></tr>';return;}
-  const sc={Decision:'s-replied',Consideration:'s-contacted',Awareness:'s-new'};
-  const uc={High:'dl',Medium:'dm',Low:'dh'};
-  b.innerHTML=leads.map(l=>`
-    <tr>
-      <td><div style="font-weight:700;font-size:.78rem">${l.company||'—'}</div><div style="font-size:.63rem;color:var(--cyan)">${l.website||''}</div></td>
-      <td><span class="tbadge">${l.industry||'—'}</span></td>
-      <td><div style="font-weight:600;font-size:.75rem">${l.contact_name||'—'}</div><div style="font-size:.63rem;color:var(--muted)">${l.decision_maker||''}</div></td>
-      <td><a href="mailto:${l.email||''}" style="color:var(--green);font-size:.71rem">${l.email||'—'}</a></td>
-      <td style="font-size:.72rem;color:var(--warn)">${l.budget_estimate||'—'}</td>
-      <td><span class="sbadge ${sc[l.buying_stage]||'s-new'}">${l.buying_stage||'—'}</span></td>
-      <td><span class="dbadge ${uc[l.urgency]||'dm'}">${l.urgency||'—'}</span></td>
-      <td><span class="tbadge">${l.best_channel||'—'}</span></td>
-      <td><button class="abtn abtn-p" onclick="lgOutreach('${(l.company||'').replace(/'/g,\"\'")}','${l.email||''}','${(l.contact_name||'').replace(/'/g,\"\'")}','${l.decision_maker||''}')">📧</button></td>
-    </tr>`).join('');
-}
-
-function renderLgInsights(ins,pos){
-  const b=document.getElementById('lg-insights-body');
-  b.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:16px">'
-    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Market Size</div><div style="font-family:Outfit,sans-serif;font-size:1.2rem;font-weight:800;color:var(--warn)">'+(ins.market_size||'—')+'</div><div style="font-size:.72rem;color:var(--green)">'+(ins.growth_rate||'')+'</div></div>'
-    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Avg Deal Value</div><div style="font-family:Outfit,sans-serif;font-size:1.2rem;font-weight:800;color:var(--p1)">'+(ins.avg_project_value||'—')+'</div></div>'
-    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Buying Triggers</div>'+(ins.top_buying_triggers||[]).map(t=>'<div style="font-size:.72rem;color:var(--text2);padding:2px 0">→ '+t+'</div>').join('')+'</div>'
-    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Pain Points</div>'+(ins.common_pain_points||[]).map(p=>'<div style="font-size:.72rem;color:var(--text2);padding:2px 0">→ '+p+'</div>').join('')+'</div>'
-    +'</div>'
-    +(pos?'<div style="background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--p1);text-transform:uppercase;margin-bottom:6px;font-weight:700">Your Positioning</div><div style="font-size:.8rem;color:var(--text2);line-height:1.7">'+pos+'</div></div>':'');
-}
-
-function lgOutreach(company,email,contact,role){
-  if(!email){alert('No email found!');return;}
-  const svc=document.getElementById('lg-service').value||'our services';
-  const sender=document.getElementById('lg-company').value||'Our Company';
-  const sub=encodeURIComponent('Project Opportunity — '+svc);
-  const body=encodeURIComponent('Hi '+(contact||'there')+',\n\nI came across '+company+' and think we could collaborate on '+svc+'.\n\nWe specialize in this area and have helped similar companies.\n\nOpen to a quick 15-min call?\n\nBest,\n'+sender);
-  window.open('https://mail.google.com/mail/?view=cm&to='+encodeURIComponent(email)+'&su='+sub+'&body='+body,'_blank');
-}
-
-function lgExportCSV(type){
-  let rows=[],data=[];
-  if(type==='competitors'){
-    data=lgData.competitors?.competitors||[];
-    rows=[['Company','Website','DA','Employees','Services','Pricing','Contact','Email','Opportunity']];
-    data.forEach(c=>rows.push([c.company,c.website,c.da,c.employees,(c.services||[]).join('; '),c.pricing_range,c.contact_person,c.guessed_email,c.opportunity]));
-  }else if(type==='leads'){
-    data=lgData.leads?.leads||[];
-    rows=[['Company','Industry','Contact','Email','Budget','Stage','Urgency','Channel','Pitch']];
-    data.forEach(l=>rows.push([l.company,l.industry,l.contact_name,l.email,l.budget_estimate,l.buying_stage,l.urgency,l.best_channel,l.pitch_angle]));
-  }else{
-    data=lgData.partners?.leads||[];
-    rows=[['Company','Industry','Contact','Email','Why Partner','Channel']];
-    data.forEach(l=>rows.push([l.company,l.industry,l.contact_name,l.email,l.why_they_need,l.best_channel]));
-  }
-  const csv=rows.map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='leads-'+type+'.csv';a.click();
-}
-
-// Extend generate for leads page
-const _origGen=generate;
-window.generate=async function(){
-  const page=document.querySelector('.page.active').id.replace('page-','');
-  if(page!=='leads'){return _origGen();}
-  const svc=document.getElementById('lg-service').value.trim();
-  const loc=document.getElementById('lg-location').value;
-  const co=document.getElementById('lg-company').value.trim()||'Our Company';
-  if(!svc){alert('Select a service first!');return;}
-  const btn=document.getElementById('gen-btn');
-  btn.disabled=true;btn.textContent='⟳ Researching...';
-  load('leads',true);
-  try{
-    const d=await post('/api/lead-research',{service:svc,location:loc,company_name:co});
-    lgData=d;
-    const comps=d.competitors?.competitors||[];
-    const leads=d.leads?.leads||[];
-    const partners=d.partners?.leads||[];
-    document.getElementById('lg-stats').style.display='grid';
-    document.getElementById('lg-subtabs').style.display='flex';
-    document.getElementById('lg-st-comp').textContent=comps.length;
-    document.getElementById('lg-st-leads').textContent=leads.length;
-    document.getElementById('lg-st-partners').textContent=partners.length;
-    document.getElementById('lg-st-emails').textContent=[...leads,...partners].filter(l=>l.email).length+comps.filter(c=>c.guessed_email).length;
-    document.getElementById('lg-st-high').textContent=leads.filter(l=>l.urgency==='High').length;
-    renderLgCompetitors(comps);
-    renderLgLeads(leads,'lg-leads-body');
-    renderLgLeads(partners,'lg-partners-body');
-    renderLgInsights(d.competitors?.market_insights||{},d.competitors?.your_positioning||'');
-  }catch(e){alert('Error: '+e.message);}
-  load('leads',false);
-  btn.disabled=false;btn.textContent='⚡ Generate';
-};
-
 </script>
 </body>
 </html>
