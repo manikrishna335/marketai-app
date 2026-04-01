@@ -1,661 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>MarketMind AI — Marketing Intelligence Engine</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-:root{--bg:#0B0F19;--sidebar:#0F1629;--card:#151C32;--card2:#111827;--border:#232A45;--border2:#1E2640;--p1:#6C5CE7;--p2:#8B5CF6;--green:#22C55E;--warn:#F59E0B;--red:#EF4444;--cyan:#06B6D4;--text:#E6EAF2;--text2:#9AA4C7;--muted:#6B7394;--grad:linear-gradient(135deg,#6C5CE7,#8B5CF6)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;display:flex;min-height:100vh;background-image:radial-gradient(circle at 80% 0%,rgba(108,92,231,.07),transparent 60%)}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-.sidebar{width:256px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
-.logo-wrap{padding:22px 20px 18px;border-bottom:1px solid var(--border2)}
-.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.logo-icon{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 4px 14px rgba(108,92,231,.4)}
-.logo-name{font-family:'Outfit',sans-serif;font-size:1.15rem;font-weight:800}
-.logo-name span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.logo-sub{font-size:.58rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;padding-left:44px}
-.sb-sec{padding:16px 14px 5px;font-size:.57rem;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-weight:700}
-.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;margin:2px 10px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--text2);font-weight:500;border-left:3px solid transparent}
-.nav-item:hover{background:rgba(108,92,231,.07);color:var(--text);transform:translateX(2px)}
-.nav-item.active{background:rgba(108,92,231,.15);color:var(--p1);border-left-color:var(--p1)}
-.ni{font-size:.9rem;width:20px;text-align:center}
-.nbadge{margin-left:auto;font-size:.52rem;padding:2px 7px;border-radius:20px;background:rgba(108,92,231,.2);color:var(--p1);font-weight:700}
-.nbadge.new{background:rgba(34,197,94,.15);color:var(--green)}
-.sb-foot{margin-top:auto;padding:14px;border-top:1px solid var(--border2)}
-.ai-pill{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:10px 12px;display:flex;align-items:center;gap:8px}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pg 2s infinite}
-@keyframes pg{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
-.main{margin-left:256px;flex:1;display:flex;flex-direction:column}
-.topbar{padding:13px 26px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:rgba(11,15,25,.92);backdrop-filter:blur(16px);position:sticky;top:0;z-index:50}
-.topbar-title{font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700}
-.be-row{display:flex;align-items:center;gap:8px}
-.be-wrap{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 12px}
-.be-lbl{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
-.be-inp{background:transparent;border:none;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;outline:none;width:210px}
-.save-btn{padding:7px 15px;background:var(--grad);color:#fff;border:none;border-radius:7px;font-size:.7rem;cursor:pointer;font-weight:700;transition:all .2s}
-.save-btn:hover{box-shadow:0 4px 14px rgba(108,92,231,.4);transform:translateY(-1px)}
-.content{padding:22px 26px;flex:1}
-.search-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:22px;position:relative;overflow:hidden}
-.search-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(108,92,231,.1),transparent);pointer-events:none}
-.s-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:9px;font-weight:600}
-.s-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.kw-inp{flex:1;min-width:200px;background:#0D1422;border:1px solid var(--border);border-radius:11px;padding:13px 16px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;outline:none;transition:all .25s}
-.kw-inp::placeholder{color:var(--muted)}
-.kw-inp:focus{border-color:var(--p1);box-shadow:0 0 0 3px rgba(108,92,231,.18)}
-.sel{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;outline:none;cursor:pointer}
-.sel option{background:var(--card2)}
-.gen-btn{padding:13px 24px;background:var(--grad);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .25s;white-space:nowrap;box-shadow:0 4px 16px rgba(108,92,231,.3)}
-.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,.45)}
-.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.page{display:none;animation:fu .3s ease}.page.active{display:block}
-@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.sec-hd{display:flex;align-items:center;gap:9px;margin-bottom:18px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700}
-.sec-badge{font-size:.55rem;padding:3px 9px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700}
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .25s;position:relative;overflow:hidden}
-.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0;transition:opacity .25s}
-.kpi:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,.25)}
-.kpi:hover::after{opacity:1}
-.kpi-ico{font-size:1.2rem;margin-bottom:10px;display:block}
-.kpi-v{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:3px;line-height:1}
-.kpi-l{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
-.kpi-hint{font-size:.63rem;margin-top:6px;color:var(--muted)}
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
-.chart-title{font-size:.7rem;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em}
-.chart-wrap{height:155px;position:relative}
-.ai-score{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;display:none}
-.ai-score.show{display:block;animation:fu .3s ease}
-.ai-score-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--p2);margin-bottom:14px}
-.scores-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.score-item{background:var(--card2);border-radius:10px;padding:13px}
-.score-lbl{font-size:.63rem;color:var(--text2);margin-bottom:7px;font-weight:600}
-.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
-.prog-fill{height:100%;border-radius:3px;transition:width 1s ease}
-.score-num{font-size:.75rem;font-weight:700;margin-top:5px}
-.loader{display:none;align-items:center;gap:11px;padding:18px 0;color:var(--text2);font-size:.77rem}
-.loader.show{display:flex}
-.spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--p1);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ldots span{animation:blink 1.4s infinite;display:inline-block}
-.ldots span:nth-child(2){animation-delay:.2s}.ldots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
-.out-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;display:none}
-.out-head{padding:12px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.015)}
-.out-title{font-size:.75rem;font-weight:700}
-.copy-btn{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.62rem;cursor:pointer;font-weight:600;transition:all .2s}
-.copy-btn:hover{border-color:var(--green);color:var(--green)}
-.out-body{padding:18px;font-size:.76rem;line-height:1.9;white-space:pre-wrap;word-break:break-word;max-height:480px;overflow-y:auto;color:var(--text2)}
-.lp-tabs{display:flex;gap:7px;margin-bottom:14px}
-.lp-tab{padding:8px 17px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.72rem;font-weight:600;transition:all .2s}
-.lp-tab.active{background:rgba(108,92,231,.12);border-color:var(--p1);color:var(--p1)}
-.lp-pane{display:none}.lp-pane.active{display:block}
-.angles{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:16px}
-.angle{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;transition:all .2s}
-.angle:hover{transform:translateY(-2px)}
-.albl{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:700}
-.adesc{font-size:.7rem;color:var(--muted);line-height:1.5}
-.xfields{display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap}
-.xfields input{flex:1;min-width:130px;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 13px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;outline:none;transition:all .2s}
-.xfields input::placeholder{color:var(--muted)}
-.xfields input:focus{border-color:var(--p1);box-shadow:0 0 0 2px rgba(108,92,231,.12)}
-
-/* ── AD PREVIEW CARDS ── */
-.ad-preview-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:20px}
-.ad-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s}
-.ad-card:hover{border-color:var(--p1);transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,.15)}
-.ad-card-header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border2);background:rgba(255,255,255,.02)}
-.ad-format-badge{font-size:.6rem;font-weight:700;padding:3px 8px;border-radius:4px}
-.ad-obj-badge{font-size:.58rem;padding:2px 8px;border-radius:20px;font-weight:600}
-.ad-img-wrap{position:relative;overflow:hidden}
-.ad-img-wrap img{width:100%;display:block;object-fit:cover}
-.ad-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent)}
-.ad-img-cta{position:absolute;bottom:10px;right:10px;background:var(--p1);color:#fff;padding:6px 14px;border-radius:6px;font-size:.68rem;font-weight:700}
-.ad-body{padding:14px}
-.ad-headline{font-size:.85rem;font-weight:700;margin-bottom:4px;line-height:1.3}
-.ad-desc{font-size:.72rem;color:var(--text2);line-height:1.5;margin-bottom:8px}
-.ad-url{font-size:.65rem;color:var(--green);margin-bottom:10px}
-.ad-meta{display:flex;gap:6px;flex-wrap:wrap}
-.ad-tag{font-size:.58rem;padding:2px 8px;border-radius:4px;font-weight:600}
-
-/* ── LANDING PAGE PREVIEW ── */
-.lp-preview-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;display:none}
-.lp-preview-head{padding:12px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.015)}
-.lp-actions{display:flex;gap:8px}
-.lp-btn{padding:6px 14px;border-radius:7px;font-size:.7rem;font-weight:700;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
-.lp-btn-preview{background:rgba(108,92,231,.15);color:var(--p1);border:1px solid rgba(108,92,231,.3)}
-.lp-btn-open{background:var(--green);color:#000}
-.lp-btn-open:hover{background:#1eaa50}
-.lp-btn-dl{background:var(--grad);color:#fff}
-.iframe-wrap{height:600px}
-.iframe-wrap iframe{width:100%;height:100%;border:none;background:#fff}
-
-/* ── CAROUSEL CARDS ── */
-.carousel-cards{display:flex;gap:10px;overflow-x:auto;padding:10px 0;margin-top:10px}
-.carousel-cards::-webkit-scrollbar{height:3px}
-.carousel-cards::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.c-card{flex-shrink:0;width:160px;background:var(--card2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.c-card img{width:100%;height:110px;object-fit:cover;display:block}
-.c-card-body{padding:8px;font-size:.68rem}
-.c-card-title{font-weight:700;margin-bottom:3px;color:var(--text)}
-.c-card-desc{color:var(--muted);line-height:1.4}
-
-/* ── VIDEO SCRIPT CARD ── */
-.video-script{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px}
-.vs-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--warn);margin-bottom:10px;font-weight:700}
-.vs-row{display:flex;gap:8px;margin-bottom:6px;font-size:.72rem}
-.vs-label{color:var(--p2);font-weight:700;min-width:70px;flex-shrink:0}
-.vs-text{color:var(--text2)}
-
-/* ── ADSET CARD ── */
-.adset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:12px}
-.adset-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px}
-.adset-name{font-size:.8rem;font-weight:700;margin-bottom:4px}
-.adset-obj{font-size:.62rem;padding:2px 8px;border-radius:20px;background:rgba(108,92,231,.12);color:var(--p2);display:inline-block;margin-bottom:10px;font-weight:600}
-.adset-img{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:10px;display:block}
-.adset-text{font-size:.72rem;color:var(--text2);line-height:1.5;margin-bottom:6px}
-.adset-cta{display:inline-block;padding:5px 12px;background:var(--p1);color:#fff;border-radius:6px;font-size:.65rem;font-weight:700;margin-top:6px}
-
-/* ── BL CRM ── */
-.bl-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:18px}
-.bl-kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;text-align:center;transition:all .2s}
-.bl-kpi:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.2)}
-.bl-kpi-v{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:3px}
-.bl-kpi-l{font-size:.57rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
-.sub-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.sub-tab{padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
-.sub-tab.active{background:rgba(6,182,212,.1);border-color:var(--cyan);color:var(--cyan)}
-.tbl-wrap{overflow-x:auto}
-.btbl{width:100%;border-collapse:collapse;font-size:.73rem;min-width:680px}
-.btbl thead tr{background:rgba(255,255,255,.02);border-bottom:1px solid var(--border2)}
-.btbl th{padding:10px 13px;text-align:left;font-size:.59rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;white-space:nowrap}
-.btbl td{padding:10px 13px;border-bottom:1px solid var(--border2)}
-.btbl tr:hover td{background:rgba(255,255,255,.012)}
-.dbadge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.63rem;font-weight:700}
-.dh{background:rgba(34,197,94,.12);color:var(--green)}.dm{background:rgba(245,158,11,.12);color:var(--warn)}.dl{background:rgba(239,68,68,.12);color:var(--red)}
-.tbadge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.61rem;background:rgba(108,92,231,.12);color:var(--p2);font-weight:600}
-.sbadge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.6rem;font-weight:700}
-.s-new{background:rgba(6,182,212,.1);color:var(--cyan)}.s-contacted{background:rgba(245,158,11,.1);color:var(--warn)}.s-replied{background:rgba(34,197,94,.1);color:var(--green)}.s-live{background:rgba(108,92,231,.1);color:var(--p1)}
-.abtn{padding:5px 11px;border-radius:6px;border:none;font-size:.62rem;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;transition:all .2s}
-.abtn-e{background:rgba(108,92,231,.15);color:var(--p2)}.abtn-e:hover{background:rgba(108,92,231,.25)}
-.abtn-c{background:rgba(6,182,212,.12);color:var(--cyan)}.abtn-c:hover{background:rgba(6,182,212,.22)}
-
-/* ── MODAL ── */
-.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
-.moverlay.show{display:flex}
-.modal{background:var(--sidebar);border:1px solid var(--border);border-radius:16px;width:90%;max-width:640px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.5)}
-.mhead{padding:15px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
-.mtitle{font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:700}
-.mclose{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;transition:color .2s}.mclose:hover{color:var(--text)}
-.mbody{padding:18px 20px;overflow-y:auto;flex:1}
-.etabs{display:flex;gap:6px;margin-bottom:14px}
-.etab{padding:6px 13px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600;transition:all .2s}
-.etab.active{background:rgba(108,92,231,.12);border-color:var(--p1);color:var(--p1)}
-.epane{display:none}.epane.active{display:block}
-.efl{margin-bottom:11px}
-.efl label{display:block;font-size:.59rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-weight:700}
-.efl input,.efl textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.77rem;outline:none;transition:all .2s}
-.efl textarea{height:130px;resize:vertical;line-height:1.6}
-.efl input:focus,.efl textarea:focus{border-color:var(--p1);box-shadow:0 0 0 2px rgba(108,92,231,.12)}
-.send-btn{width:100%;padding:11px;background:var(--grad);color:#fff;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s;box-shadow:0 4px 14px rgba(108,92,231,.3)}
-.send-btn:hover{transform:translateY(-1px)}
-
-@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.kpi-grid,.charts-row,.angles,.bl-kpis{grid-template-columns:1fr 1fr}.topbar,.content{padding:12px 14px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>MarketMind AI — Marketing Intelligence Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root{--bg:#0B0F19;--sidebar:#0F1629;--card:#151C32;--card2:#111827;--border:#232A45;--border2:#1E2640;--p1:#6C5CE7;--p2:#8B5CF6;--green:#22C55E;--warn:#F59E0B;--red:#EF4444;--cyan:#06B6D4;--text:#E6EAF2;--text2:#9AA4C7;--muted:#6B7394;--grad:linear-gradient(135deg,#6C5CE7,#8B5CF6)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;display:flex;min-height:100vh;background-image:radial-gradient(circle at 80% 0%,rgba(108,92,231,.07),transparent 60%)}
+        .sidebar{width:256px;min-height:100vh;background:var(--sidebar);border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+        .logo-wrap{padding:22px 20px 18px;border-bottom:1px solid var(--border2)}
+        .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+        .logo-icon{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 4px 14px rgba(108,92,231,.4)}
+        .logo-name{font-family:'Outfit',sans-serif;font-size:1.15rem;font-weight:800}
+        .logo-name span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .logo-sub{font-size:.58rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;padding-left:44px}
+        .sb-sec{padding:16px 14px 5px;font-size:.57rem;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-weight:700}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;margin:2px 10px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--text2);font-weight:500;border-left:3px solid transparent}
+        .nav-item:hover{background:rgba(108,92,231,.07);color:var(--text);transform:translateX(2px)}
+        .nav-item.active{background:rgba(108,92,231,.15);color:var(--p1);border-left-color:var(--p1)}
+        .ni{font-size:.9rem;width:20px;text-align:center}
+        .nbadge{margin-left:auto;font-size:.52rem;padding:2px 7px;border-radius:20px;background:rgba(108,92,231,.2);color:var(--p1);font-weight:700}
+        .nbadge.new{background:rgba(34,197,94,.15);color:var(--green)}
+        .main{margin-left:256px;flex:1;display:flex;flex-direction:column}
+        .topbar{padding:13px 26px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:rgba(11,15,25,.92);backdrop-filter:blur(16px);position:sticky;top:0;z-index:50}
+        .topbar-title{font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700}
+        .be-row{display:flex;align-items:center;gap:8px}
+        .be-wrap{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 12px}
+        .be-inp{background:transparent;border:none;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;outline:none;width:210px}
+        .save-btn{padding:7px 15px;background:var(--grad);color:#fff;border:none;border-radius:7px;font-size:.7rem;cursor:pointer;font-weight:700;transition:all .2s}
+        .content{padding:22px 26px;flex:1}
+        .search-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:22px;position:relative;overflow:hidden}
+        .s-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:9px;font-weight:600}
+        .s-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+        .kw-inp{flex:1;min-width:200px;background:#0D1422;border:1px solid var(--border);border-radius:11px;padding:13px 16px;color:var(--text);outline:none}
+        .sel{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);cursor:pointer;font-size:.75rem}
+        .gen-btn{padding:13px 24px;background:var(--grad);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .25s;box-shadow:0 4px 16px rgba(108,92,231,.3)}
+        .gen-btn:disabled{opacity:.5;cursor:not-allowed}
+        .page{display:none;animation:fu .3s ease}.page.active{display:block}
+        @keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+        .sec-hd{display:flex;align-items:center;gap:9px;margin-bottom:18px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700}
+        .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+        .kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .25s;position:relative}
+        .kpi-ico{font-size:1.2rem;margin-bottom:10px;display:block}
+        .kpi-v{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:3px}
+        .kpi-l{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+        .loader{display:none;align-items:center;gap:11px;padding:18px 0;color:var(--text2);font-size:.77rem}
+        .loader.show{display:flex}
+        .spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--p1);border-radius:50%;animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .out-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;display:none}
+        .out-head{padding:12px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.015)}
+        .out-title{font-size:.75rem;font-weight:700}
+        .out-body{padding:18px;font-size:.76rem;line-height:1.9;white-space:pre-wrap;color:var(--text2)}
+        .btbl{width:100%;border-collapse:collapse;font-size:.73rem}
+        .btbl th{padding:10px 13px;text-align:left;color:var(--muted);text-transform:uppercase;font-size:.59rem;border-bottom:1px solid var(--border2)}
+        .btbl td{padding:10px 13px;border-bottom:1px solid var(--border2)}
+        .sub-tabs{display:flex;gap:6px;margin-bottom:14px}
+        .sub-tab{padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.7rem;font-weight:600}
+        .sub-tab.active{background:rgba(108,92,231,.12);border-color:var(--p1);color:var(--p1)}
+        .tbadge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.61rem;background:rgba(108,92,231,.12);color:var(--p2);font-weight:600}
+        .dbadge{padding:2px 7px;border-radius:4px;font-size:.63rem;font-weight:700}
+        .dh{background:rgba(34,197,94,.12);color:var(--green)}.dm{background:rgba(245,158,11,.12);color:var(--warn)}.dl{background:rgba(239,68,68,.12);color:var(--red)}
+    </style>
 </head>
 <body>
 
 <nav class="sidebar">
-  <div class="logo-wrap">
-    <div class="logo-row">
-      <div class="logo-icon">🧠</div>
-      <div class="logo-name">MarketMind <span>AI</span></div>
+    <div class="logo-wrap">
+        <div class="logo-row">
+            <div class="logo-icon">🧠</div>
+            <div class="logo-name">MarketMind <span>AI</span></div>
+        </div>
+        <div class="logo-sub">Marketing Intelligence Engine</div>
     </div>
-    <div class="logo-sub">Marketing Intelligence Engine</div>
-  </div>
-  <div class="sb-sec">Intelligence</div>
-  <div class="nav-item active" onclick="go('kw',this)"><span class="ni">🔍</span>Keyword Cluster<span class="nbadge">1+4</span></div>
-  <div class="nav-item" onclick="go('lp',this)"><span class="ni">🏠</span>Landing Pages<span class="nbadge new">LIVE</span></div>
-  <div class="nav-item" onclick="go('blog',this)"><span class="ni">✍️</span>Blog Writer</div>
-  <div class="sb-sec">Paid Ads</div>
-  <div class="nav-item" onclick="go('gads',this)"><span class="ni">🎯</span>Google Ads<span class="nbadge">Visual</span></div>
-  <div class="nav-item" onclick="go('mads',this)"><span class="ni">📱</span>Meta Ads<span class="nbadge">Visual</span></div>
-  <div class="nav-item" onclick="go('img',this)"><span class="ni">🖼️</span>Image Prompts</div>
-  <div class="sb-sec">Outreach</div>
-  <div class="nav-item" onclick="go('bl',this)"><span class="ni">🔗</span>Backlink CRM<span class="nbadge new">NEW</span></div>
-  <div class="sb-foot">
-    <div class="ai-pill">
-      <div class="pulse"></div>
-      <div><div style="font-weight:700;font-size:.7rem;color:#22C55E">AI Engine Active</div><div style="font-size:.59rem;color:#6B7394;margin-top:1px">Groq Llama 3.3 · Free</div></div>
-    </div>
-  </div>
+    <div class="sb-sec">Intelligence</div>
+    <div class="nav-item active" onclick="go('kw',this)"><span class="ni">🔍</span>Keyword Cluster</div>
+    <div class="nav-item" onclick="go('lp',this)"><span class="ni">🏠</span>Landing Pages</div>
+    <div class="sb-sec">B2B Growth</div>
+    <div class="nav-item" onclick="go('leads',this)"><span class="ni">🎯</span>Lead Generation <span class="nbadge new">NEW</span></div>
 </nav>
 
 <div class="main">
-  <div class="topbar">
-    <div class="topbar-title" id="pg-title">🔍 Keyword Cluster Intelligence</div>
-    <div class="be-row">
-      <div class="be-wrap"><span class="be-lbl">API</span><input class="be-inp" id="backendUrl" placeholder="https://marketai-app-production.up.railway.app" value="https://marketai-app-production.up.railway.app"/></div>
-      <button class="save-btn" onclick="saveUrl()">Save</button>
-    </div>
-  </div>
-
-  <div class="content">
-    <div class="search-card">
-      <div class="s-lbl">⚡ Enter Keyword — AI Executes Everything</div>
-      <div class="s-row">
-        <input class="kw-inp" id="kw" placeholder="e.g. online IB tuition, exam prep, digital marketing..."/>
-        <select class="sel" id="persona"><option value="student">👨‍🎓 Student</option><option value="professional">💼 Professional</option><option value="parent">👨‍👩‍👧 Parent</option><option value="business owner">🏢 Business Owner</option></select>
-        <select class="sel" id="country"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Australia</option></select>
-        <button class="gen-btn" id="gen-btn" onclick="generate()">⚡ Generate</button>
-      </div>
-    </div>
-
-    <!-- KEYWORD PAGE -->
-    <div class="page active" id="page-kw">
-      <div class="sec-hd">🔍 Keyword Intelligence <span class="sec-badge" style="background:rgba(108,92,231,.15);color:#8B5CF6">1 Primary + 4 LSI</span></div>
-      <div class="kpi-grid">
-        <div class="kpi"><span class="kpi-ico">🔎</span><div class="kpi-v" style="color:#6C5CE7" id="s-vol">—</div><div class="kpi-l">Monthly Volume</div><div class="kpi-hint" id="kh1"></div></div>
-        <div class="kpi"><span class="kpi-ico">⚡</span><div class="kpi-v" style="color:#22C55E" id="s-kd">—</div><div class="kpi-l">Keyword Difficulty</div><div class="kpi-hint" id="kh2"></div></div>
-        <div class="kpi"><span class="kpi-ico">💰</span><div class="kpi-v" style="color:#F59E0B" id="s-cpc">—</div><div class="kpi-l">Avg CPC</div><div class="kpi-hint" id="kh3"></div></div>
-        <div class="kpi"><span class="kpi-ico">📊</span><div class="kpi-v" style="color:#06B6D4" id="s-intent">—</div><div class="kpi-l">Search Intent</div><div class="kpi-hint" id="kh4"></div></div>
-      </div>
-      <div class="charts-row" id="charts-row" style="display:none">
-        <div class="chart-card"><div class="chart-title">📈 Search Trend (12 Months)</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
-        <div class="chart-card"><div class="chart-title">🎯 KD Distribution</div><div class="chart-wrap"><canvas id="diffChart"></canvas></div></div>
-      </div>
-      <div class="ai-score" id="ai-score">
-        <div class="ai-score-title">🧠 AI Opportunity Analysis</div>
-        <div class="scores-row">
-          <div class="score-item"><div class="score-lbl">Ranking Potential</div><div class="prog-bar"><div class="prog-fill" id="sc-rank" style="width:0%;background:var(--grad)"></div></div><div class="score-num" style="color:#8B5CF6" id="sc-rank-n">—</div></div>
-          <div class="score-item"><div class="score-lbl">Competition Level</div><div class="prog-bar"><div class="prog-fill" id="sc-comp" style="width:0%;background:linear-gradient(135deg,#F59E0B,#EF4444)"></div></div><div class="score-num" style="color:#F59E0B" id="sc-comp-n">—</div></div>
-          <div class="score-item"><div class="score-lbl">Opportunity Score</div><div class="prog-bar"><div class="prog-fill" id="sc-opp" style="width:0%;background:linear-gradient(135deg,#22C55E,#06B6D4)"></div></div><div class="score-num" style="color:#22C55E" id="sc-opp-n">—</div></div>
+    <div class="topbar">
+        <div class="topbar-title" id="pg-title">🔍 Keyword Cluster Intelligence</div>
+        <div class="be-row">
+            <div class="be-wrap"><input class="be-inp" id="backendUrl" value="https://marketai-app-production.up.railway.app"/></div>
+            <button class="save-btn" onclick="saveUrl()">Save</button>
         </div>
-      </div>
-      <div class="loader" id="l-kw"><div class="spin"></div><span>⚡ AI analyzing keyword cluster<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-      <div class="out-card" id="o-kw"><div class="out-head"><div class="out-title">📊 Full Cluster Report</div><button class="copy-btn" onclick="cp('b-kw')">Copy</button></div><div class="out-body" id="b-kw"></div></div>
     </div>
 
-    <!-- LANDING PAGE -->
-    <div class="page" id="page-lp">
-      <div class="sec-hd">🏠 Landing Page Generator <span class="sec-badge" style="background:rgba(34,197,94,.12);color:#22C55E">AI Auto-Style + Real Images</span></div>
-      <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.75rem;color:#22C55E">
-        ✨ AI automatically picks the best style (Minimalist/Tech/Academic) based on your keyword + generates real HTML page with images
-      </div>
-      <div class="loader" id="l-lp"><div class="spin"></div><span>⚡ AI building your landing page with real images<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-      <div class="lp-preview-wrap" id="lp-preview-wrap">
-        <div class="lp-preview-head">
-          <div class="out-title">🏠 Live Landing Page <span id="lp-style-badge" style="font-size:.6rem;padding:2px 8px;border-radius:4px;background:rgba(108,92,231,.15);color:var(--p1);margin-left:6px"></span></div>
-          <div class="lp-actions">
-            <button class="lp-btn lp-btn-preview" onclick="showLPTab('preview')">👁 Preview</button>
-            <button class="lp-btn lp-btn-open" onclick="openLPNewTab()">🔗 Open in New Tab</button>
-            <button class="lp-btn lp-btn-dl" onclick="downloadLP()">⬇ Download HTML</button>
-          </div>
+    <div class="content">
+        <div class="search-card">
+            <div class="s-lbl">⚡ Enter Keyword — AI Research Engine</div>
+            <div class="s-row">
+                <input class="kw-inp" id="kw" placeholder="e.g. online IB tuition, digital marketing..."/>
+                <select class="sel" id="persona"><option value="business owner">🏢 Business Owner</option><option value="student">👨‍🎓 Student</option></select>
+                <button class="gen-btn" id="gen-btn" onclick="generate()">⚡ Generate</button>
+            </div>
         </div>
-        <div style="display:flex;gap:0;border-bottom:1px solid var(--border2);background:var(--card)">
-          <div class="lp-tab active" id="lptab-preview" onclick="showLPTab('preview')" style="padding:10px 16px;cursor:pointer;font-size:.72rem;font-weight:600;border-bottom:2px solid var(--p1);color:var(--p1)">🖥 Live Preview</div>
-          <div class="lp-tab" id="lptab-code" onclick="showLPTab('code')" style="padding:10px 16px;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--muted);border-bottom:2px solid transparent">{ } HTML Code</div>
+
+        <div class="page active" id="page-kw">
+            <div class="kpi-grid">
+                <div class="kpi"><span class="kpi-ico">🔎</span><div class="kpi-v" id="s-vol">—</div><div class="kpi-l">Vol</div></div>
+                <div class="kpi"><span class="kpi-ico">⚡</span><div class="kpi-v" id="s-kd">—</div><div class="kpi-l">Difficulty</div></div>
+                <div class="kpi"><span class="kpi-ico">💰</span><div class="kpi-v" id="s-cpc">—</div><div class="kpi-l">CPC</div></div>
+                <div class="kpi"><span class="kpi-ico">📊</span><div class="kpi-v" id="s-intent">—</div><div class="kpi-l">Intent</div></div>
+            </div>
+            <div class="loader" id="l-kw"><div class="spin"></div><span>AI Researching...</span></div>
+            <div class="out-card" id="o-kw"><div class="out-body" id="b-kw"></div></div>
         </div>
-        <div class="iframe-wrap" id="lp-iframe-wrap"><iframe id="lp-iframe" title="Landing Page"></iframe></div>
-        <div id="lp-code-wrap" style="display:none;background:var(--card2);padding:18px;font-family:monospace;font-size:.7rem;line-height:1.7;color:#94a3b8;max-height:600px;overflow:auto;white-space:pre-wrap;word-break:break-word"></div>
-      </div>
-    </div>
 
-    <!-- BLOG -->
-    <div class="page" id="page-blog">
-      <div class="sec-hd">✍️ SEO Blog Writer <span class="sec-badge" style="background:rgba(245,158,11,.12);color:#F59E0B">1500+ Words + Human Score</span></div>
-      <div class="loader" id="l-blog"><div class="spin"></div><span>⚡ Writing full blog post<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-      <div class="out-card" id="o-blog"><div class="out-head"><div class="out-title">📝 Full Blog Post</div><button class="copy-btn" onclick="cp('b-blog')">Copy</button></div><div class="out-body" id="b-blog"></div></div>
-    </div>
+        <div class="page" id="page-leads">
+            <div class="sub-tabs">
+                <button class="sub-tab active" onclick="lgTab('comp',this)">🏆 Competitors</button>
+                <button class="sub-tab" onclick="lgTab('client',this)">🎯 Client Leads</button>
+            </div>
+            <div class="loader" id="l-leads"><div class="spin"></div><span>Scraping Market Data...</span></div>
+            
+            <div id="lgp-comp">
+                <div class="out-card" style="display:block">
+                    <div class="out-head"><div class="out-title">Competitor Intel</div><button class="save-btn" onclick="lgExportCSV('competitors')">CSV</button></div>
+                    <table class="btbl">
+                        <thead><tr><th>Company</th><th>Website</th><th>DA</th><th>Email</th><th>Action</th></tr></thead>
+                        <tbody id="lg-comp-body"></tbody>
+                    </table>
+                </div>
+            </div>
 
-    <!-- GOOGLE ADS -->
-    <div class="page" id="page-gads">
-      <div class="sec-hd">🎯 Google Ads <span class="sec-badge" style="background:rgba(239,68,68,.12);color:#EF4444">Search · Display · Responsive + 3 Angles</span></div>
-      <div class="angles">
-        <div class="angle"><div class="albl" style="color:#EF4444">😢 Angle A — Emotional</div><div class="adesc">Pain-based. Empathy and emotional connection</div></div>
-        <div class="angle"><div class="albl" style="color:#22C55E">🧠 Angle B — Logical</div><div class="adesc">Feature-driven. Data-backed rational copy</div></div>
-        <div class="angle"><div class="albl" style="color:#F59E0B">⏰ Angle C — Scarcity</div><div class="adesc">Urgency. Limited spots. FOMO action</div></div>
-      </div>
-      <div class="xfields"><input id="g-biz" placeholder="Business name"/><input id="g-budget" placeholder="Monthly budget (₹20,000)"/><input id="g-cpc" placeholder="Avg CPC (1.50)"/><input id="g-loc" placeholder="Location (India)"/></div>
-      <div class="loader" id="l-gads"><div class="spin"></div><span>⚡ Building Google Ads with visuals<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-      <div id="gads-preview" style="display:none">
-        <div class="sec-hd" style="margin-top:4px">📸 Ad Creative Previews</div>
-        <div class="ad-preview-wrap" id="gads-ad-cards"></div>
-        <div class="sec-hd" style="margin-top:16px">📋 Ad Groups & Full Setup</div>
-        <div id="gads-groups"></div>
-      </div>
+            <div id="lgp-client" style="display:none">
+                <div class="out-card" style="display:block">
+                    <div class="out-head"><div class="out-title">Target Client Leads</div></div>
+                    <table class="btbl">
+                        <thead><tr><th>Company</th><th>Decision Maker</th><th>Email</th><th>Urgency</th></tr></thead>
+                        <tbody id="lg-client-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page" id="page-lp">
+             <div class="loader" id="l-lp"><div class="spin"></div><span>Building Landing Page...</span></div>
+             <div id="lp-preview-wrap" class="out-card">
+                 <iframe id="lp-iframe" style="width:100%; height:500px; border:none; background:white;"></iframe>
+             </div>
+        </div>
     </div>
-
-    <!-- META ADS -->
-    <div class="page" id="page-mads">
-      <div class="sec-hd">📱 Meta Ads <span class="sec-badge" style="background:rgba(139,92,246,.12);color:#8B5CF6">Single Image · Carousel · Story · Video</span></div>
-      <div class="xfields"><input id="m-biz" placeholder="Business name"/><input id="m-prod" placeholder="Product / service"/><input id="m-budget" placeholder="Monthly budget"/><input id="m-age" placeholder="Target age (18-35)"/><input id="m-loc" placeholder="Location"/></div>
-      <div class="loader" id="l-mads"><div class="spin"></div><span>⚡ Building Meta Ads with creatives<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-      <div id="mads-preview" style="display:none">
-        <div class="sec-hd" style="margin-top:4px">📸 Ad Format Previews</div>
-        <div class="ad-preview-wrap" id="mads-ad-cards"></div>
-        <div class="sec-hd" style="margin-top:16px">🎯 Ad Sets</div>
-        <div class="adset-grid" id="mads-adsets"></div>
-      </div>
-    </div>
-
-    <!-- IMAGE PROMPTS -->
-    <div class="page" id="page-img">
-      <div class="sec-hd">🖼️ Image Prompts <span class="sec-badge" style="background:rgba(34,197,94,.12);color:#22C55E">Zero Copyright · Canva Ready</span></div>
-      <div class="angles" id="angle-grid">
-        <div class="angle" style="border-color:#EF4444;cursor:pointer" onclick="pickAngle('emotional',this)"><div class="albl" style="color:#EF4444">😢 Emotional (Pain)</div><div class="adesc">Real struggle scenes. 2am, stressed, messy desk</div></div>
-        <div class="angle" style="cursor:pointer" onclick="pickAngle('logical',this)"><div class="albl" style="color:#22C55E">🧠 Logical (Solution)</div><div class="adesc">Clean environment. Progress and clarity</div></div>
-        <div class="angle" style="cursor:pointer" onclick="pickAngle('scarcity',this)"><div class="albl" style="color:#F59E0B">⏰ Scarcity (Deadline)</div><div class="adesc">Clock, countdown, last chance energy</div></div>
-      </div>
-      <div class="loader" id="l-img"><div class="spin"></div><span>⚡ Generating image prompts<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-      <div class="out-card" id="o-img"><div class="out-head"><div class="out-title">🖼️ Image Prompts + Canva Guide</div><button class="copy-btn" onclick="cp('b-img')">Copy</button></div><div class="out-body" id="b-img"></div></div>
-    </div>
-
-    <!-- BACKLINK CRM -->
-    <div class="page" id="page-bl">
-      <div class="sec-hd">🔗 Backlink CRM <span class="sec-badge" style="background:rgba(6,182,212,.12);color:#06B6D4">Full Pipeline</span></div>
-      <div style="margin-bottom:12px"><a href="backlink_crm.html" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25);border-radius:9px;color:#06B6D4;font-size:.78rem;font-weight:700;text-decoration:none;transition:all .2s">🔗 Open Full Backlink CRM Pipeline →</a></div>
-      <div class="xfields"><input id="bl-niche" placeholder="Your niche (e.g. education)"/><input id="bl-name" placeholder="Your name"/><input id="bl-site" placeholder="Your website URL"/></div>
-      <div class="bl-kpis" id="bl-stats" style="display:none">
-        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#06B6D4" id="bl-total">0</div><div class="bl-kpi-l">Total Prospects</div></div>
-        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#F59E0B" id="bl-comps">0</div><div class="bl-kpi-l">Competitors</div></div>
-        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#22C55E" id="bl-tgts">0</div><div class="bl-kpi-l">Link Targets</div></div>
-        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#8B5CF6" id="bl-qws">0</div><div class="bl-kpi-l">Quick Wins</div></div>
-        <div class="bl-kpi"><div class="bl-kpi-v" style="color:#EF4444" id="bl-emls">0</div><div class="bl-kpi-l">Emails Ready</div></div>
-      </div>
-      <div class="loader" id="l-bl"><div class="spin"></div><span>⚡ Researching competitors<span class="ldots"><span>.</span><span>.</span><span>.</span></span></span></div>
-      <div class="sub-tabs" id="bl-subtabs" style="display:none">
-        <button class="sub-tab active" onclick="bltab('competitors',this)">🏆 Competitors</button>
-        <button class="sub-tab" onclick="bltab('targets',this)">🎯 Targets</button>
-        <button class="sub-tab" onclick="bltab('quickwins',this)">⚡ Quick Wins</button>
-        <button class="sub-tab" onclick="bltab('operators',this)">🔎 Operators</button>
-        <button class="sub-tab" onclick="bltab('emails',this)">📧 Emails</button>
-      </div>
-      <div id="blp-competitors"><div class="out-card" id="o-blc"><div class="out-head"><div class="out-title">🏆 Competitor Analysis</div></div><div class="tbl-wrap"><table class="btbl"><thead><tr><th>Domain</th><th>DA</th><th>PA</th><th>Spam</th><th>Backlinks</th><th>Traffic</th><th>Type</th><th>Action</th></tr></thead><tbody id="blc-body"></tbody></table></div></div></div>
-      <div id="blp-targets" style="display:none"><div class="out-card" id="o-blt"><div class="out-head"><div class="out-title">🎯 Link Targets</div></div><div class="tbl-wrap"><table class="btbl"><thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Author</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody id="blt-body"></tbody></table></div></div></div>
-      <div id="blp-quickwins" style="display:none"><div class="out-card" id="o-blq"><div class="out-head"><div class="out-title">⚡ Quick Wins</div></div><div class="tbl-wrap"><table class="btbl"><thead><tr><th>Domain</th><th>DA</th><th>Type</th><th>Effort</th><th>How To</th></tr></thead><tbody id="blq-body"></tbody></table></div></div></div>
-      <div id="blp-operators" style="display:none"><div class="out-card" id="o-blo"><div class="out-head"><div class="out-title">🔎 Search Operators</div><button class="copy-btn" onclick="cp('b-blo')">Copy</button></div><div class="out-body" id="b-blo"></div></div></div>
-      <div id="blp-emails" style="display:none"><div class="out-card" id="o-ble"><div class="out-head"><div class="out-title">📧 Outreach Emails</div></div><div id="ble-body" style="padding:15px"></div></div></div>
-    </div>
-  </div>
-</div>
-
-<div class="moverlay" id="email-modal">
-  <div class="modal"><div class="mhead"><div class="mtitle">📧 Outreach Email</div><button class="mclose" onclick="closeModal()">✕</button></div><div class="mbody"><div class="etabs" id="etabs"></div><div id="epanes"></div></div></div>
 </div>
 
 <script>
-const TITLES={kw:'🔍 Keyword Cluster Intelligence',lp:'🏠 Landing Page Generator',blog:'✍️ SEO Blog Writer',gads:'🎯 Google Ads — Visual',mads:'📱 Meta Ads — Visual',img:'🖼️ Image Prompts',bl:'🔗 Backlink CRM'};
-let BACKEND=localStorage.getItem('mkai_be')||'https://marketai-app-production.up.railway.app';
-let angle='emotional',blData=null,statuses={},lpHTML='',lpKeyword='';
-let tChart=null,dChart=null;
-document.getElementById('backendUrl').value=BACKEND;
-// Auto-save Railway URL so it works for everyone
-if(!localStorage.getItem('mkai_be')){localStorage.setItem('mkai_be','https://marketai-app-production.up.railway.app');}
+    let BACKEND = localStorage.getItem('mkai_be') || 'https://marketai-app-production.up.railway.app';
+    document.getElementById('backendUrl').value = BACKEND;
 
-function saveUrl(){BACKEND=document.getElementById('backendUrl').value.trim().replace(/\/$/,'');localStorage.setItem('mkai_be',BACKEND);const b=document.querySelector('.save-btn');b.textContent='✓';setTimeout(()=>b.textContent='Save',1400)}
-function go(n,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');el.classList.add('active');document.getElementById('pg-title').textContent=TITLES[n]}
-function bltab(n,el){document.querySelectorAll('[id^=blp-]').forEach(p=>p.style.display='none');document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));document.getElementById('blp-'+n).style.display='block';el.classList.add('active')}
-function pickAngle(a,el){angle=a;document.querySelectorAll('#angle-grid .angle').forEach(c=>c.style.borderColor='var(--border)');el.style.borderColor='var(--p1)'}
-function load(id,on){document.getElementById('l-'+id).className='loader'+(on?' show':'')}
-function show(cid,bid,text){document.getElementById(cid).style.display='block';if(bid)document.getElementById(bid).textContent=text}
-function cp(id){navigator.clipboard.writeText(document.getElementById(id).textContent)}
-function kw(){return document.getElementById('kw').value.trim()}
-function persona(){return document.getElementById('persona').value}
-function country(){return document.getElementById('country').value}
-
-// LP helpers
-function showLPTab(tab){
-  document.getElementById('lp-iframe-wrap').style.display=tab==='preview'?'block':'none';
-  document.getElementById('lp-code-wrap').style.display=tab==='code'?'block':'none';
-  document.getElementById('lptab-preview').style.borderBottomColor=tab==='preview'?'var(--p1)':'transparent';
-  document.getElementById('lptab-preview').style.color=tab==='preview'?'var(--p1)':'var(--muted)';
-  document.getElementById('lptab-code').style.borderBottomColor=tab==='code'?'var(--p1)':'transparent';
-  document.getElementById('lptab-code').style.color=tab==='code'?'var(--p1)':'var(--muted)';
-}
-function openLPNewTab(){
-  if(!lpHTML)return;
-  const blob=new Blob([lpHTML],{type:'text/html'});
-  window.open(URL.createObjectURL(blob),'_blank');
-}
-function downloadLP(){
-  if(!lpHTML)return;
-  const blob=new Blob([lpHTML],{type:'text/html'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=(lpKeyword||'landing-page').replace(/\s+/g,'-')+'.html';
-  a.click();
-}
-
-// Charts
-function renderCharts(){
-  document.getElementById('charts-row').style.display='grid';
-  if(tChart)tChart.destroy();if(dChart)dChart.destroy();
-  const months=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
-  const base=Math.floor(Math.random()*3000)+800;
-  const tData=months.map((_,i)=>Math.floor(base*(0.75+Math.random()*.5+i*.025)));
-  tChart=new Chart(document.getElementById('trendChart').getContext('2d'),{type:'line',data:{labels:months,datasets:[{label:'Volume',data:tData,borderColor:'#6C5CE7',backgroundColor:'rgba(108,92,231,.07)',tension:.4,fill:true,pointBackgroundColor:'#8B5CF6',pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(35,42,69,.4)'},ticks:{color:'#6B7394',font:{size:9}}},y:{grid:{color:'rgba(35,42,69,.4)'},ticks:{color:'#6B7394',font:{size:9}}}}}});
-  dChart=new Chart(document.getElementById('diffChart').getContext('2d'),{type:'doughnut',data:{labels:['Easy','Medium','Hard'],datasets:[{data:[35,40,25],backgroundColor:['rgba(34,197,94,.75)','rgba(245,158,11,.75)','rgba(239,68,68,.75)'],borderColor:['#232A45'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9AA4C7',font:{size:9},boxWidth:10,padding:7}}},cutout:'65%'}});
-}
-
-function parseStats(t){
-  const v=t.match(/Search Volume[:\s]+([0-9,K+]+)/i);
-  const k=t.match(/Keyword Difficulty[^:]*:\s*(\d+)/i);
-  const c=t.match(/CPC[^:]*:\s*\$?([\d.]+)/i);
-  const i=t.match(/Search Intent[:\s]+(\w+)/i);
-  if(v)document.getElementById('s-vol').textContent=v[1];
-  if(c)document.getElementById('s-cpc').textContent='$'+c[1];
-  if(i)document.getElementById('s-intent').textContent=i[1];
-  if(k){const kd=parseInt(k[1]);document.getElementById('s-kd').textContent=kd+'/100';document.getElementById('kh2').innerHTML=kd<40?'<span style="color:#22C55E">✓ Easy to rank</span>':kd<70?'<span style="color:#F59E0B">⚡ Medium</span>':'<span style="color:#EF4444">⚠ Hard</span>';
-  const rank=Math.max(20,100-kd),comp=kd,opp=Math.round((rank*.6+comp*.4));
-  document.getElementById('ai-score').classList.add('show');
-  setTimeout(()=>{document.getElementById('sc-rank').style.width=rank+'%';document.getElementById('sc-rank-n').textContent=rank+'% Potential';document.getElementById('sc-comp').style.width=comp+'%';document.getElementById('sc-comp-n').textContent=comp+'% Competition';document.getElementById('sc-opp').style.width=opp+'%';document.getElementById('sc-opp-n').textContent=opp+'% Opportunity';},150);}
-  renderCharts();
-}
-
-// Google Ads renderer
-function renderGAds(data){
-  document.getElementById('gads-preview').style.display='block';
-  const fmts=data.ad_formats||[];
-  const fmtColors={Search:'#EF4444',Display:'#22C55E','Responsive Display':'#06B6D4'};
-  const objColors={'Lead Generation':'#8B5CF6',Awareness:'#F59E0B',Retargeting:'#06B6D4',Conversion:'#22C55E'};
-  document.getElementById('gads-ad-cards').innerHTML=fmts.map(f=>`
-    <div class="ad-card">
-      <div class="ad-card-header">
-        <span class="ad-format-badge" style="background:rgba(${hexToRgb(fmtColors[f.format]||'#6C5CE7')},.15);color:${fmtColors[f.format]||'#6C5CE7'}">🎯 ${f.format}</span>
-        <span class="ad-obj-badge" style="background:rgba(${hexToRgb(objColors[f.objective]||'#8B5CF6')},.12);color:${objColors[f.objective]||'#8B5CF6'}">${f.objective}</span>
-      </div>
-      <div class="ad-img-wrap">
-        <img data-uquery="${f._img_query||f.image_query||kw()}" data-uori="landscape" src="https://placehold.co/1200x180/151C32/6C5CE7?text=Loading..." alt="${f.format}" style="height:${f.format==='Search Ad'?'80px':'180px'};background:linear-gradient(90deg,#1a2035,#232a45);"/>
-        <div class="ad-img-overlay"></div>
-        <div class="ad-img-cta">${f.cta}</div>
-      </div>
-      <div class="ad-body">
-        <div class="ad-headline">${f.headline1} | ${f.headline2}${f.headline3?' | '+f.headline3:''}</div>
-        <div class="ad-desc">${f.description1}</div>
-        <div class="ad-url">🌐 ${f.display_url}</div>
-        <div class="ad-meta">
-          <span class="ad-tag" style="background:rgba(108,92,231,.12);color:#8B5CF6">${f.format}</span>
-          <span class="ad-tag" style="background:rgba(34,197,94,.1);color:#22C55E">${f.objective}</span>
-        </div>
-      </div>
-    </div>`).join('');
-
-  // Ad groups
-  const grps=data.ad_groups||[];
-  document.getElementById('gads-groups').innerHTML=grps.map((g,i)=>`
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <div style="font-size:.82rem;font-weight:700">${g.name}</div>
-        <span style="font-size:.6rem;padding:2px 8px;border-radius:4px;background:rgba(108,92,231,.12);color:#8B5CF6;font-weight:700">${g.angle}</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-weight:700">Exact Match Keywords</div>${(g.keywords_exact||[]).map(k=>`<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(34,197,94,.1);color:#22C55E;font-size:.65rem;margin:2px;font-weight:600">[${k}]</span>`).join('')}</div>
-        <div><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-weight:700">Phrase Match</div>${(g.keywords_phrase||[]).map(k=>`<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(6,182,212,.1);color:#06B6D4;font-size:.65rem;margin:2px">"${k}"</span>`).join('')}</div>
-      </div>
-      ${(g.ads||[]).map(a=>`<div style="background:var(--card2);border-radius:8px;padding:12px;border:1px solid var(--border2)"><div style="font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:4px">${a.headline1} | ${a.headline2} | ${a.headline3}</div><div style="font-size:.7rem;color:var(--text2)">${a.desc1}</div><div style="font-size:.7rem;color:var(--text2)">${a.desc2}</div><span style="display:inline-block;margin-top:6px;padding:4px 10px;background:var(--grad);color:#fff;border-radius:5px;font-size:.62rem;font-weight:700">${a.cta}</span></div>`).join('')}
-    </div>`).join('');
-}
-
-// Meta Ads renderer  
-function renderMAds(data){
-  document.getElementById('mads-preview').style.display='block';
-  const fmts=data.ad_formats||[];
-  const fmtColors={'Single Image Ad':'#22C55E','Carousel Ad':'#06B6D4','Story Ad':'#8B5CF6','Video Ad':'#EF4444'};
-  const objColors={Awareness:'#F59E0B',Consideration:'#06B6D4','Lead Generation':'#8B5CF6',Conversion:'#22C55E'};
-
-  document.getElementById('mads-ad-cards').innerHTML=fmts.map(f=>`
-    <div class="ad-card">
-      <div class="ad-card-header">
-        <span class="ad-format-badge" style="background:rgba(${hexToRgb(fmtColors[f.format]||'#6C5CE7')},.15);color:${fmtColors[f.format]||'#6C5CE7'}">📱 ${f.format}</span>
-        <span class="ad-obj-badge" style="background:rgba(${hexToRgb(objColors[f.objective]||'#8B5CF6')},.12);color:${objColors[f.objective]||'#8B5CF6'}">${f.objective}</span>
-      </div>
-      <div class="ad-img-wrap">
-        <img data-uquery="${f._img_query||f.image_query||''}" data-uori="${f.ratio==='9:16'?'portrait':'landscape'}" src="https://placehold.co/1200x220/151C32/6C5CE7?text=Loading..." alt="${f.format}" style="height:${f.ratio==='9:16'?'220px':'180px'};background:linear-gradient(90deg,#1a2035,#232a45);"/>
-        <div class="ad-img-overlay"></div>
-        <div class="ad-img-cta">${f.cta}</div>
-      </div>
-      ${f.cards?`<div class="carousel-cards">${f.cards.map(c=>`<div class="c-card"><img data-uquery="${c._img_query||c.image_query||''}" src="https://placehold.co/160x110/151C32/6C5CE7?text=..." alt="${c.title}" style="background:#1a2035;"/><div class="c-card-body"><div class="c-card-title">${c.title}</div><div class="c-card-desc">${c.desc}</div></div></div>`).join('')}</div>`:''}
-      ${f.video_script?`<div class="video-script"><div class="vs-title">📹 Video Script (30 sec)</div>${Object.entries(f.video_script).map(([k,v])=>`<div class="vs-row"><span class="vs-label">${k.charAt(0).toUpperCase()+k.slice(1)}:</span><span class="vs-text">${v}</span></div>`).join('')}</div>`:''}
-      <div class="ad-body">
-        <div class="ad-headline">${f.headline}</div>
-        <div class="ad-desc">${f.primary_text}</div>
-        <div class="ad-meta">
-          <span class="ad-tag" style="background:rgba(108,92,231,.12);color:#8B5CF6">${f.platform}</span>
-          <span class="ad-tag" style="background:rgba(34,197,94,.1);color:#22C55E">${f.dimensions}</span>
-        </div>
-      </div>
-    </div>`).join('');
-
-  // Ad sets
-  const sets=data.ad_sets||[];
-  document.getElementById('mads-adsets').innerHTML=sets.map(s=>`
-    <div class="adset-card">
-      <div class="adset-name">${s.name}</div>
-      <span class="adset-obj">${s.objective}</span>
-      <img class="adset-img" data-uquery="${s._img_query||s.image_query||''}" src="https://placehold.co/280x120/151C32/6C5CE7?text=Loading..." alt="${s.name}" style="background:#1a2035;"/>
-      <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;font-weight:600">INTERESTS (${(s.interests||[]).length})</div>
-      <div>${(s.interests||[]).map(i=>`<span style="display:inline-block;padding:2px 7px;border-radius:4px;background:rgba(108,92,231,.1);color:#8B5CF6;font-size:.6rem;margin:2px">${i}</span>`).join('')}</div>
-      <div class="adset-text" style="margin-top:10px">${s.primary_text}</div>
-      <div class="adset-cta">${s.cta}</div>
-      <div style="margin-top:8px;font-size:.65rem;color:var(--warn);font-weight:700">Budget: ${s.budget_split||''}</div>
-    </div>`).join('');
-}
-
-function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `${r},${g},${b}`}
-
-async function post(ep,body){const r=await fetch(BACKEND+ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json()}
-
-function dcls(da){return da>=50?'dh':da>=30?'dm':'dl'}
-function renderBlComp(data){document.getElementById('blc-body').innerHTML=data.map(c=>`<tr><td><a href="${c.url}" target="_blank" style="color:#06B6D4;font-size:.71rem">${c.domain}</a></td><td><span class="dbadge ${dcls(c.da)}">${c.da}</span></td><td><span class="dbadge ${dcls(c.pa||c.da-5)}">${c.pa||'—'}</span></td><td><span class="dbadge ${c.spam_score<=2?'dh':c.spam_score<=5?'dm':'dl'}">${c.spam_score||0}%</span></td><td style="color:var(--text2)">${(c.backlinks||0).toLocaleString()}</td><td style="color:var(--text2)">${c.traffic||'—'}</td><td><span class="tbadge">${c.type||'Blog'}</span></td><td><button class="abtn abtn-c">Find</button></td></tr>`).join('');show('o-blc',null,'')}
-function renderBlTargets(data){document.getElementById('blt-body').innerHTML=data.map((t,i)=>`<tr><td><a href="${t.url||'#'}" target="_blank" style="color:#06B6D4;font-size:.71rem">${t.domain}</a></td><td><span class="dbadge ${dcls(t.da)}">${t.da}</span></td><td><span class="tbadge">${t.type||'Blog'}</span></td><td style="font-size:.71rem">${t.author_name||'—'}</td><td style="color:#22C55E;font-size:.71rem">${t.author_email||'—'}</td><td><span class="sbadge s-new" id="st-${i}">New</span></td><td style="display:flex;gap:5px"><button class="abtn abtn-e">📧</button><button class="abtn abtn-c" onclick="markSt('${t.domain}',${i},'s-contacted')">✓</button></td></tr>`).join('');show('o-blt',null,'')}
-function renderBlQW(data){document.getElementById('blq-body').innerHTML=data.map(q=>`<tr><td><a href="${q.url||'#'}" target="_blank" style="color:#06B6D4;font-size:.71rem">${q.domain}</a></td><td><span class="dbadge ${dcls(q.da)}">${q.da}</span></td><td><span class="tbadge">${q.type||'Directory'}</span></td><td><span class="dbadge dh">${q.effort||'Low'}</span></td><td style="color:var(--text2);font-size:.71rem">${q.how_to||'—'}</td></tr>`).join('');show('o-blq',null,'')}
-function renderBlEmails(data){document.getElementById('ble-body').innerHTML=data.map((e,i)=>`<div style="background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:14px;margin-bottom:10px"><div style="font-size:.78rem;font-weight:700;margin-bottom:3px">${e.domain}</div><div style="font-size:.66rem;color:#22C55E;margin-bottom:10px">${e.author||'Owner'} · ${e.email||'Not found'}</div>${(e.templates||[]).map(t=>`<div style="background:var(--card);border-radius:7px;padding:10px;margin-bottom:6px"><div style="font-size:.59rem;color:#F59E0B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-weight:700">${t.angle}</div><div style="font-size:.69rem;color:var(--text2);font-weight:600">Subject: ${t.subject||''}</div></div>`).join('')}</div>`).join('');show('o-ble',null,'')}
-const SLBL={'s-new':'New','s-contacted':'Contacted','s-replied':'Replied','s-live':'Live'};
-function markSt(dom,i,s){statuses[dom]=s;const el=document.getElementById('st-'+i);if(el){el.className='sbadge '+s;el.textContent=SLBL[s]}}
-function closeModal(){document.getElementById('email-modal').classList.remove('show')}
-
-async function generate(){
-  if(!kw()){alert('Enter a keyword first!');return}
-  const btn=document.getElementById('gen-btn');
-  btn.disabled=true;btn.textContent='⟳ Working...';
-  const page=document.querySelector('.page.active').id.replace('page-','');
-  try{
-    if(page==='kw'){
-      load('kw',true);const d=await post('/api/keyword-cluster',{keyword:kw(),persona:persona(),country:country()});load('kw',false);parseStats(d.cluster||'');show('o-kw','b-kw',d.cluster||JSON.stringify(d,null,2));
+    function saveUrl() {
+        BACKEND = document.getElementById('backendUrl').value.trim();
+        localStorage.setItem('mkai_be', BACKEND);
+        alert('URL Saved!');
     }
-    else if(page==='lp'){
-      load('lp',true);
-      const d=await post('/api/landing-page',{keyword:kw(),style:'auto',persona:persona()});
-      load('lp',false);
-      const html=d.html||d.landing_page||'';
-      if(html&&html.length>100){
-        lpHTML=html;lpKeyword=kw();
-        document.getElementById('lp-preview-wrap').style.display='block';
-        document.getElementById('lp-style-badge').textContent=(d.style||'auto').toUpperCase();
-        document.getElementById('lp-iframe').srcdoc=html;
-        document.getElementById('lp-code-wrap').textContent=html;
-        showLPTab('preview');
-      }else{alert('Error generating landing page. Check backend is running.')}
-    }
-    else if(page==='blog'){
-      load('blog',true);const d=await post('/api/blog-post',{keyword:kw(),persona:persona(),secondary_keywords:[]});load('blog',false);show('o-blog','b-blog',d.blog_post||JSON.stringify(d));
-    }
-    else if(page==='gads'){
-      load('gads',true);
-      const d=await post('/api/google-ads',{keyword:kw(),business:document.getElementById('g-biz').value||'My Business',budget:document.getElementById('g-budget').value||'20000',location:document.getElementById('g-loc').value||'India',avg_cpc:document.getElementById('g-cpc').value||'1.00'});
-      load('gads',false);
-      const adsData=typeof d.google_ads==='object'?d.google_ads:null;
-      if(adsData)renderGAds(adsData);
-      else{document.getElementById('gads-preview').style.display='none';alert('Parsing error — check backend.')}
-    }
-    else if(page==='mads'){
-      load('mads',true);
-      const d=await post('/api/meta-ads',{business:document.getElementById('m-biz').value||'My Business',product:document.getElementById('m-prod').value||kw(),budget:document.getElementById('m-budget').value||'15000',target_age:document.getElementById('m-age').value||'18-35',location:document.getElementById('m-loc').value||'India'});
-      load('mads',false);
-      const adsData=typeof d.meta_ads==='object'?d.meta_ads:null;
-      if(adsData)renderMAds(adsData);
-      else{document.getElementById('mads-preview').style.display='none';alert('Parsing error — check backend.')}
-    }
-    else if(page==='img'){
-      load('img',true);const d=await post('/api/image-prompts',{keyword:kw(),angle});load('img',false);show('o-img','b-img',d.image_prompts||JSON.stringify(d));
-    }
-    else if(page==='bl'){
-      load('bl',true);
-      const d=await post('/api/backlink-research',{keyword:kw(),niche:document.getElementById('bl-niche').value||'education',sender_name:document.getElementById('bl-name').value||'Agency',sender_site:document.getElementById('bl-site').value||'https://oursite.com'});
-      load('bl',false);blData=d;
-      document.getElementById('bl-stats').style.display='grid';document.getElementById('bl-subtabs').style.display='flex';
-      document.getElementById('bl-total').textContent=(d.competitors?.length||0)+(d.link_targets?.length||0)+(d.quick_wins?.length||0);
-      document.getElementById('bl-comps').textContent=d.competitors?.length||0;document.getElementById('bl-tgts').textContent=d.link_targets?.length||0;document.getElementById('bl-qws').textContent=d.quick_wins?.length||0;document.getElementById('bl-emls').textContent=d.outreach_emails?.length||0;
-      if(d.competitors?.length)renderBlComp(d.competitors);if(d.link_targets?.length)renderBlTargets(d.link_targets);if(d.quick_wins?.length)renderBlQW(d.quick_wins);if(d.search_operators?.length)show('o-blo','b-blo',d.search_operators.join('\n'));if(d.outreach_emails?.length)renderBlEmails(d.outreach_emails);
-    }
-  }catch(e){['kw','lp','blog','gads','mads','img','bl'].forEach(x=>load(x,false));alert('Error: '+e.message+'\n\nCheck Backend URL!')}
-  btn.disabled=false;btn.textContent='⚡ Generate';
-}
 
-document.getElementById('email-modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
-document.getElementById('kw').addEventListener('keydown',e=>{if(e.key==='Enter')generate()});
+    function go(n, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+        document.getElementById('page-' + n).classList.add('active');
+        el.classList.add('active');
+        document.getElementById('pg-title').textContent = n.toUpperCase() + ' Engine';
+    }
 
-// Universal Unsplash image loader
-const UKEY='uzuoQOhJhBAPA3oZLUrM5caab91nTcIwrB92kEbX87k';
-async function loadUImg(imgEl, query, orientation='landscape'){
-  if(!query)return;
-  const q=query.replace(/&w=\d+|&h=\d+|&orientation=\w+/g,'').trim();
-  try{
-    const r=await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(q)}&orientation=${orientation}&client_id=${UKEY}`);
-    if(r.ok){const d=await r.json();const url=d.urls?.regular||d.urls?.full;if(url){imgEl.src=url;imgEl.style.background='none';}}
-  }catch(e){}
-}
-function loadAllUnsplash(){
-  document.querySelectorAll('[data-uquery]').forEach(img=>{
-    const q=img.dataset.uquery;
-    const ori=img.dataset.uori||'landscape';
-    loadUImg(img,q,ori);
-  });
-}
+    function lgTab(n, el) {
+        document.getElementById('lgp-comp').style.display = n === 'comp' ? 'block' : 'none';
+        document.getElementById('lgp-client').style.display = n === 'client' ? 'block' : 'none';
+        document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
 
-// Override renderGAds to use Unsplash
-const _origRenderGAds=renderGAds;
-window.renderGAds=function(data){
-  _origRenderGAds(data);
-  setTimeout(()=>{
-    document.querySelectorAll('[data-uquery]').forEach(img=>{
-      loadUImg(img,img.dataset.uquery,img.dataset.uori||'landscape');
-    });
-  },100);
-};
-const _origRenderMAds=renderMAds;
-window.renderMAds=function(data){
-  _origRenderMAds(data);
-  setTimeout(()=>{
-    document.querySelectorAll('[data-uquery]').forEach(img=>{
-      loadUImg(img,img.dataset.uquery,img.dataset.uori||'landscape');
-    });
-  },100);
-};
+    async function post(ep, body) {
+        const r = await fetch(BACKEND + ep, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        });
+        return r.json();
+    }
+
+    function load(id, on) {
+        const l = document.getElementById('l-' + id);
+        if(l) l.className = 'loader' + (on ? ' show' : '');
+    }
+
+    async function generate() {
+        const kw = document.getElementById('kw').value;
+        const page = document.querySelector('.page.active').id.replace('page-', '');
+        const btn = document.getElementById('gen-btn');
+
+        if (!kw) return alert('Enter Keyword!');
+        
+        btn.disabled = true;
+        load(page, true);
+
+        try {
+            if (page === 'kw') {
+                const d = await post('/api/keyword-cluster', {keyword: kw});
+                document.getElementById('b-kw').textContent = d.cluster || 'No data';
+                document.getElementById('o-kw').style.display = 'block';
+            } 
+            else if (page === 'leads') {
+                const d = await post('/api/lead-research', {service: kw, location: 'Global'});
+                renderLeads(d);
+            }
+            else if (page === 'lp') {
+                const d = await post('/api/landing-page', {keyword: kw});
+                document.getElementById('lp-iframe').srcdoc = d.html || '<h1>Error</h1>';
+                document.getElementById('lp-preview-wrap').style.display = 'block';
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Backend error: ' + e.message);
+        }
+
+        load(page, false);
+        btn.disabled = false;
+    }
+
+    function renderLeads(data) {
+        const comps = data.competitors?.competitors || [];
+        const leads = data.leads?.leads || [];
+
+        document.getElementById('lg-comp-body').innerHTML = comps.map(c => `
+            <tr>
+                <td><b>${c.company}</b></td>
+                <td><a href="${c.website}" target="_blank">${c.website}</a></td>
+                <td><span class="dbadge dh">${c.da || 20}</span></td>
+                <td>${c.guessed_email || 'n/a'}</td>
+                <td><button onclick="window.open('mailto:${c.guessed_email}')">📧</button></td>
+            </tr>
+        `).join('');
+
+        document.getElementById('lg-client-body').innerHTML = leads.map(l => `
+            <tr>
+                <td>${l.company}</td>
+                <td>${l.contact_name}</td>
+                <td>${l.email}</td>
+                <td><span class="dbadge dl">${l.urgency}</span></td>
+            </tr>
+        `).join('');
+    }
 </script>
 </body>
 </html>
