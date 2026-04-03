@@ -226,6 +226,8 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
   <div class="nav-item" onclick="go('img',this)"><span class="ni">🖼️</span>Image Prompts</div>
   <div class="sb-sec">Outreach</div>
   <div class="nav-item" onclick="go('bl',this)"><span class="ni">🔗</span>Backlink CRM<span class="nbadge new">NEW</span></div>
+  <div class="sb-sec">B2B Growth</div>
+  <div class="nav-item" onclick="window.open('leads.html','_blank')" style="cursor:pointer"><span class="ni">🎯</span>Lead Generation<span class="nbadge new">NEW</span></div>
   <div class="sb-foot">
     <div class="ai-pill">
       <div class="pulse"></div>
@@ -380,6 +382,8 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
       <div id="blp-operators" style="display:none"><div class="out-card" id="o-blo"><div class="out-head"><div class="out-title">🔎 Search Operators</div><button class="copy-btn" onclick="cp('b-blo')">Copy</button></div><div class="out-body" id="b-blo"></div></div></div>
       <div id="blp-emails" style="display:none"><div class="out-card" id="o-ble"><div class="out-head"><div class="out-title">📧 Outreach Emails</div></div><div id="ble-body" style="padding:15px"></div></div></div>
     </div>
+  </div>
+
   </div>
 </div>
 
@@ -619,43 +623,106 @@ async function generate(){
 document.getElementById('email-modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 document.getElementById('kw').addEventListener('keydown',e=>{if(e.key==='Enter')generate()});
 
-// Universal Unsplash image loader
-const UKEY='uzuoQOhJhBAPA3oZLUrM5caab91nTcIwrB92kEbX87k';
-async function loadUImg(imgEl, query, orientation='landscape'){
-  if(!query)return;
-  const q=query.replace(/&w=\d+|&h=\d+|&orientation=\w+/g,'').trim();
-  try{
-    const r=await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(q)}&orientation=${orientation}&client_id=${UKEY}`);
-    if(r.ok){const d=await r.json();const url=d.urls?.regular||d.urls?.full;if(url){imgEl.src=url;imgEl.style.background='none';}}
-  }catch(e){}
-}
-function loadAllUnsplash(){
-  document.querySelectorAll('[data-uquery]').forEach(img=>{
-    const q=img.dataset.uquery;
-    const ori=img.dataset.uori||'landscape';
-    loadUImg(img,q,ori);
-  });
+
+// ── LEAD GENERATION ─────────────────────────────────────────────────────
+let lgData={};
+
+function setLgSvc(svc,el){
+  document.querySelectorAll('.svc-pill').forEach(p=>{p.style.background='var(--card2)';p.style.color='var(--muted)';p.style.borderColor='var(--border)'});
+  el.style.background='rgba(108,92,231,.15)';el.style.color='var(--p1)';el.style.borderColor='var(--p1)';
+  document.getElementById('lg-service').value=svc;
 }
 
-// Override renderGAds to use Unsplash
-const _origRenderGAds=renderGAds;
-window.renderGAds=function(data){
-  _origRenderGAds(data);
-  setTimeout(()=>{
-    document.querySelectorAll('[data-uquery]').forEach(img=>{
-      loadUImg(img,img.dataset.uquery,img.dataset.uori||'landscape');
-    });
-  },100);
-};
-const _origRenderMAds=renderMAds;
-window.renderMAds=function(data){
-  _origRenderMAds(data);
-  setTimeout(()=>{
-    document.querySelectorAll('[data-uquery]').forEach(img=>{
-      loadUImg(img,img.dataset.uquery,img.dataset.uori||'landscape');
-    });
-  },100);
-};
+function lgTab(n,el){
+  document.querySelectorAll('[id^=lgp-]').forEach(p=>p.style.display='none');
+  document.querySelectorAll('#lg-subtabs .sub-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('lgp-'+n).style.display='block';
+  el.classList.add('active');
+}
+
+function renderLgCompetitors(comps){
+  const b=document.getElementById('lg-comp-body');
+  if(!comps.length){b.innerHTML='<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">No data</td></tr>';return;}
+  b.innerHTML=comps.map((c,i)=>`
+    <tr>
+      <td><div style="font-weight:700;font-size:.78rem">${c.company||'—'}</div><div style="font-size:.63rem;color:var(--muted)">${c.location||''}</div></td>
+      <td><a href="${c.website||'#'}" target="_blank" style="color:var(--cyan);font-size:.72rem">${c.website||'—'}</a></td>
+      <td><span class="dbadge ${c.da>=50?'dh':c.da>=30?'dm':'dl'}">${c.da||'—'}</span></td>
+      <td style="font-size:.72rem;color:var(--text2)">${c.employees||'—'}</td>
+      <td>${(c.services||[]).slice(0,2).map(s=>'<span class="tbadge" style="margin:1px;display:inline-block">'+s+'</span>').join('')}</td>
+      <td style="font-size:.72rem;color:var(--warn)">${c.pricing_range||'—'}</td>
+      <td style="font-size:.72rem">${c.contact_person||'—'}</td>
+      <td><a href="mailto:${c.guessed_email||''}" style="color:var(--green);font-size:.7rem">${c.guessed_email||'—'}</a></td>
+      <td style="font-size:.7rem;color:var(--green);max-width:160px">${c.opportunity||'—'}</td>
+      <td><button class="abtn abtn-p" data-email="${c.guessed_email||''}" data-company="${c.company||''}" data-contact="${c.contact_person||''}" data-role="CEO" onclick="lgOutreach(this)">📧</button></td>
+    </tr>`).join('');
+}
+
+function renderLgLeads(leads,bodyId){
+  const b=document.getElementById(bodyId);
+  if(!b)return;
+  if(!leads.length){b.innerHTML='<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">No data</td></tr>';return;}
+  const sc={Decision:'s-replied',Consideration:'s-contacted',Awareness:'s-new'};
+  const uc={High:'dl',Medium:'dm',Low:'dh'};
+  b.innerHTML=leads.map(l=>`
+    <tr>
+      <td><div style="font-weight:700;font-size:.78rem">${l.company||'—'}</div><div style="font-size:.63rem;color:var(--cyan)">${l.website||''}</div></td>
+      <td><span class="tbadge">${l.industry||'—'}</span></td>
+      <td><div style="font-weight:600;font-size:.75rem">${l.contact_name||'—'}</div><div style="font-size:.63rem;color:var(--muted)">${l.decision_maker||''}</div></td>
+      <td><a href="mailto:${l.email||''}" style="color:var(--green);font-size:.71rem">${l.email||'—'}</a></td>
+      <td style="font-size:.72rem;color:var(--warn)">${l.budget_estimate||'—'}</td>
+      <td><span class="sbadge ${sc[l.buying_stage]||'s-new'}">${l.buying_stage||'—'}</span></td>
+      <td><span class="dbadge ${uc[l.urgency]||'dm'}">${l.urgency||'—'}</span></td>
+      <td><span class="tbadge">${l.best_channel||'—'}</span></td>
+      <td><button class="abtn abtn-p" data-email="${l.email||''}" data-company="${l.company||''}" data-contact="${l.contact_name||''}" data-role="${l.decision_maker||'Decision Maker'}" onclick="lgOutreach(this)">📧</button></td>
+    </tr>`).join('');
+}
+
+function renderLgInsights(ins,pos){
+  const b=document.getElementById('lg-insights-body');
+  b.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:16px">'
+    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Market Size</div><div style="font-family:Outfit,sans-serif;font-size:1.2rem;font-weight:800;color:var(--warn)">'+(ins.market_size||'—')+'</div><div style="font-size:.72rem;color:var(--green)">'+(ins.growth_rate||'')+'</div></div>'
+    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Avg Deal Value</div><div style="font-family:Outfit,sans-serif;font-size:1.2rem;font-weight:800;color:var(--p1)">'+(ins.avg_project_value||'—')+'</div></div>'
+    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Buying Triggers</div>'+(ins.top_buying_triggers||[]).map(t=>'<div style="font-size:.72rem;color:var(--text2);padding:2px 0">→ '+t+'</div>').join('')+'</div>'
+    +'<div style="background:var(--card2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;font-weight:700">Pain Points</div>'+(ins.common_pain_points||[]).map(p=>'<div style="font-size:.72rem;color:var(--text2);padding:2px 0">→ '+p+'</div>').join('')+'</div>'
+    +'</div>'
+    +(pos?'<div style="background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:10px;padding:14px"><div style="font-size:.6rem;color:var(--p1);text-transform:uppercase;margin-bottom:6px;font-weight:700">Your Positioning</div><div style="font-size:.8rem;color:var(--text2);line-height:1.7">'+pos+'</div></div>':'');
+}
+
+function lgOutreach(btn){
+  const email=btn.dataset.email||'';
+  const company=btn.dataset.company||'Company';
+  const contact=btn.dataset.contact||'there';
+  const role=btn.dataset.role||'Decision Maker';
+  if(!email){alert('No email found for this company!');return;}
+  const svc=document.getElementById('lg-service').value||'our services';
+  const sender=document.getElementById('lg-company').value||'Our Company';
+  const sub=encodeURIComponent('Project Opportunity — '+svc);
+  const body=encodeURIComponent('Hi '+contact+',\n\nI came across '+company+' and believe we could work together on '+svc+'.\n\nWe specialize in this space and have delivered great results for similar companies.\n\nWould you be open to a quick 15-min call this week?\n\nBest regards,\n'+sender);
+  window.open('https://mail.google.com/mail/?view=cm&to='+encodeURIComponent(email)+'&su='+sub+'&body='+body,'_blank');
+}
+
+function lgExportCSV(type){
+  let rows=[],data=[];
+  if(type==='competitors'){
+    data=lgData.competitors?.competitors||[];
+    rows=[['Company','Website','DA','Employees','Services','Pricing','Contact','Email','Opportunity']];
+    data.forEach(c=>rows.push([c.company,c.website,c.da,c.employees,(c.services||[]).join('; '),c.pricing_range,c.contact_person,c.guessed_email,c.opportunity]));
+  }else if(type==='leads'){
+    data=lgData.leads?.leads||[];
+    rows=[['Company','Industry','Contact','Email','Budget','Stage','Urgency','Channel','Pitch']];
+    data.forEach(l=>rows.push([l.company,l.industry,l.contact_name,l.email,l.budget_estimate,l.buying_stage,l.urgency,l.best_channel,l.pitch_angle]));
+  }else{
+    data=lgData.partners?.leads||[];
+    rows=[['Company','Industry','Contact','Email','Why Partner','Channel']];
+    data.forEach(l=>rows.push([l.company,l.industry,l.contact_name,l.email,l.why_they_need,l.best_channel]));
+  }
+  const csv=rows.map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='leads-'+type+'.csv';a.click();
+}
+
+
 </script>
 </body>
 </html>
